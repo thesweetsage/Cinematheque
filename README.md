@@ -16,16 +16,22 @@ Use the arrow keys, Enter and Backspace to drive it like the TV remote.
 
 ## Database (Supabase)
 
-1. In the Supabase dashboard, open **SQL Editor**, paste `supabase/migrations/20261014120000_init.sql` and run it once.
-2. Put the project URL in `NEXT_PUBLIC_SUPABASE_URL` and the secret key (`sb_secret_…`) in `SUPABASE_SECRET_KEY`.
+1. In the Supabase dashboard, open **SQL Editor** and run each file in `supabase/migrations/` once, in name order:
+   - `20261014120000_init.sql` creates the tables.
+   - `20261014130000_server_access.sql` grants the server key access to them (newer Supabase projects don't do this
+     automatically, so without it every read fails with "permission denied") and adds `titles.in_library`.
+2. Put the project URL in `NEXT_PUBLIC_SUPABASE_URL` and the secret key (`sb_secret_…`, or the legacy `service_role` key) in `SUPABASE_SECRET_KEY`.
    The secret key stays on the server; row-level security blocks the public key from every table.
 
-Until both are set the app runs on the sample catalogue, and "Add to my library" says the database isn't connected.
+Every page reads the catalogue from the database (`src/lib/catalog.ts`, cached for a minute and refreshed when a title is added).
+It falls back to the sample catalogue, with a SAMPLE DATA tag that says why, while the database isn't connected,
+refuses access, or has no titles yet.
 
 ## Status
 
-Phase 1 (the look, on sample data) is in progress: store front aisle, shelves with face-out VHS boxes,
-the title page with a box you can turn, remote navigation, TV mode, store radio.
-Phase 2 (in progress): database schema, TMDB + OMDb lookups, generated spine colours, and the Returns Slot
-search page, which previews any film or series as a VHS box and adds it to the library once the database is connected.
-The catalogue is **sample data** until the Plex sync (phase 3) replaces it with the real library.
+Phase 1 (the look) is done: store front aisle, shelves with face-out VHS boxes, the title page with a box you can turn,
+remote navigation, TV mode, store radio.
+Phase 2 (in progress): database schema, TMDB + OMDb lookups, generated spine colours, the Returns Slot search page
+(preview any film or series as a VHS box, put it on the shelf), and the Store Front, Shelves and title pages reading
+titles, ratings, recommendations, fact cards and editions from the database. Still to do in phase 2: email login.
+Phase 3 (the Plex sync) fills the shelves with the real library.

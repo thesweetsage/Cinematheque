@@ -1,5 +1,6 @@
 "use client";
 /* eslint-disable @next/next/no-img-element -- TMDB thumbnails */
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { Art, Title } from "@/lib/catalog";
 import type { SearchHit } from "@/lib/tmdb";
@@ -14,7 +15,7 @@ export function ReturnsSlot() {
   const [hits, setHits] = useState<SearchHit[]>([]);
   const [status, setStatus] = useState("");
   const [preview, setPreview] = useState<Preview | null>(null);
-  const [saved, setSaved] = useState("");
+  const [saved, setSaved] = useState<{ msg: string; slug?: string } | null>(null);
   const timer = useRef<number>(0);
   const addBtn = useRef<HTMLButtonElement>(null);
 
@@ -33,7 +34,7 @@ export function ReturnsSlot() {
   }, [q]);
 
   const open = async (hit: SearchHit) => {
-    setSaved(""); setStatus("PULLING THE TAPE…");
+    setSaved(null); setStatus("PULLING THE TAPE…");
     const res = await fetch(`/api/preview?kind=${hit.kind}&id=${hit.tmdbId}`).then((r) => r.json());
     if (res.error) { setStatus(`Couldn't load that title: ${res.error}`); return; }
     setPreview({ ...res, hit }); setStatus("");
@@ -41,7 +42,7 @@ export function ReturnsSlot() {
   const add = async () => {
     if (!preview) return;
     const res = await fetch("/api/titles", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ kind: preview.hit.kind, tmdbId: preview.hit.tmdbId }) }).then((r) => r.json());
-    setSaved(res.error ? res.error : "Added to your library.");
+    setSaved(res.error ? { msg: res.error } : { msg: "On the shelf.", slug: res.slug });
   };
 
   return (
@@ -62,7 +63,7 @@ export function ReturnsSlot() {
             <p className={s.pmeta}>{preview.title.dir}{preview.title.imdb ? ` · IMDb ${preview.title.imdb}` : ""}{preview.title.rt ? ` · RT ${preview.title.rt}%` : ""}</p>
             <p className={s.psyn}>{preview.title.syn}</p>
             <div className={s.pbtns}><button ref={addBtn} className="btn primary" onClick={add}>Add to my library</button><button className="btn" onClick={() => setPreview(null)}>Close</button></div>
-            {saved && <p className={s.saved} role="status">{saved}</p>}
+            {saved && <p className={s.saved} role="status">{saved.msg}{saved.slug && <> <Link href={`/title/${saved.slug}`}>Open the box</Link></>}</p>}
           </div>
         </section>
       )}

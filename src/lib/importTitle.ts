@@ -39,12 +39,12 @@ export async function buildTitleRow(kind: TmdbKind, tmdbId: number): Promise<Tit
   };
 }
 
-/** Saves (or refreshes) a title. Throws if the database isn't connected yet. */
+/** Saves (or refreshes) a title and puts it on the shelves. Throws if the database isn't connected yet. */
 export async function importTitle(kind: TmdbKind, tmdbId: number) {
   const client = db();
   if (!client) throw new Error("The database isn't connected yet.");
   const row = await buildTitleRow(kind, tmdbId);
-  const { data, error } = await client.from("titles").upsert(row, { onConflict: "kind,tmdb_id" }).select("id, slug").single();
+  const { data, error } = await client.from("titles").upsert({ ...row, in_library: true }, { onConflict: "kind,tmdb_id" }).select("id, slug").single();
   if (error) throw new Error(error.message);
   return data as { id: string; slug: string };
 }

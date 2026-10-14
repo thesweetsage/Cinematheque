@@ -20,3 +20,4 @@
 .psyn{margin-top:10px;max-width:62ch}
 .pbtns{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
 .saved{margin-top:10px;font-family:var(--font-vt323),monospace;font-size:20px;color:var(--yellow)}
+.saved a{color:var(--cyan);margin-left:8px}

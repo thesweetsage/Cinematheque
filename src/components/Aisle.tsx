@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { artFor, libraryTitles, type Title } from "@/lib/catalog";
+import { artOf, shelf, type Catalog, type Title } from "@/lib/catalog";
 import { VhsBox } from "./VhsBox";
 import { AisleLights } from "./AisleLights";
 import s from "./Aisle.module.css";
@@ -8,14 +8,15 @@ import s from "./Aisle.module.css";
  * The store front aisle: one CSS 3D room that never moves. Side shelves are scenery made from real poster colours;
  * the tapes you pick face out on the back wall. The lights come on once a day (AisleLights).
  */
-export function Aisle({ faceOut }: { faceOut: Title[] }) {
-  const lib = libraryTitles();
+export function Aisle({ catalog, faceOut }: { catalog: Catalog; faceOut: Title[] }) {
+  const onShelf = shelf(catalog);
+  const lib = onShelf.length ? onShelf : catalog.titles;
   const side = (offset: number) =>
     Array.from({ length: 6 }, (_, r) => (
       <div className={s.row} key={r}>
         {Array.from({ length: 24 }, (_, i) => {
           const t = lib[(i * 7 + r * 11 + offset) % lib.length];
-          const a = artFor(t.id);
+          const a = artOf(catalog, t.id);
           const h = 78 + ((i * 13 + r * 7 + offset) % 18);
           return <span key={i} className={s.sp} style={{ "--c1": a.accent, "--c2": a.bg, "--h": `${h}%` } as React.CSSProperties} />;
         })}
@@ -32,8 +33,8 @@ export function Aisle({ faceOut }: { faceOut: Title[] }) {
             {rows.map((row, r) => (
               <div className={s.foRow} key={r}>
                 {row.map((t, i) => (
-                  <Link key={t.id} href={`/title/${t.id}`} className={s.slot} data-title={`${t.t} · ${t.y}${t.lib ? " · On Plex" : ""}`} aria-label={`${t.t}, ${t.y}`} data-autofocus={r === 0 && i === 3 ? true : undefined}>
-                    <VhsBox title={t} art={artFor(t.id)} width={92} wear={i % 3 === 1 ? "loved" : "rented"} />
+                  <Link key={t.id} href={`/title/${t.id}`} className={s.slot} data-title={`${t.t} · ${t.y}${t.plex ? " · On Plex" : ""}`} aria-label={`${t.t}, ${t.y}`} data-autofocus={r === 0 && i === 3 ? true : undefined}>
+                    <VhsBox title={t} art={artOf(catalog, t.id)} width={92} wear={i % 3 === 1 ? "loved" : "rented"} />
                   </Link>
                 ))}
               </div>
