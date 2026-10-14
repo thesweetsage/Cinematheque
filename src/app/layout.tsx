@@ -1,0 +1,43 @@
+import type { Metadata, Viewport } from "next";
+import { Big_Shoulders, Bungee, VT323, IBM_Plex_Sans_Condensed, Mr_Dafoe, Permanent_Marker } from "next/font/google";
+import { OsdNav } from "@/components/OsdNav";
+import { RemoteNav } from "@/components/RemoteNav";
+import { StoreRadio } from "@/components/StoreRadio";
+import "./globals.css";
+
+const shoulders = Big_Shoulders({ subsets: ["latin"], weight: ["700", "900"], variable: "--font-shoulders" });
+const bungee = Bungee({ subsets: ["latin"], weight: "400", variable: "--font-bungee" });
+const vt323 = VT323({ subsets: ["latin"], weight: "400", variable: "--font-vt323" });
+const plex = IBM_Plex_Sans_Condensed({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-plex" });
+const script = Mr_Dafoe({ subsets: ["latin"], weight: "400", variable: "--font-script" });
+const marker = Permanent_Marker({ subsets: ["latin"], weight: "400", variable: "--font-marker" });
+
+export const metadata: Metadata = {
+  title: "The Cinematheque",
+  description: "A personal 80s video store for everything on my Plex server.",
+};
+export const viewport: Viewport = { themeColor: "#0B0920", viewportFit: "cover" };
+
+/* Settings live in localStorage; this runs before paint so TV mode and effects don't flash. */
+const prefs = `try{var d=document.documentElement,tv=localStorage.getItem("cine_tv"),fx=localStorage.getItem("cine_fx");
+if(tv==="1"||(tv===null&&matchMedia("(pointer:none)").matches))d.classList.add("tv");
+if(fx!=="0"&&!matchMedia("(prefers-reduced-motion: reduce)").matches)d.classList.add("fx")}catch(e){}`;
+
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const fonts = [shoulders, bungee, vt323, plex, script, marker].map((f) => f.variable).join(" ");
+  return (
+    <html lang="en" className={fonts} suppressHydrationWarning>
+      <head><script dangerouslySetInnerHTML={{ __html: prefs }} /></head>
+      <body>
+        <RemoteNav />
+        <OsdNav />
+        <main id="main" className="wrap" style={{ paddingBlock: "24px 40px" }}>{children}</main>
+        <footer className="wrap" style={{ borderTop: "1px solid var(--edge)", paddingBlock: "22px 110px", textAlign: "center", color: "var(--muted)", fontSize: 13 }}>
+          <span style={{ display: "block", fontFamily: "var(--font-script)", fontSize: 30, color: "#ffe0f3", textShadow: "0 0 10px var(--mag)" }}>Be kind, rewind.</span>
+          Posters, logos and metadata from TMDB. This product uses the TMDB API but is not endorsed or certified by TMDB.
+        </footer>
+        <StoreRadio />
+      </body>
+    </html>
+  );
+}

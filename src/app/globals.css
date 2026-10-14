@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+/* Store tokens (see BRIEF.md › Design). One deliberate dark look: the store at night. */
+:root{
+  --bg:#0B0920; --wall:#110D36; --panel:#151239; --panel-2:#1D1947; --edge:#3A3471;
+  --fg:#EFEBFC; --muted:#A09ACB; --lav:#B9B2FF; --lav-hi:#F3F1FF;
+  --mag:#FF4FB8; --cyan:#7EE6FF; --yellow:#FFE38A; --orange:#FF9A5C;
+  --paper:#F4EFE6; --ink:#1A1714; --print-red:#B3261E;
+  --gutter:max(16px,env(safe-area-inset-left,0px));
+  color-scheme:dark;
+}
+@theme inline{
+  --color-bg:var(--bg); --color-fg:var(--fg); --color-muted:var(--muted); --color-mag:var(--mag); --color-cyan:var(--cyan); --color-yellow:var(--yellow);
+  --font-sans:var(--font-plex); --font-mono:var(--font-vt323);
+}
+*{box-sizing:border-box}
+html,body{background:var(--bg);color:var(--fg)}
+body{margin:0;min-height:100vh;font-family:var(--font-plex),"Arial Narrow",Arial,sans-serif;font-size:16px;line-height:1.5;overflow-x:hidden;
+  background-image:radial-gradient(ellipse 70% 40% at 50% 0,rgba(185,178,255,.12),transparent 70%),linear-gradient(rgba(185,178,255,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(185,178,255,.055) 1px,transparent 1px);
+  background-size:100% 100%,44px 44px,44px 44px}
+html.fx body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:200;background:repeating-linear-gradient(to bottom,rgba(0,0,0,.12) 0 1px,transparent 1px 3px)}
+a{color:var(--cyan)}
+button{font:inherit;color:inherit;cursor:pointer}
+h1,h2,h3,p{margin:0}
+.wrap{max-width:1320px;margin:0 auto;padding-left:var(--gutter);padding-right:max(16px,env(safe-area-inset-right,0px))}
+.osd-label{font-family:var(--font-vt323),monospace;font-size:20px;letter-spacing:.06em;text-transform:uppercase;color:var(--cyan);line-height:1.1}
+.sec-title{font-family:var(--font-shoulders),sans-serif;font-weight:900;font-size:clamp(28px,3.4vw,42px);text-transform:uppercase;line-height:1}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-vt323),monospace;font-size:21px;line-height:1;text-transform:uppercase;letter-spacing:.04em;text-decoration:none;
+  background:rgba(21,18,57,.9);border:2px solid var(--edge);color:var(--fg);padding:8px 14px 7px;transition:border-color .12s ease,background-color .12s ease}
+.btn:active{transform:scale(.97)}
+.btn[aria-pressed="true"],.btn.primary{border-color:var(--mag);background:rgba(255,79,184,.16);box-shadow:0 0 14px -2px rgba(255,79,184,.7)}
+
+/* Remote focus: always obvious from across the room */
+:focus{outline:none}
+:focus-visible{outline:3px solid #fff;outline-offset:3px;box-shadow:0 0 0 6px rgba(255,79,184,.55),0 0 26px rgba(255,79,184,.55)}
+
+/* TV mode: bigger, safe margins for projector overscan, lighter effects */
+html.tv body{zoom:1.25}
+html.tv{--gutter:max(3vw,16px)}
+html.tv body::after{display:none}
+html.tv .wrap{padding-right:max(3vw,16px)}
+
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}

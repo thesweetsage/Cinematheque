@@ -1,0 +1,8 @@
+.wrap{display:grid;gap:12px}
+.stage{position:relative;height:clamp(500px,60vh,600px);perspective:1500px;perspective-origin:50% 38%;display:flex;align-items:flex-end;justify-content:center;padding-bottom:58px;overflow:hidden;
+  background:radial-gradient(ellipse 60% 50% at 50% 30%,rgba(190,180,255,.18),transparent 70%),var(--wall);border:1px solid var(--edge)}
+.stage::before{content:"";position:absolute;left:0;right:0;top:0;height:8px;background:#f4f2ff;box-shadow:0 0 30px 8px rgba(210,205,255,.55)}
+.shelf{position:absolute;left:6%;right:6%;bottom:34px;height:14px;background:linear-gradient(#fff,#d6d2ff);box-shadow:0 14px 26px -4px rgba(255,79,184,.95),0 3px 0 rgba(255,140,210,.9)}
+.shadow{position:absolute;bottom:44px;left:50%;width:360px;max-width:90%;height:26px;transform:translateX(-50%);background:radial-gradient(ellipse at center,rgba(0,0,0,.65),transparent 70%)}
+.group{display:flex;flex-wrap:wrap;gap:8px}
+@media (max-width:420px){.stage{height:460px}.stage > div:last-child{--w:240px !important}}

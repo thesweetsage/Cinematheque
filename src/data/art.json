@@ -1,0 +1,461 @@
+{
+ "halloween": {
+  "tmdbId": 948,
+  "bg": "#030101",
+  "accent": "#8b1409",
+  "logo": true,
+  "logoDark": false,
+  "logoRatio": 6.67,
+  "backdrop": true
+ },
+ "thing": {
+  "tmdbId": 1091,
+  "bg": "#042e4e",
+  "accent": "#0c71ab",
+  "logo": true,
+  "logoDark": false,
+  "logoRatio": 1.69,
+  "backdrop": true
+ },
+ "suspiria": {
+  "tmdbId": 11906,
+  "bg": "#010000",
+  "accent": "#900304",
+  "logo": true,
+  "logoDark": false,
+  "logoRatio": 2.55,
+  "backdrop": true
+ },
+ "wicker": {
+  "tmdbId": 16307,
+  "bg": "#020203",
+  "accent": "#702e2a",
+  "logo": true,
+  "logoDark": false,
+  "logoRatio": 1.46,
+  "backdrop": true
+ },
+ "fog": {
+  "tmdbId": 790,
+  "bg": "#010202",
+  "accent": "#d2310a",
+  "logo": true,
+  "logoDark": true,
+  "logoRatio": 4,
+  "backdrop": true
+ },
+ "elm": {
+  "tmdbId": 377,
+  "bg": "#0b0b08",
+  "accent": "#365068",
+  "logo": true,
+  "logoDark": true,
+  "logoRatio": 3.75,
+  "backdrop": true
+ },
+ "evildead": {
+  "tmdbId": 764,
+  "bg": "#0b090b",
+  "accent": "#084784",
+  "logo": true,
+  "logoDark": false,
+  "logoRatio": 1.22,
+  "backdrop": true
+ },
+ "whms": {
+  "tmdbId": 639,
+  "bg": "#0a0507",
+  "accent": "#70524c",
+  "logo": true,
+  "logoDark": false,
+  "logoRatio": 6.67,
+  "backdrop": true
+ },
+ "moonstruck": {
+  "tmdbId": 2039,
+  "bg": "#020203",
+  "accent": "#fbfcfb",
+  "logo": true,
+  "logoDark": false,
+  "logoRatio": 6,
+  "backdrop": true
+ },
+ "sayanything": {
+  "tmdbId": 2028,
+  "bg": "#02032f",
+  "accent": "#0d268e",
+  "logo": true,
+  "logoDark": false,
+  "logoRatio": 3.33,
+  "backdrop": true
+ },
+ "princess": {
+  "tmdbId": 2493,
+  "bg": "#030303",
+  "accent": "#b09050",
+  "logo": true,
+  "logoDark": false,
+  "logoRatio": 2.61,
+  "backdrop": true
+ },
+ "labyrinth": {
+  "tmdbId": 13597,
+  "bg": "#4f302b",
+  "accent": "#e58a33",
+  "logo": true,
+  "logoDark": false,
+  "logoRatio": 5,
+  "backdrop": true
+ },
+ "legend": {
+  "tmdbId": 11976,
+  "bg": "#070704",
+  "accent": "#b01926",
+  "logo": true,
+  "logoDark": false,
+  "logoRatio": 6,
+  "backdrop": true
+ },
+ "excalibur": {
+  "tmdbId": 11527,
+  "bg": "#020202",
+  "accent": "#8e322d",
+  "logo": true,
+  "logoDark": false,
+  "logoRatio": 5.45,
+  "backdrop": true
+ },
+ "akira": {
+  "tmdbId": 149,
+  "bg": "#190605",
+  "accent": "#b0d6eb",
+  "logo": true,
+  "logoDark": false,
+  "logoRatio": 1.71,
+  "backdrop": true
+ },
+ "totoro": {
+  "tmdbId": 8392,
+  "bg": "#060b0d",
+  "accent": "#738f8a",
+  "logo": true,
+  "logoDark": false,
+  "logoRatio": 2.4,
+  "backdrop": true
+ },
+ "angelsegg": {
+  "tmdbId": 15916,
+  "bg": "#060505",
+  "accent": "#cfb7ac",
+  "logo": true,
+  "logoDark": false,
+  "logoRatio": 4.14,
+  "backdrop": true
+ },
+ "twinpeaks": {
+  "tmdbId": 1920,
+  "bg": "#0a0c08",
+  "accent": "#ccb48c",
+  "logo": true,
+  "logoDark": true,
+  "logoRatio": 7.06,
+  "backdrop": true
+ },
+ "crypt": {
+  "tmdbId": 2391,
+  "bg": "#070707",
+  "accent": "#4c5211",
+  "logo": true,
+  "logoDark": false,
+  "logoRatio": 1.85,
+  "backdrop": true
+ },
+ "xfiles": {
+  "tmdbId": 4087,
+  "bg": "#020405",
+  "accent": "#92ad89",
+  "logo": true,
+  "logoDark": false,
+  "logoRatio": 4,
+  "backdrop": true
+ },
+ "bebop": {
+  "tmdbId": 30991,
+  "bg": "#040303",
+  "accent": "#f3ac04",
+  "logo": true,
+  "logoDark": false,
+  "logoRatio": 7.06,
+  "backdrop": true
+ },
+ "aliens": {
+  "tmdbId": 679,
+  "bg": "#030303",
+  "accent": "#326a8f",
+  "logo": true,
+  "logoDark": false,
+  "logoRatio": 3.75,
+  "backdrop": true
+ },
+ "ghostbusters": {
+  "tmdbId": 620,
+  "bg": "#040603",
+  "accent": "#f80505",
+  "logo": true,
+  "logoDark": false,
+  "logoRatio": 8.57,
+  "backdrop": true
+ },
+ "hausu": {
+  "tmdbId": 25623,
+  "bg": "#070906",
+  "accent": "#f14d06",
+  "logo": true,
+  "logoDark": false,
+  "logoRatio": 1.79,
+  "backdrop": true
+ },
+ "changeling": {
+  "tmdbId": 13550,
+  "bg": "#010000",
+  "accent": "#8c4f2a",
+  "logo": true,
+  "logoDark": false,
+  "logoRatio": 4.62,
+  "backdrop": true
+ },
+ "possession": {
+  "tmdbId": 21484,
+  "bg": "#010100",
+  "accent": "#910a0b",
+  "logo": true,
+  "logoDark": false,
+  "logoRatio": 2.26,
+  "backdrop": true
+ },
+ "messiah": {
+  "tmdbId": 24923,
+  "bg": "#040508",
+  "accent": "#e8d9d8",
+  "logo": true,
+  "logoDark": false,
+  "logoRatio": 2.45,
+  "backdrop": true
+ },
+ "beyond": {
+  "tmdbId": 19204,
+  "bg": "#050303",
+  "accent": "#cccbcd",
+  "logo": true,
+  "logoDark": true,
+  "logoRatio": 6.67,
+  "backdrop": true
+ },
+ "phantasm": {
+  "tmdbId": 9638,
+  "bg": "#0c0503",
+  "accent": "#912d2e",
+  "logo": true,
+  "logoDark": true,
+  "logoRatio": 3,
+  "backdrop": true
+ },
+ "comet": {
+  "tmdbId": 18462,
+  "bg": "#080e14",
+  "accent": "#ef1c26",
+  "logo": true,
+  "logoDark": false,
+  "logoRatio": 2.86,
+  "backdrop": true
+ },
+ "lifeforce": {
+  "tmdbId": 11954,
+  "bg": "#020204",
+  "accent": "#106faa",
+  "logo": true,
+  "logoDark": false,
+  "logoRatio": 8,
+  "backdrop": true
+ },
+ "poltergeist": {
+  "tmdbId": 609,
+  "bg": "#020208",
+  "accent": "#2c74b2",
+  "logo": true,
+  "logoDark": false,
+  "logoRatio": 8,
+  "backdrop": true
+ },
+ "shining": {
+  "tmdbId": 694,
+  "bg": "#060602",
+  "accent": "#ffe600",
+  "logo": true,
+  "logoDark": false,
+  "logoRatio": 6.32,
+  "backdrop": true
+ },
+ "hellraiser": {
+  "tmdbId": 9003,
+  "bg": "#020203",
+  "accent": "#0b6faf",
+  "logo": true,
+  "logoDark": false,
+  "logoRatio": 5.45,
+  "backdrop": true
+ },
+ "fly": {
+  "tmdbId": 9426,
+  "bg": "#010202",
+  "accent": "#b4f0c8",
+  "logo": true,
+  "logoDark": true,
+  "logoRatio": 2.67,
+  "backdrop": true
+ },
+ "videodrome": {
+  "tmdbId": 837,
+  "bg": "#020202",
+  "accent": "#2f8cd2",
+  "logo": true,
+  "logoDark": false,
+  "logoRatio": 3.87,
+  "backdrop": true
+ },
+ "splash": {
+  "tmdbId": 2619,
+  "bg": "#713f2e",
+  "accent": "#cd7354",
+  "logo": true,
+  "logoDark": false,
+  "logoRatio": 1.85,
+  "backdrop": true
+ },
+ "roxanne": {
+  "tmdbId": 11584,
+  "bg": "#070607",
+  "accent": "#b18b8d",
+  "logo": true,
+  "logoDark": true,
+  "logoRatio": 3.08,
+  "backdrop": true
+ },
+ "workinggirl": {
+  "tmdbId": 3525,
+  "bg": "#030303",
+  "accent": "#951814",
+  "logo": true,
+  "logoDark": true,
+  "logoRatio": 3.24,
+  "backdrop": true
+ },
+ "big": {
+  "tmdbId": 2280,
+  "bg": "#040205",
+  "accent": "#ea7556",
+  "logo": true,
+  "logoDark": true,
+  "logoRatio": 1.52,
+  "backdrop": true
+ },
+ "prettyinpink": {
+  "tmdbId": 11522,
+  "bg": "#080607",
+  "accent": "#b5176c",
+  "logo": true,
+  "logoDark": false,
+  "logoRatio": 3.75,
+  "backdrop": true
+ },
+ "neverending": {
+  "tmdbId": 34584,
+  "bg": "#020d1d",
+  "accent": "#0f548a",
+  "logo": true,
+  "logoDark": false,
+  "logoRatio": 2.86,
+  "backdrop": true
+ },
+ "willow": {
+  "tmdbId": 847,
+  "bg": "#070509",
+  "accent": "#cf2c13",
+  "logo": true,
+  "logoDark": true,
+  "logoRatio": 4.14,
+  "backdrop": true
+ },
+ "timebandits": {
+  "tmdbId": 36819,
+  "bg": "#040609",
+  "accent": "#08aaf2",
+  "logo": true,
+  "logoDark": false,
+  "logoRatio": 3.43,
+  "backdrop": true
+ },
+ "ladyhawke": {
+  "tmdbId": 526,
+  "bg": "#020504",
+  "accent": "#b0b493",
+  "logo": true,
+  "logoDark": false,
+  "logoRatio": 5,
+  "backdrop": true
+ },
+ "nausicaa": {
+  "tmdbId": 81,
+  "bg": "#023f66",
+  "accent": "#058ecd",
+  "logo": true,
+  "logoDark": false,
+  "logoRatio": 3.43,
+  "backdrop": true
+ },
+ "fireflies": {
+  "tmdbId": 12477,
+  "bg": "#030202",
+  "accent": "#491a0f",
+  "logo": true,
+  "logoDark": false,
+  "logoRatio": 2.5,
+  "backdrop": true
+ },
+ "laputa": {
+  "tmdbId": 10515,
+  "bg": "#1b213a",
+  "accent": "#4c568a",
+  "logo": true,
+  "logoDark": false,
+  "logoRatio": 4.29,
+  "backdrop": true
+ },
+ "vhd": {
+  "tmdbId": 9463,
+  "bg": "#090a06",
+  "accent": "#d3cbb4",
+  "logo": true,
+  "logoDark": true,
+  "logoRatio": 1.38,
+  "backdrop": true
+ },
+ "moonlighting": {
+  "tmdbId": 1998,
+  "bg": "#060505",
+  "accent": "#d7ab91",
+  "logo": true,
+  "logoDark": false,
+  "logoRatio": 8.57,
+  "backdrop": true
+ },
+ "miamivice": {
+  "tmdbId": 1908,
+  "bg": "#050608",
+  "accent": "#0e4a91",
+  "logo": true,
+  "logoDark": false,
+  "logoRatio": 2.4,
+  "backdrop": true
+ }
+}

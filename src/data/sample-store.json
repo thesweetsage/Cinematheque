@@ -1,0 +1,169 @@
+{
+ "picks": [
+  {
+   "id": "angelsegg",
+   "why": "Deep cut from your shelf. You loved Akira; this is the quiet opposite."
+  },
+  {
+   "id": "thing",
+   "why": "Day 3 of the festival was a week ago. Rewatch the blood test scene."
+  },
+  {
+   "id": "moonstruck",
+   "why": "On your Plex since March, still unwatched."
+  },
+  {
+   "id": "twinpeaks",
+   "why": "Marathon night: S2E9 and S2E10 are due."
+  }
+ ],
+ "recs": {
+  "pop": [
+   {
+    "id": "aliens",
+    "why": "You gave The Thing five stars. Same siege, more marines.",
+    "who": "Staff pick, Mara"
+   },
+   {
+    "id": "ghostbusters",
+    "why": "Your 80s comedies are thin on the shelf. Start here.",
+    "who": "Staff pick, Duc"
+   },
+   {
+    "id": "moonstruck",
+    "why": "Already on your shelf, never played. Cher wins the Oscar.",
+    "who": "On your shelf"
+   },
+   {
+    "id": "evildead",
+    "why": "Because you watched Halloween three Octobers running.",
+    "who": "Staff pick, Mara"
+   }
+  ],
+  "deep": [
+   {
+    "id": "hausu",
+    "why": "You rated Suspiria and Labyrinth highly. This is both at once.",
+    "who": "Deep cut, Duc"
+   },
+   {
+    "id": "changeling",
+    "why": "Slow, adult ghost story. Your Wicker Man rating says yes.",
+    "who": "Deep cut, Mara"
+   },
+   {
+    "id": "messiah",
+    "why": "Coastal-town horror from 1973. You liked The Fog.",
+    "who": "Deep cut, Duc"
+   },
+   {
+    "id": "possession",
+    "why": "Non-English, 1981, divisive. You asked for stranger.",
+    "who": "Deep cut, Mara"
+   }
+  ]
+ },
+ "facts": {
+  "thing": [
+   {
+    "k": "Release",
+    "x": "Opened in US cinemas on 25 June 1982, two weeks after E.T. the Extra-Terrestrial, and was a box-office disappointment."
+   },
+   {
+    "k": "Source",
+    "x": "Adapted from John W. Campbell Jr.'s 1938 novella Who Goes There?, which had already inspired the 1951 film The Thing from Another World."
+   },
+   {
+    "k": "Effects",
+    "x": "Rob Bottin, then in his early twenties, designed most of the creature effects. Stan Winston's team built the dog creature."
+   },
+   {
+    "k": "Music",
+    "x": "Ennio Morricone composed the score, a rare case of Carpenter handing a film's music to another composer."
+   },
+   {
+    "k": "Legacy",
+    "x": "Critics were cold in 1982. Its reputation grew on home video and cable, and it is now ranked among the best horror films of the decade."
+   }
+  ]
+ },
+ "festival": {
+  "name": "Isolation",
+  "month": "October 2026",
+  "theme": "Horror at the edge of the map: research stations, islands, snowbound towns, places where nobody is coming to help.",
+  "items": [
+   {
+    "id": "thing",
+    "d": "Oct 03",
+    "done": 1,
+    "by": "PLEX · 22:41",
+    "note": "Twelve men, one station, no radio."
+   },
+   {
+    "id": "wicker",
+    "d": "Oct 07",
+    "done": 1,
+    "note": "An island that has made up its mind."
+   },
+   {
+    "id": "fog",
+    "d": "Oct 10",
+    "done": 1,
+    "by": "PLEX · 23:05",
+    "note": "A town cut off by weather and history."
+   },
+   {
+    "id": "evildead",
+    "d": "Oct 14",
+    "done": 0,
+    "note": "One road in, one bridge out."
+   },
+   {
+    "id": "angelsegg",
+    "d": "Oct 17",
+    "done": 0,
+    "note": "Isolation as a dream state."
+   },
+   {
+    "id": "suspiria",
+    "d": "Oct 21",
+    "done": 0,
+    "note": "An academy you cannot leave at night."
+   },
+   {
+    "id": "phantasm",
+    "d": "Oct 26",
+    "done": 0,
+    "note": "A small town with one undertaker."
+   },
+   {
+    "id": "halloween",
+    "d": "Oct 31",
+    "done": 0,
+    "note": "Closing night. Haddonfield is its own island."
+   }
+  ],
+  "awards": [
+   [
+    "Best Monster",
+    "The Thing"
+   ],
+   [
+    "Best Score",
+    "The Fog"
+   ],
+   [
+    "Best Final Act",
+    "The Wicker Man"
+   ],
+   [
+    "Audience Award",
+    "Voting opens Nov 1"
+   ]
+  ]
+ },
+ "editions": {
+  "halloween": "001",
+  "thing": "002"
+ }
+}

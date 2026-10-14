@@ -1,0 +1,27 @@
+.tagRow{display:flex;justify-content:flex-end;margin-bottom:6px}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:40px;align-items:start}
+@media (max-width:900px){.layout{grid-template-columns:1fr}}
+.info{min-width:0}
+.h1{font-family:var(--font-bungee),Impact,sans-serif;font-weight:400;font-size:clamp(38px,5.6vw,72px);line-height:.92;margin-top:6px;text-shadow:0 0 30px var(--accent)}
+.credits{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px 22px;margin:20px 0 0}
+.credits dt{font-family:var(--font-vt323),monospace;font-size:17px;color:var(--muted);line-height:1}
+.credits dd{margin:2px 0 0;font-weight:500}
+.ratings{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}
+.ratings div{border:1px solid var(--edge);background:var(--panel);padding:8px 14px;min-width:96px}
+.ratings span{display:block;font-family:var(--font-vt323),monospace;font-size:17px;color:var(--muted);line-height:1}
+.ratings b{font-family:var(--font-shoulders),sans-serif;font-weight:900;font-size:32px;line-height:1.1;font-variant-numeric:tabular-nums}
+.you{border-color:var(--yellow)!important}
+.you b{font-size:24px;color:var(--yellow)}
+.syn{font-size:18px;max-width:62ch;margin-top:20px}
+.play{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+.facts{margin-top:36px}
+.factGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;margin-top:14px}
+.fact{background:linear-gradient(160deg,var(--panel-2),var(--panel));border:1px solid var(--edge);border-top:4px solid var(--accent);padding:12px 14px}
+.fact span{font-family:var(--font-vt323),monospace;font-size:18px;color:var(--accent);text-transform:uppercase}
+.fact p{font-size:15px;margin-top:4px}
+.more{margin-top:50px}
+.moreRow{display:flex;gap:26px;overflow-x:auto;padding:24px 8px 16px;perspective:1200px}
+.moreItem{display:block;flex:none;padding:6px}
+.moreBox{display:block;transition:transform .15s ease-out}
+.moreBox > div{--ry:12deg !important;--rx:2deg !important}
+.moreItem:hover .moreBox,.moreItem:focus-visible .moreBox{transform:translateY(-8px)}
