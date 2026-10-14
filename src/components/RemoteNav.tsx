@@ -48,7 +48,10 @@ function move(dir: Dir) {
     const ahead = dir === "right" ? dx > 4 && r.left > a.left : dir === "left" ? dx < -4 && r.right < a.right : dir === "down" ? dy > 4 && r.top > a.top : dy < -4 && r.bottom < a.bottom;
     if (!ahead) continue;
     const horizontal = dir === "left" || dir === "right";
-    const score = (horizontal ? Math.abs(dx) : Math.abs(dy)) + (horizontal ? Math.abs(dy) : Math.abs(dx)) * 2.2;
+    // Targets that line up with the current item (same row or column, e.g. a wide field straight above) count as
+    // no sideways offset; anything else pays its centre offset plus a little for leaving the row.
+    const lined = horizontal ? r.top < a.bottom && r.bottom > a.top : r.left < a.right && r.right > a.left;
+    const score = (horizontal ? Math.abs(dx) : Math.abs(dy)) + (lined ? 0 : (horizontal ? Math.abs(dy) : Math.abs(dx)) * 2.2 + 40);
     if (score < bestScore) { bestScore = score; best = el; }
   }
   if (best) { best.focus({ preventScroll: true }); reveal(best); }
