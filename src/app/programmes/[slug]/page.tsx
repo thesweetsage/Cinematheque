@@ -31,7 +31,7 @@ export default async function ProgrammePage({ params }: { params: Promise<{ slug
   const editable = live && p.type !== "edition" ? (
     <Editor
       p={{ slug: p.slug, type: p.type, title: p.title, theme: p.theme, essay: p.essay, start: p.start, end: p.end, accent: p.accent, status: p.status, items: p.items.map(({ position, id, date, note }) => ({ position, id, date, note })) }}
-      titles={cat.titles.map((t) => ({ id: t.id, t: t.t, y: t.y, lib: t.lib }))}
+      titles={cat.titles.filter((t) => t.kind === "movie").map((t) => ({ id: t.id, t: t.t, y: t.y, lib: t.lib }))}
     />
   ) : null;
   return (

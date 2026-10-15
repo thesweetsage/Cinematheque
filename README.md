@@ -75,7 +75,7 @@ Also new: "Because you watched…" and "On your shelf, unwatched" rows, TMDB's *
 
 The **Festival wall** holds the programmes:
 
-- **Start a programme** builds one for you: choose Festival or 31 Days, then press a genre, a decade or *Surprise me* (or type any theme).
+- **Start a programme** builds one for you (films only; series get marathons later): choose Festival or 31 Days, then press a genre, a decade or *Surprise me* (or type any theme).
   It picks from your shelves, unwatched first; with a Claude key, Claude curates it, names it and writes the booklet and notes
   (only from what's on your shelves; `CURATOR_MODEL` in `src/lib/autoProgramme.ts`). Everything can be edited afterwards.
 - **Festivals:** any theme and dates. A poster, a booklet, a schedule with tick boxes, and jury awards once closing night has passed.

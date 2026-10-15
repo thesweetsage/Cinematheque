@@ -81,7 +81,7 @@ export function AutoProgrammeForm({ genres, decades, curator }: { genres: { g: s
         {(["festival", "days31"] as const).map((k) => (
           <button key={k} type="button" role="radio" aria-checked={kind === k} className={s.option} data-on={kind === k} onClick={() => setKind(k)} disabled={!!busy}>
             <b>{k === "festival" ? "Festival" : "31 Days of ___"}</b>
-            <span>{k === "festival" ? "About 8 titles over four weeks, with a booklet, a schedule and jury awards at the end." : "One title a night for 31 nights, on a rental card with a stamp for every day and a streak."}</span>
+            <span>{k === "festival" ? "About 8 films over four weeks, with a booklet, a schedule and jury awards at the end." : "One film a night for 31 nights, on a rental card with a stamp for every day and a streak."}</span>
           </button>
         ))}
       </div>
@@ -219,7 +219,7 @@ function Picker({ titles, taken, onAdd, pending }: { titles: PickTitle[]; taken:
   }, [q, titles, taken]);
   return (
     <div className={s.picker}>
-      <label className={s.field}><span>Add a title from the store</span><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Type part of a title or a year" autoComplete="off" /></label>
+      <label className={s.field}><span>Add a film from the store</span><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Type part of a title or a year" autoComplete="off" /></label>
       {q.trim() && !hits.length && <p className={s.muted}>Nothing in the store matches. Find it in the Returns Slot first.</p>}
       <div className={s.hits}>
         {hits.map((t) => <button key={t.id} className={s.hit} disabled={pending} onClick={() => onAdd(t.id)}>+ {t.t} <small>{t.y || ""}{t.lib ? "" : " · not on the shelves"}</small></button>)}

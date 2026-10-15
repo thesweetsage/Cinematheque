@@ -5,7 +5,7 @@ import { db, selectAll } from "./supabase";
 
 /*
  * Programmes that build themselves. Pick a festival or a 31 Days and a genre (or type any theme, or "Surprise me"):
- * the titles come from your own shelves (on Plex or in the library), unwatched ones first.
+ * the films come from your own shelves (series are for marathons) (on Plex or in the library), unwatched ones first.
  * With a Claude key, Claude curates: it picks from the shelf list it's given (and only from it), puts them in an order,
  * names the programme and writes the booklet and a one-line note per title. Without one, the genre's best-rated
  * unwatched titles are spread across the dates. Either way it can be edited afterwards.
@@ -23,14 +23,14 @@ type Row = {
 
 const WANT: Record<AutoKind, number> = { festival: 8, days31: 31 };
 
-/** The shelves: everything on Plex or put on the shelves, with whether it's been watched. */
+/** The films on the shelves (on Plex or put there), with whether they've been watched. Series are for marathons, not festivals. */
 async function shelf() {
   const client = db();
   if (!client) throw new Error("The database isn't connected yet.");
   const [rows, watches] = await Promise.all([
     selectAll<Row>((a, b) => client.from("titles")
       .select("id, title, year, kind, genres, keywords, language, country, director_or_creator, overview, rating_imdb")
-      .or("on_plex.eq.true,in_library.eq.true").range(a, b)),
+      .eq("kind", "movie").or("on_plex.eq.true,in_library.eq.true").range(a, b)),
     selectAll<{ title_id: string }>((a, b) => client.from("watches").select("title_id").range(a, b)),
   ]);
   return { rows, watched: new Set(watches.map((w) => w.title_id)) };
@@ -108,7 +108,7 @@ const SCHEMA = {
   },
 };
 
-const SYSTEM = `You programme a small personal video store: themed festivals and 31-day challenges, built only from the titles on the member's own shelves.
+const SYSTEM = `You programme a small personal video store: themed film festivals and 31-day film challenges, built only from the films on the member's own shelves.
 
 Pick only from the shelf list you're given, by copying each title's id exactly. Never suggest anything that isn't on the list. Prefer titles marked unwatched, but a well-loved rewatch can open or close a programme. Put them in a viewing order that builds (an opener, a varied middle, a strong closing night).
 
@@ -121,8 +121,8 @@ async function claudeCurate(kind: AutoKind, genre: string | null, theme: string 
     watched.has(r.id) ? "watched" : "unwatched", (r.overview ?? "").slice(0, 160),
   ].join(" | ")).join("\n");
   const ask = kind === "festival"
-    ? `A festival of ${want} titles (6 to 12 is fine if the shelves are thin)`
-    : `A 31 Days challenge: ${want} titles, one a night (fewer if the shelves don't have enough that fit)`;
+    ? `A film festival of ${want} films (6 to 12 is fine if the shelves are thin)`
+    : `A 31 Days challenge: ${want} films, one a night (fewer if the shelves don't have enough that fit)`;
   const about = theme ? `on this theme: "${theme}"` : genre ? `in the ${genre} aisle` : "on a theme you choose from what's on the shelves (surprise the member)";
 
   const response = await new Anthropic().beta.messages.create({
