@@ -33,7 +33,7 @@ const shot = async (t, file) => {
 if (mode === 'stills') {
   for (const t of arg.split(',').map(Number)) console.log(t, await shot(t, path.join(root, `out/still_${t}.png`)), 'ms');
 } else {
-  const fps = +arg, total = 12 * fps;
+  const fps = +arg, total = Math.round(await page.evaluate(() => window.DURATION) * fps);
   const a = from ? +from : 0, b = to ? +to : total;
   await page.evaluate(() => window.renderAt(0)); // warm up shaders
   for (let i = a; i < b; i++) {

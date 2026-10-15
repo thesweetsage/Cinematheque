@@ -14,7 +14,7 @@ const { rr, rand, pick } = T;
 
 const P = new URLSearchParams(location.search);
 const W = +P.get('w') || 1920, H = +P.get('h') || 1080;
-export const DURATION = 12, MOVE = 10;
+export const DURATION = 6, MOVE = 5;
 
 await T.loadFonts();
 RectAreaLightUniformsLib.init();
@@ -373,4 +373,5 @@ window.renderAt = (t) => {
   grade.uniforms.seed.value = (t * 37.13) % 100;
   composer.render();
 };
+window.DURATION = DURATION;
 window.ready = true;

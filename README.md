@@ -54,7 +54,7 @@ or the Plex app on Android (its `plex://` link isn't documented by Plex, so chec
 
 ### The walk-in
 
-The Store Front opens with a 12-second walk into the store, once a day (`public/store/walk-in.mp4`, ending on
+The Store Front opens with a 6-second walk into the store, once a day (`public/store/walk-in.mp4`, ending on
 `public/store/shelf.jpg`). It's a 3D store rendered in code with real TMDB covers on the tapes. Because it shows TMDB
 artwork it isn't in git: copy the two files into `public/store/` on the NAS before building, or render them with
 `scripts/walkin/` (steps in `docs/WALK_IN.md`). Without them the Store Front shows a still from Tonight's pick instead.
