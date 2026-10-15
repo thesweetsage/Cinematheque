@@ -31,7 +31,7 @@ export default async function Shelves() {
             <div className={s.row}>
               {titles.map((t, i) => (
                 <Link key={t.id} href={`/title/${t.id}`} className={s.slot} aria-label={`${t.t}, ${t.y}`} data-autofocus={gi === 0 && i === 0 ? true : undefined}>
-                  <span className={s.boxWrap}><VhsBox title={t} art={artOf(cat, t.id)} width={150} wear={(["rented", "loved", "mint", "rented"] as const)[i % 4]} edition={cat.editions[t.id]} /></span>
+                  <span className={s.boxWrap}><VhsBox title={t} art={artOf(cat, t.id)} width={190} wear={(["rented", "loved", "mint", "rented"] as const)[i % 4]} edition={cat.editions[t.id]} /></span>
                   <span className={s.cap}>{t.t}<small>{t.y || ""}</small></span>
                 </Link>
               ))}

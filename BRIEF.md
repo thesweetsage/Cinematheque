@@ -56,7 +56,8 @@ Watched is computed from watches. A series is finished when every episode has a 
 Tokens: bg #0B0920, wall #110D36, panel #151239, edge #3A3471, text #EFEBFC, muted #A09ACB, lavender #B9B2FF, magenta #FF4FB8, cyan #7EE6FF, yellow #FFE38A, orange #FF9A5C.
 Reading skin (liner notes, booklets): cream #F4EFE6, ink #1A1714, printed red #B3261E, Fraunces + Newsreader.
 Fonts: Big Shoulders Display (sign, headings), Mr Dafoe (neon script), Bungee (box titles, stickers), VT323 (on-screen labels, buttons), IBM Plex Sans Condensed (body), Permanent Marker (staff cards).
-Effects: light scanlines, neon flicker on the sign, lights-on sequence once a day. All off under prefers-reduced-motion and the Settings switch. Never on body text. Nothing drifts or follows the pointer.
+Effects: the walk-in once a day (see Store front), neon glow on signs. No scanlines or TV-line filters anywhere: they hide the covers. All motion off under prefers-reduced-motion and the Settings switch. Nothing drifts or follows the pointer.
+Store front: photographic, not illustrated. Walk-in footage (`public/store/walk-in.mp4`, see `docs/WALK_IN.md`) ends facing the new releases wall, then the live shelf of big face-out tapes sits in front of that end frame (`public/store/shelf.jpg`). Tapes are big: about a sixth of the screen width each.
 Store radio: original synthwave generated live with Web Audio; never autoplays.
 Pages: Store Front, Shelves, The Box (title), Festival Wall + Programme, Back Wall, Rental Card, Marathon card, Course Shelf, Director's Shelf, Family tree, Wishlist, Returns Slot (search), Membership Card (settings).
 Banned: purple-blue gradients, soft rounded cards with shadows, Inter/system fonts, emoji icons, centred hero + three feature cards, anything that moves without being asked.

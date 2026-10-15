@@ -30,7 +30,7 @@ export default function Settings() {
       <div className="osd-label">Settings</div>
       <h1 style={{ fontFamily: "var(--font-bungee)", fontWeight: 400, fontSize: "clamp(34px,5vw,56px)", lineHeight: 1, margin: "6px 0 20px" }}>Membership card</h1>
       {row("TV mode", "Bigger text and safe margins for the projector, lighter effects. On automatically on the TV box.", tv, () => flip("tv", "cine_tv", !tv), true)}
-      {row("Effects", "Scanlines and the lights-on sequence. Always off when your device asks for reduced motion.", fx, () => flip("fx", "cine_fx", !fx))}
+      {row("Effects", "The walk into the store (once a day). Always off when your device asks for reduced motion.", fx, () => flip("fx", "cine_fx", !fx))}
       {row("Membership", "Signed in on this device for a year at a time. Signing out means asking for a new code.", true, () => signOut())}
       <PlexPanel />
       <p style={{ color: "var(--muted)", fontSize: 14, marginTop: 18 }}>The Stremio add-on link arrives in a later phase.</p>

@@ -1,0 +1,26 @@
+/* The new releases wall. Sizes come from the shelf's own width, so the tapes are as big as the screen allows. */
+.scene{position:relative;container-type:inline-size;padding:clamp(18px,3cqw,40px) 0 clamp(16px,2.4cqw,30px)}
+/* The store behind, full width of the screen. */
+.room{--full:100vw;position:absolute;inset:0 calc(50% - var(--full) / 2);overflow:hidden;background:#06051a;z-index:0}
+:global(html.tv) .room{--full:80vw} /* TV mode zooms the page 1.25x, vw included */
+.photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.42) saturate(.85)}
+.room::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 80% 70% at 50% 45%,transparent 30%,rgba(6,5,26,.85) 100%),linear-gradient(transparent 70%,var(--bg))}
+.unit{position:relative;z-index:1;margin:0 auto;max-width:1500px;--gap:clamp(14px,2.2cqw,34px);
+  --tape:clamp(96px,calc((100cqw - 5 * var(--gap) - 120px) / 6.2),220px)}
+.signRow{display:flex;justify-content:center;margin-bottom:clamp(10px,1.6cqw,20px)}
+/* A real neon tube: pale core, coloured glow, no animation. */
+.sign{font-family:var(--font-shoulders),sans-serif;font-weight:900;text-transform:uppercase;letter-spacing:.06em;font-size:clamp(22px,3.2cqw,46px);line-height:1;
+  color:#f2fdff;text-shadow:0 0 4px #bff4ff,0 0 12px var(--cyan),0 0 28px rgba(126,230,255,.7),0 0 60px rgba(126,230,255,.35)}
+.tier{position:relative}
+.row{display:flex;justify-content:center;align-items:flex-end;gap:var(--gap);padding:20px 2cqw 0;perspective:1400px}
+.row::-webkit-scrollbar{display:none}
+.slot{display:block;flex:none;padding:10px 6px 0;outline:none;transition:transform .15s ease-out}
+.slot > div{--w:var(--tape) !important;--ry:18deg !important;--rx:2deg !important}
+.slot:hover,.slot:focus-visible{transform:translateY(-12px)}
+.slot:focus-visible{box-shadow:none;filter:drop-shadow(0 0 2px #fff) drop-shadow(0 0 14px rgba(255,79,184,.95))}
+/* White shelf board with the pink neon strip underneath. */
+.board{height:clamp(12px,1.3cqw,18px);margin:0 -1cqw;background:linear-gradient(#ffffff,#d9d5f5 70%,#a9a3d8);
+  box-shadow:0 2px 0 #fff inset,0 10px 22px -4px rgba(255,79,184,.9),0 22px 46px -10px rgba(255,79,184,.55)}
+.tier + .tier{margin-top:clamp(18px,2.4cqw,34px)}
+.label{margin-top:clamp(14px,2cqw,24px);text-align:center;font-family:var(--font-vt323),monospace;font-size:clamp(20px,2.2cqw,30px);color:#fff;text-shadow:0 0 8px rgba(255,79,184,.9),1px 1px 0 #000;min-height:1.2em}
+@container (max-width:640px){.row{justify-content:flex-start;overflow-x:auto;scrollbar-width:none;scroll-snap-type:x mandatory}.slot{scroll-snap-align:center}.unit{--tape:118px}}

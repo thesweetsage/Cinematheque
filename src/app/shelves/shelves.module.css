@@ -12,6 +12,6 @@
 .boxWrap > div{--ry:12deg !important;--rx:2deg !important}
 .slot:hover .boxWrap,.slot:focus-visible .boxWrap{transform:translateY(-10px)}
 .slot:focus-visible{outline:3px solid #fff;outline-offset:2px}
-.cap{font-family:var(--font-vt323),monospace;font-size:18px;line-height:1.05;text-align:center;max-width:160px;color:var(--muted)}
+.cap{font-family:var(--font-vt323),monospace;font-size:18px;line-height:1.05;text-align:center;max-width:200px;color:var(--muted)}
 .cap small{display:block;font-size:16px}
 .slot:focus-visible .cap,.slot:hover .cap{color:#fff}

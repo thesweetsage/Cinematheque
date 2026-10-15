@@ -52,6 +52,11 @@ in Supabase if that gets in the way.
 The app has to reach the Plex server: run it on the same computer or network. **Play on Plex** opens Plex Web,
 or the Plex app on Android (its `plex://` link isn't documented by Plex, so check it on the TV box).
 
+### The walk-in
+
+The Store Front opens with footage of walking into the store, once a day. Make it with an AI video tool and drop
+`walk-in.mp4` and `shelf.jpg` into `public/store/`: prompts and the ffmpeg commands are in `docs/WALK_IN.md`.
+
 ### Liner notes (Claude)
 
 Put your Claude API key in `ANTHROPIC_API_KEY` in `.env.local`. The first time you open a title, the app finds its English
