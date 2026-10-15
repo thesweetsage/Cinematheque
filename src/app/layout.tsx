@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Suspense } from "react";
 import { Big_Shoulders, Bungee, VT323, IBM_Plex_Sans_Condensed, Mr_Dafoe, Permanent_Marker, Fraunces, Newsreader } from "next/font/google";
 import { OsdNav } from "@/components/OsdNav";
 import { RemoteNav } from "@/components/RemoteNav";
@@ -32,7 +33,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="en" className={fonts} suppressHydrationWarning>
       <head><script dangerouslySetInnerHTML={{ __html: prefs }} /></head>
       <body>
-        <RemoteNav />
+        <Suspense fallback={null}><RemoteNav /></Suspense>
         <OsdNav />
         <main id="main" className="wrap" style={{ paddingBlock: "24px 40px" }}>{children}</main>
         <footer className="wrap" style={{ borderTop: "1px solid var(--edge)", paddingBlock: "22px 110px", textAlign: "center", color: "var(--muted)", fontSize: 13 }}>
