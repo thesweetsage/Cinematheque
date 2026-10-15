@@ -34,7 +34,11 @@ export type Art = {
   poster: string | null; logo: string | null; backdrop: string | null;
   bg: string; accent: string; logoDark: boolean; logoRatio: number;
 };
-export type Rec = { id: string; why: string; who: string };
+export type Rec = {
+  id: string; why: string; who: string;
+  /** The recommendations row, for thumbs up/down (database only). */
+  recId?: string;
+};
 export type Fact = { k: string; x: string };
 export type Catalog = {
   source: "db" | "sample";
@@ -43,7 +47,15 @@ export type Catalog = {
   titles: Title[];
   art: Record<string, Art>;
   picks: { id: string; why: string }[];
-  recs: { pop: Rec[]; deep: Rec[] };
+  recs: {
+    pop: Rec[]; deep: Rec[];
+    /** On the shelves and never played. */
+    shelf: Rec[];
+    /** "Because you watched …": a recent favourite and what it led to. */
+    because: { seed: string; items: Rec[] }[];
+  };
+  /** Titles on the wishlist (slugs). */
+  wish: string[];
   /** Sample set only: the database's fact cards are read per title (src/lib/titleExtras.ts). */
   facts: Record<string, { cards: Fact[]; draft: boolean }>;
   editions: Record<string, string>;
@@ -97,14 +109,15 @@ async function dbCatalog(): Promise<Catalog | null> {
   if (!rows.length) return null;
 
   type WatchRow = { title_id: string; episode_id: string | null; watched_at: string; rating: number | null };
-  type RecRow = { title_id: string; lane: "popular" | "deep_cut"; reason: string | null };
+  type RecRow = { id: string; title_id: string; lane: "popular" | "deep_cut"; reason: string | null; source: string | null; seed_title_id: string | null };
   type EditionRow = { spine_number: number | null; programme_items: { title_id: string }[] };
-  const [watches, recRows, editionRows] = await Promise.all([
+  const [watches, recRows, editionRows, wishRows] = await Promise.all([
     all<WatchRow>((a, b) => client.from("watches").select("title_id, episode_id, watched_at, rating").order("watched_at", { ascending: false }).range(a, b)),
-    client.from("recommendations").select("title_id, lane, reason").or("feedback.is.null,feedback.eq.up").order("score", { ascending: false, nullsFirst: false }).limit(40),
+    client.from("recommendations").select("*").or("feedback.is.null,feedback.eq.up").order("score", { ascending: false, nullsFirst: false }).limit(80),
     client.from("programmes").select("spine_number, programme_items(title_id)").eq("type", "edition").neq("status", "draft"),
+    client.from("wishlist").select("title_id").order("added_at", { ascending: false }),
   ]);
-  for (const r of [recRows, editionRows]) if (r.error) throw new Error(r.error.message);
+  for (const r of [recRows, editionRows, wishRows]) if (r.error) throw new Error(r.error.message);
 
   const slugOf = new Map(rows.map((r) => [r.id, r.slug]));
   const rating = new Map<string, number>(), watched = new Set<string>();
@@ -121,13 +134,23 @@ async function dbCatalog(): Promise<Catalog | null> {
     art[r.slug] = a;
   }
 
-  const recs: Catalog["recs"] = { pop: [], deep: [] };
+  const recs: Catalog["recs"] = { pop: [], deep: [], shelf: [], because: [] };
+  const lib = new Set(titles.filter((t) => t.lib).map((t) => t.id));
+  const bySeed = new Map<string, Rec[]>();
   for (const r of recRows.data as RecRow[]) {
     const id = slugOf.get(r.title_id);
-    if (!id) continue;
-    (r.lane === "popular" ? recs.pop : recs.deep).push({ id, why: r.reason ?? "", who: r.lane === "popular" ? "Popular pick" : "Deep cut" });
+    if (!id || lib.has(id)) continue; // it reached the shelves since the run
+    const rec = { id, why: r.reason ?? "", who: r.source === "claude" ? "Staff deep cut" : r.lane === "popular" ? "Popular pick" : "Deep cut", recId: r.id };
+    (r.lane === "popular" ? recs.pop : recs.deep).push(rec);
+    const seed = r.seed_title_id && slugOf.get(r.seed_title_id);
+    if (seed) bySeed.set(seed, [...(bySeed.get(seed) ?? []), rec]);
   }
-  recs.pop = recs.pop.slice(0, 4); recs.deep = recs.deep.slice(0, 4);
+  // Claude's picks first in the deep lane: they come with the most specific reasons.
+  recs.deep.sort((a, b) => Number(b.who === "Staff deep cut") - Number(a.who === "Staff deep cut"));
+  recs.pop = recs.pop.slice(0, 8); recs.deep = recs.deep.slice(0, 8);
+  recs.because = [...bySeed].filter(([, items]) => items.length >= 3).slice(0, 2).map(([seed, items]) => ({ seed, items: items.slice(0, 6) }));
+  recs.shelf = unwatchedOnShelf(titles, new Set(rows.filter((r) => watched.has(r.id)).map((r) => r.slug)));
+  const wish = (wishRows.data as { title_id: string }[]).map((w) => slugOf.get(w.title_id)).filter((x): x is string => !!x);
 
   const editions: Record<string, string> = {};
   for (const e of editionRows.data as EditionRow[]) {
@@ -138,7 +161,15 @@ async function dbCatalog(): Promise<Catalog | null> {
   }
 
   const plexServer = (await getSetting<PlexSettings>("plex").catch(() => null))?.server?.machineId ?? (await envMachineId());
-  return { source: "db", titles, art, picks: tonightsPick(titles, watched, rows), recs, facts: {}, editions, plexServer };
+  return { source: "db", titles, art, picks: tonightsPick(titles, watched, rows), recs, wish, facts: {}, editions, plexServer };
+}
+
+/** "On your shelf, unwatched": tapes you own and never played, best rated first. */
+function unwatchedOnShelf(titles: Title[], played: Set<string>): Rec[] {
+  return titles.filter((t) => t.lib && !played.has(t.id))
+    .sort((a, b) => (b.imdb ?? 0) - (a.imdb ?? 0))
+    .slice(0, 6)
+    .map((t) => ({ id: t.id, why: t.imdb ? `On your shelf, never played. ${t.imdb} on IMDb.` : "On your shelf, never played.", who: t.plex ? "On your Plex" : "On your shelf" }));
 }
 
 /** Tonight's pick: an unplayed tape off the shelf, a different one each day. */
@@ -181,7 +212,8 @@ function sampleCatalog(reason: Catalog["reason"]): Catalog {
     source: "sample", reason, titles,
     art: Object.fromEntries(titles.map((t) => [t.id, sampleArt(t.id)])),
     picks: store.picks.slice(0, 1),
-    recs: store.recs as Catalog["recs"],
+    recs: { ...(store.recs as Pick<Catalog["recs"], "pop" | "deep">), shelf: unwatchedOnShelf(titles.filter((t) => !t.my), new Set()).slice(0, 4), because: [] },
+    wish: [],
     facts,
     editions: store.editions as Record<string, string>,
   };

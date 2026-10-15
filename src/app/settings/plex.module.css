@@ -10,3 +10,8 @@
 .live{color:var(--cyan)}
 .unmatched{display:grid;gap:8px;justify-items:start;margin-top:6px;font-family:var(--font-plex),sans-serif;font-size:14px;color:var(--muted)}
 .unmatched ul{columns:2 220px;margin:0;padding-left:18px;justify-self:stretch}
+.facts{display:grid;gap:6px;margin:0}
+.facts div{display:grid;grid-template-columns:minmax(120px,160px) 1fr;gap:10px}
+.facts dt{font-family:var(--font-vt323),monospace;font-size:18px;color:var(--cyan);line-height:1.2}
+.facts dd{margin:0;font-size:15px}
+@media (max-width:520px){.facts div{grid-template-columns:1fr;gap:0}}

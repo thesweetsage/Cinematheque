@@ -1,0 +1,7 @@
+.row{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center}
+.btn{font-family:var(--font-vt323),monospace;font-size:18px;line-height:1;text-transform:uppercase;background:rgba(21,18,57,.9);border:2px solid var(--edge);color:var(--fg);padding:6px 10px 5px}
+.btn[aria-pressed="true"]{border-color:var(--yellow);color:var(--yellow);box-shadow:0 0 10px -2px rgba(255,227,138,.7)}
+.btn:disabled{opacity:.6}
+.note{font-family:var(--font-vt323),monospace;font-size:18px;color:var(--muted);text-align:center}
+.link{font:inherit;background:none;border:0;color:var(--cyan);text-decoration:underline;padding:0 4px}
+.error{flex-basis:100%;font-size:13px;color:#ffb3c9;text-align:center}

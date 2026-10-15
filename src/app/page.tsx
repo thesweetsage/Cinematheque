@@ -6,6 +6,7 @@ import { StoreShelf } from "@/components/StoreShelf";
 import { WalkIn, WalkInAgain } from "@/components/WalkIn";
 import { VhsBox } from "@/components/VhsBox";
 import { SampleTag } from "@/components/SampleTag";
+import { RecThumbs, WishButton } from "@/components/RecActions";
 import { artOf, findTitle, getCatalog, shelf, type Catalog, type Rec } from "@/lib/catalog";
 import { continueWatching } from "@/lib/plex/deck";
 import s from "./front.module.css";
@@ -23,18 +24,28 @@ export default async function StoreFront() {
   const pickArt = pick && artOf(cat, pick.id);
   const store = storeFootage();
 
-  const lane = (label: string, sub: string, items: Rec[]) => items.length > 0 && (
-    <div className={s.lane}>
+  const live = cat.source === "db";
+  const wish = new Set(cat.wish);
+  const lane = (label: string, sub: string, items: Rec[], tone?: string) => items.length > 0 && (
+    <div className={s.lane} style={tone ? ({ "--tone": tone } as React.CSSProperties) : undefined}>
       <div className={s.laneHead}><span className={s.laneSign}>{label}</span><span className={s.laneSub}>{sub}</span></div>
       <div className={s.recs}>
         {items.map((r) => {
           const t = findTitle(cat, r.id);
           if (!t) return null;
           return (
-            <Link key={r.id} href={`/title/${t.id}`} className={s.rec} aria-label={`${t.t}, ${t.y}. ${r.why}`}>
-              <span className={s.recBox}><VhsBox title={t} art={artOf(cat, t.id)} width={170} /></span>
-              <span className={s.card}>{r.why}<b>{r.who}</b></span>
-            </Link>
+            <div key={r.id} className={s.recCell}>
+              <Link href={`/title/${t.id}`} className={s.rec} aria-label={`${t.t}, ${t.y}. ${r.why}`}>
+                <span className={s.recBox}><VhsBox title={t} art={artOf(cat, t.id)} width={170} /></span>
+                <span className={s.card}>{r.why}<b>{r.who}</b></span>
+              </Link>
+              {live && (r.recId || !t.plex) && (
+                <div className={s.recActions}>
+                  {r.recId && <RecThumbs recId={r.recId} title={t.t} />}
+                  {!t.plex && !t.lib && <WishButton slug={t.id} on={wish.has(t.id)} title={t.t} />}
+                </div>
+              )}
+            </div>
           );
         })}
       </div>
@@ -69,10 +80,15 @@ export default async function StoreFront() {
       )}
       <section className={s.section}>
         <h2 className="sec-title">Staff recommends</h2>
-        {lane("POPULAR PICKS", "Well-loved titles you'll probably enjoy", cat.recs.pop)}
-        {lane("DEEP CUTS", "Niche, older, foreign or overlooked", cat.recs.deep)}
+        {lane("POPULAR PICKS", "Well-loved titles you'll probably enjoy", cat.recs.pop, "var(--yellow)")}
+        {lane("DEEP CUTS", "Niche, older, foreign or overlooked", cat.recs.deep, "var(--mag)")}
+        {cat.recs.because.map((b) => {
+          const seed = findTitle(cat, b.seed);
+          return seed && <div key={b.seed}>{lane("BECAUSE YOU WATCHED", seed.t, b.items, "var(--cyan)")}</div>;
+        })}
+        {lane("ON YOUR SHELF, UNWATCHED", "Tapes you own and never played", cat.recs.shelf, "var(--orange)")}
         {!cat.recs.pop.length && !cat.recs.deep.length && (
-          <p className={s.laneSub}>No staff cards yet. They&apos;re written from your watch history once it builds up.</p>
+          <p className={s.laneSub}>No staff cards yet. They&apos;re written every night from your Plex watch history once it builds up.</p>
         )}
       </section>
     </>

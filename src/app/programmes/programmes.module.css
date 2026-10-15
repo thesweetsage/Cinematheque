@@ -1,0 +1,171 @@
+/* The festival wall: a screen-printed poster, a photocopied flyer, a cardboard rental card, the reading-skin booklet. */
+.head{display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap}
+.headTools{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.h1{font-family:var(--font-bungee),Impact,sans-serif;font-weight:400;font-size:clamp(34px,5vw,58px);line-height:1;margin-top:6px}
+.h2{font-family:var(--font-shoulders),sans-serif;font-weight:900;font-size:28px;text-transform:uppercase;line-height:1}
+.h3{font-family:var(--font-shoulders),sans-serif;font-weight:900;font-size:22px;text-transform:uppercase;line-height:1;margin-top:22px}
+.lede{color:var(--muted);max-width:64ch;margin-top:12px;font-size:17px}
+.muted{color:var(--muted);font-size:15px}
+.err{color:#ffb3c9;font-size:14px;margin-top:6px}
+.narrow{max-width:760px}
+.section{margin-top:48px}
+.sectionHead{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+.btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.small{font-family:var(--font-vt323),monospace;font-size:18px;line-height:1;background:rgba(21,18,57,.9);border:2px solid var(--edge);color:var(--fg);padding:5px 9px 4px}
+.small[aria-pressed="true"]{border-color:var(--yellow);color:var(--yellow)}
+.small:disabled{opacity:.5}
+
+/* ---------- The wall: poster + flyer ---------- */
+.wall{display:grid;grid-template-columns:minmax(260px,420px) minmax(0,1fr);gap:40px;align-items:start;margin-top:28px}
+@media (max-width:860px){.wall{grid-template-columns:1fr}}
+.wallSide{display:grid;gap:14px;justify-items:start;min-width:0}
+.wallSide > *{max-width:100%}
+.posterLink{display:block;text-decoration:none;transition:transform .15s ease-out}
+.posterLink:hover,.posterLink:focus-visible{transform:translateY(-6px)}
+
+.poster{--acc:var(--mag);position:relative;display:grid;align-content:start;gap:12px;aspect-ratio:2/3;padding:30px 26px 22px;overflow:hidden;color:#fff;transform:rotate(-1.2deg);
+  background:linear-gradient(180deg,rgba(11,9,32,.25),#0b0920 78%),var(--acc);box-shadow:0 18px 40px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.08)}
+.posterBig{transform:rotate(-.8deg)}
+.posterArt{position:absolute;inset:0;background:center/cover no-repeat;mix-blend-mode:luminosity;opacity:.38;filter:contrast(1.2)}
+.poster > span:not(.posterArt){position:relative}
+.posterKicker{font-family:var(--font-vt323),monospace;font-size:19px;letter-spacing:.12em;text-transform:uppercase;color:#fff;opacity:.85}
+.posterTitle{font-family:var(--font-bungee),sans-serif;font-size:clamp(36px,5vw,60px);line-height:.9;color:#fff;text-shadow:4px 4px 0 var(--acc),8px 8px 0 rgba(0,0,0,.6);overflow-wrap:anywhere}
+.posterTheme{font-family:var(--font-newsreader),serif;font-style:italic;font-size:17px;line-height:1.35;color:#f4efe6;max-width:30ch}
+.posterFoot{position:absolute!important;left:26px;right:26px;bottom:22px;display:flex;justify-content:space-between;align-items:end;gap:10px;border-top:3px solid var(--acc);padding-top:10px}
+.posterFoot b{font-family:var(--font-shoulders),sans-serif;font-weight:900;font-size:22px;text-transform:uppercase;line-height:1}
+.posterFoot i{font-family:var(--font-vt323),monospace;font-style:normal;font-size:18px;opacity:.85}
+.pin{position:absolute!important;top:-8px;left:50%;width:120px;height:30px;margin-left:-60px;transform:rotate(3deg);background:rgba(244,239,230,.55)}
+
+.flyer{width:100%;max-width:640px;background:var(--paper);color:var(--ink);padding:20px 22px 16px;transform:rotate(.6deg);box-shadow:0 12px 26px rgba(0,0,0,.55);
+  background-image:linear-gradient(rgba(26,23,20,.035) 1px,transparent 1px);background-size:100% 30px}
+.flyerHead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;border-bottom:3px solid var(--ink);padding-bottom:6px}
+.flyerHead b{font-family:var(--font-shoulders),sans-serif;font-weight:900;font-size:24px;text-transform:uppercase}
+.flyerHead span{font-family:var(--font-marker),cursive;font-size:16px;color:var(--print-red)}
+.flyerEmpty{margin-top:10px;font-family:var(--font-newsreader),serif;font-style:italic}
+.bill{list-style:none;margin:6px 0 0;padding:0}
+.bill li{display:grid;grid-template-columns:58px minmax(0,1fr) 40px;gap:10px;align-items:center;padding:8px 0;border-bottom:1px dashed rgba(26,23,20,.3)}
+.when{font-family:var(--font-vt323),monospace;font-size:19px;line-height:1;text-transform:uppercase;color:var(--print-red)}
+.what{min-width:0;font-family:var(--font-newsreader),serif;font-size:17px;line-height:1.25}
+.what a{color:var(--ink);font-weight:600;text-decoration:none}
+.what a:hover,.what a:focus-visible{text-decoration:underline}
+.what small{color:#6b625a}
+.what em{display:block;font-size:14.5px;color:#4b443d}
+.how{display:block;font-family:var(--font-vt323),monospace;font-size:15px}
+.seen .what a{text-decoration:line-through;text-decoration-color:var(--print-red);text-decoration-thickness:2px}
+.tickWrap{display:grid;justify-items:center}
+/* A box drawn with a pen; the tick is a red marker stroke. */
+.tick{position:relative;display:block;width:30px;height:30px;padding:0;background:transparent;border:2px solid var(--ink);border-radius:3px 7px 4px 6px;transform:rotate(-2deg)}
+.tick[data-on="true"]::after{content:"✓";position:absolute;left:2px;top:-12px;font-family:var(--font-marker),cursive;font-size:34px;line-height:1;color:var(--print-red);transform:rotate(-8deg)}
+button.tick:focus-visible{outline:3px solid var(--mag);outline-offset:3px;box-shadow:none}
+
+/* ---------- 31 Days rental card ---------- */
+.cardWrap{margin-top:20px}
+.cardLink{display:block;text-decoration:none}
+.card{--acc:var(--mag);max-width:980px;background:#f4efe6;color:var(--ink);padding:18px 20px 20px;border-radius:6px;box-shadow:0 14px 30px rgba(0,0,0,.55);border-top:14px solid var(--acc)}
+.cardHead{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 18px;border-bottom:2px solid var(--ink);padding-bottom:8px}
+.cardBrand b{display:block;font-family:var(--font-shoulders),sans-serif;font-weight:900;font-size:20px;line-height:.9;color:var(--print-red)}
+.cardBrand i{font-family:var(--font-script),cursive;font-style:normal;font-size:22px;color:var(--ink)}
+.cardTitle{font-family:var(--font-bungee),sans-serif;font-size:clamp(20px,2.6vw,30px);line-height:1;flex:1}
+.cardMember{font-family:var(--font-vt323),monospace;font-size:18px;color:#5a524a}
+.cardStats{display:flex;gap:22px;flex-wrap:wrap;margin:10px 0 12px;font-family:var(--font-vt323),monospace;font-size:20px}
+.cardStats b{font-family:var(--font-shoulders),sans-serif;font-weight:900;font-size:30px;line-height:1;margin-right:4px}
+.streak b{color:var(--print-red)}
+.days{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.days li{position:relative;min-height:84px;border:1.5px dashed rgba(26,23,20,.45);padding:5px 6px;display:grid;align-content:start;gap:2px;overflow:hidden}
+.cardCompact .days li{min-height:52px}
+.dayNo{font-family:var(--font-shoulders),sans-serif;font-weight:900;font-size:20px;line-height:1}
+.dayDate{font-family:var(--font-vt323),monospace;font-size:15px;line-height:1;color:#6b625a;text-transform:uppercase}
+.dayTitle{font-family:var(--font-newsreader),serif;font-size:13px;line-height:1.15;margin-top:6px;position:relative;z-index:1}
+.stamp{position:absolute;right:5px;top:6px;font-family:var(--font-shoulders),sans-serif;font-weight:900;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--print-red);
+  border:2px solid var(--print-red);border-radius:3px;padding:1px 5px;transform:rotate(-14deg);opacity:.85}
+.cardCompact .stamp{top:auto;bottom:6px;font-size:12px}
+@media (max-width:900px){.stamp{top:auto;bottom:5px;font-size:11px;padding:0 3px}.dayTitle{display:none}}
+.todayBox{border-style:solid!important;border-color:var(--ink)!important;background:rgba(255,227,138,.45)}
+.future{opacity:.55}
+@media (max-width:640px){.days{grid-template-columns:repeat(4,minmax(0,1fr))}.days li{min-height:64px}}
+
+/* ---------- Tapes ---------- */
+.tapes{display:flex;gap:24px;flex-wrap:wrap;padding:18px 6px 8px;perspective:1200px}
+.tape{display:block;padding:6px;text-decoration:none}
+.tapeBox{display:block;transition:transform .15s ease-out}
+.tapeBox > div{--ry:12deg !important;--rx:2deg !important}
+.tape:hover .tapeBox,.tape:focus-visible .tapeBox{transform:translateY(-8px)}
+
+/* ---------- Booklet (reading skin) ---------- */
+.booklet{max-width:760px;margin-top:40px;background:var(--paper);color:var(--ink);padding:30px clamp(18px,4vw,44px) 26px;box-shadow:0 14px 30px rgba(0,0,0,.5)}
+.bookletKicker{font-family:var(--font-vt323),monospace;font-size:18px;letter-spacing:.08em;text-transform:uppercase;color:var(--print-red)}
+.bookletTitle{font-family:var(--font-fraunces),serif;font-weight:700;font-size:clamp(28px,3.6vw,40px);line-height:1.05;margin:4px 0 16px}
+.booklet p{font-family:var(--font-newsreader),serif;font-size:19px;line-height:1.55;margin-top:12px;max-width:62ch}
+.bookletEmpty{font-style:italic;color:#6b625a}
+.draftNote{font-family:var(--font-vt323),monospace!important;font-size:17px!important;color:var(--print-red)}
+
+/* ---------- Awards ---------- */
+.awards{list-style:none;padding:0;margin:14px 0 0;display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}
+.awards li{--acc:var(--yellow);border:2px solid var(--acc);padding:14px 16px;display:grid;gap:4px;box-shadow:0 0 16px -6px var(--acc)}
+.laurel{font-family:var(--font-vt323),monospace;font-size:19px;text-transform:uppercase;color:var(--acc)}
+.winner{font-family:var(--font-bungee),sans-serif;font-size:20px;line-height:1.05;color:#fff;text-decoration:none}
+.awards em{font-family:var(--font-newsreader),serif;color:var(--muted)}
+.awardForm{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;align-items:end;margin-top:20px;max-width:900px}
+.awardForm .btns{margin-top:0}
+
+/* ---------- Edition ---------- */
+.edition{display:grid;grid-template-columns:auto minmax(0,1fr);gap:40px;align-items:center;margin-top:18px}
+@media (max-width:760px){.edition{grid-template-columns:1fr;justify-items:start}}
+.editionBox{perspective:1400px;padding:10px}
+.spineNo{font-family:var(--font-shoulders),sans-serif;font-weight:900;font-size:clamp(46px,7vw,90px);line-height:.85;color:var(--yellow);text-shadow:0 0 22px rgba(255,227,138,.45)}
+.essayTools{max-width:760px}
+
+/* ---------- Forms ---------- */
+.form{display:grid;gap:16px;margin-top:20px}
+.field{display:grid;gap:6px}
+.field > span,.accents legend,.choice legend{font-family:var(--font-vt323),monospace;font-size:19px;text-transform:uppercase;color:var(--cyan)}
+.field input,.field textarea,.field select,.editRow input{font:inherit;font-size:17px;color:var(--fg);background:var(--panel);border:2px solid var(--edge);padding:9px 12px;min-width:0;width:100%}
+.field textarea{resize:vertical;line-height:1.45}
+.field input:focus-visible,.field textarea:focus-visible,.field select:focus-visible,.editRow input:focus-visible{border-color:var(--mag);outline-offset:1px}
+.dates{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.accents,.choice{border:0;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:10px}
+.accents legend,.choice legend{margin-bottom:6px}
+.swatch{position:relative;width:40px;height:40px;border:2px solid rgba(255,255,255,.25)}
+.swatch input{position:absolute;inset:0;margin:0;opacity:0;cursor:pointer}
+.swatch:has(input:checked){outline:3px solid #fff;outline-offset:2px}
+.swatch:has(input:focus-visible){box-shadow:0 0 0 6px rgba(255,79,184,.55)}
+.choice{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.option{position:relative;display:grid;gap:4px;padding:14px 16px;border:2px solid var(--edge);background:var(--panel);cursor:pointer}
+.option[data-on="true"]{border-color:var(--mag);box-shadow:0 0 14px -4px rgba(255,79,184,.8)}
+.option input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.option:has(input:focus-visible){outline:3px solid #fff;outline-offset:3px}
+.option b{font-family:var(--font-bungee),sans-serif;font-weight:400;font-size:20px}
+.option span{color:var(--muted);font-size:14.5px}
+@media (max-width:520px){.dates{grid-template-columns:1fr}}
+
+.editor{margin-top:40px;border:2px solid var(--edge);background:rgba(21,18,57,.7);padding:18px clamp(14px,3vw,26px) 22px;max-width:980px}
+.editorHead{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.editList{list-style:none;padding:0;margin:10px 0 0;display:grid;gap:8px}
+.editRow{display:grid;grid-template-columns:minmax(0,1.4fr) 160px minmax(0,1.6fr) auto;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--edge)}
+.editRow input{font-size:15px;padding:6px 8px}
+.editName{font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rowBtns{display:flex;gap:6px}
+@media (max-width:760px){.editRow{grid-template-columns:1fr}}
+.picker{margin-top:18px;display:grid;gap:10px}
+.hits{display:flex;flex-wrap:wrap;gap:8px}
+.hit{font:inherit;font-size:15px;color:var(--fg);background:var(--panel-2);border:2px solid var(--edge);padding:7px 11px;text-align:left}
+.hit small{color:var(--muted)}
+.hit:disabled{opacity:.5}
+
+/* ---------- Back room ---------- */
+.backRoom{list-style:none;padding:0;margin:12px 0 0;display:grid;gap:8px}
+.backRoom li{display:flex;flex-wrap:wrap;gap:4px 14px;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--edge)}
+.backRoom a{font-family:var(--font-bungee),sans-serif;font-size:18px;color:var(--fg);text-decoration:none}
+.backRoom a:hover,.backRoom a:focus-visible{color:var(--cyan)}
+.backRoom span{font-family:var(--font-vt323),monospace;font-size:18px;color:var(--muted)}
+
+/* ---------- 31 Days end poster ---------- */
+.endPoster{--acc:var(--mag);display:grid;gap:10px;justify-items:center;text-align:center;max-width:720px;padding:34px 26px;color:#fff;background:linear-gradient(180deg,rgba(11,9,32,.2),#0b0920 60%),var(--acc);box-shadow:0 18px 40px rgba(0,0,0,.6)}
+.endScore{font-family:var(--font-shoulders),sans-serif;font-weight:900;font-size:28px;text-transform:uppercase}
+.endGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:6px;width:100%;margin-top:10px}
+.endCell{aspect-ratio:2/3;background:var(--panel) center/cover no-repeat;font-size:11px;display:grid;place-items:center;padding:4px;box-shadow:0 0 0 1px rgba(255,255,255,.12)}
+@media print{
+  :global(body) *{visibility:hidden}
+  .endPoster,.endPoster *{visibility:visible}
+  .endPoster{position:absolute;inset:0 auto auto 0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}

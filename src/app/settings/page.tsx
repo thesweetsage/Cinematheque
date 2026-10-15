@@ -2,6 +2,7 @@
 import { useSyncExternalStore } from "react";
 import { signOut } from "../login/actions";
 import { PlexPanel } from "./PlexPanel";
+import { RecsPanel } from "./RecsPanel";
 
 /* The <html> classes are the source of truth for these switches (set before paint in layout.tsx). */
 function watchClasses(cb: () => void) {
@@ -33,6 +34,7 @@ export default function Settings() {
       {row("Effects", "The walk into the store (once a day). Always off when your device asks for reduced motion.", fx, () => flip("fx", "cine_fx", !fx))}
       {row("Membership", "Signed in on this device for a year at a time. Signing out means asking for a new code.", true, () => signOut())}
       <PlexPanel />
+      <RecsPanel />
       <p style={{ color: "var(--muted)", fontSize: 14, marginTop: 18 }}>The Stremio add-on link arrives in a later phase.</p>
     </div>
   );

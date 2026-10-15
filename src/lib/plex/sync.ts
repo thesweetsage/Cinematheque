@@ -7,6 +7,7 @@ import { db, selectAll } from "../supabase";
 import { findByExternalId } from "../tmdb";
 import { externalIds, sectionItems, sections, type Item } from "./api";
 import { plexServer } from "./connection";
+import { tickFromWatches } from "../programmeTick";
 
 /*
  * The Plex sync (hourly, and on demand from the Membership card):
@@ -14,12 +15,15 @@ import { plexServer } from "./connection";
  * 2. matches each film/show to a title by its tmdb or imdb id, creating the title from TMDB when it's new,
  * 3. stores plex_rating_key and on_plex, and every episode,
  * 4. writes a watch (source plex) when a film's or episode's lastViewedAt is newer than the last one stored,
- * 5. takes titles that left Plex off it, and clears wishlist items that arrived.
+ * 5. ticks off programme items those watches complete,
+ * 6. takes titles that left Plex off it, and clears wishlist items that arrived.
  */
 
 export type SyncReport = {
   startedAt: string; finishedAt?: string; ok?: boolean; error?: string; server?: string;
   films: number; shows: number; episodes: number; added: number; newWatches: number; removed: number; wishlistCleared: number;
+  /** Programme items ticked off by this sync's new watches. */
+  ticked?: number;
   /** Titles Plex has no usable tmdb/imdb/tvdb id for, or that TMDB doesn't know. */
   unmatched: string[];
 };
@@ -128,6 +132,8 @@ async function runSync(): Promise<SyncReport> {
       if (t && id) consider(t.id, id, e);
     }
     for (const rows of chunks(fresh, 500)) report.newWatches += await insertWatches(rows);
+    // Programme items for these titles tick themselves (a failure here never fails the sync).
+    report.ticked = await tickFromWatches(fresh).catch((e) => { console.error("[plex] programme tick-off failed:", e.message); return 0; });
 
     // 5. Titles that left Plex, and wishlist items that arrived.
     const gone = known.filter((t) => t.on_plex && !onPlex.has(t.id)).map((t) => t.id);
@@ -153,7 +159,7 @@ async function runSync(): Promise<SyncReport> {
   report.finishedAt = new Date().toISOString();
   report.unmatched.sort();
   await setSetting(REPORT_KEY, report).catch((e) => console.error("[plex] couldn't save the sync report:", e.message));
-  revalidateTag(CATALOG_TAG, { expire: 0 });
+  revalidateTag(CATALOG_TAG, { expire: 0 }); // also refreshes the programmes (tagged with it)
   return report;
 }
 

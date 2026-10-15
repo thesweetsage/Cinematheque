@@ -54,8 +54,33 @@ or the Plex app on Android (its `plex://` link isn't documented by Plex, so chec
 
 ### The walk-in
 
-The Store Front opens with footage of walking into the store, once a day. Make it with an AI video tool and drop
-`walk-in.mp4` and `shelf.jpg` into `public/store/`: prompts and the ffmpeg commands are in `docs/WALK_IN.md`.
+The Store Front opens with a 12-second walk into the store, once a day (`public/store/walk-in.mp4`, ending on
+`public/store/shelf.jpg`). It's a 3D store rendered in code, no AI tool or credits needed: the source and the render
+commands are in `scripts/walkin/` and `docs/WALK_IN.md`, along with prompts if you'd rather make real footage.
+
+### Recommendations (staff cards)
+
+Run `supabase/migrations/20261015160000_recs_programmes.sql` once in the SQL Editor (it also adds what programmes need).
+Every night (the hourly timer asks; it runs once the last run is 20 hours old) the app rebuilds your taste profile from
+your Plex watches and ratings, finds candidates from TMDB (recommendations and similar titles for your recent favourites,
+Discover on your top genres and keywords), drops anything you've watched, own or turned down, and writes the
+**Popular Picks** and **Deep Cuts** lanes on the Store Front, each card with its reason. Once a week Claude adds ten deep cuts
+with reasons (`RECS_MODEL` in `src/lib/recs/claude.ts`); each one is looked up on TMDB and dropped if it isn't found.
+Thumbs up / down on a card count towards the next night. **Write new cards now** on the Membership card runs it at once.
+Also new: "Because you watched…" and "On your shelf, unwatched" rows, TMDB's *More like this* on every title page, and the
+**Coming soon** wishlist board (titles come off it by themselves when the Plex sync finds them).
+
+### Programmes
+
+The **Festival wall** holds the programmes:
+
+- **Festivals:** any theme and dates. A poster, a booklet, a schedule with tick boxes, and jury awards once closing night has passed.
+- **31 Days of ___:** a rental card with a box per day, stamped on each day you watched one of its titles, and a streak. When it ends, an end poster you can print.
+- **Editions:** on any title's page, **Induct into the collection** gives it the next spine number (No. 001, No. 002…) and an essay
+  page: draft it with Claude (from Wikipedia, the checked liner notes and your own ratings and notes; `ESSAY_MODEL` in
+  `src/lib/editionEssay.ts`), edit it, mark it checked, and pair it with other editions.
+
+Festival and 31 Days items tick themselves when the Plex sync logs a watch of that title on or after the start date.
 
 ### Liner notes (Claude)
 
@@ -80,3 +105,8 @@ Phase 4 is done: title pages with TMDB reviews, a seasons shelf with episode tic
 (fact cards and notes written by Claude from Wikipedia, drafts until you check them).
 Phase 3 is done: Plex connection on the Membership card (plex.tv/link code), hourly library and watch sync, ON PLEX
 stickers, Play on Plex, Continue watching on the Store Front, and the wishlist cleared by the sync.
+Phase 5 is done: the nightly taste profile and recommendations (Popular Picks, Deep Cuts, Claude's weekly deep cuts checked
+against TMDB), thumbs up/down, Because you watched, More like this, and the Coming soon wishlist.
+Phase 6 is done: Editions with spine numbers and essays, Festivals with booklet, schedule, tick-off and jury awards, and
+31 Days rental cards with stamps and a streak; items tick themselves from Plex watches.
+The walk-in footage is in (a rendered 3D store; see `docs/WALK_IN.md`).

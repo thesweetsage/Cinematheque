@@ -16,17 +16,19 @@
 .section{margin-top:48px}
 .lane{margin-top:22px}
 .laneHead{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
-.laneSign{font-family:var(--font-bungee),sans-serif;font-size:18px;padding:5px 12px;border:2px solid var(--yellow);color:var(--yellow);text-shadow:0 0 8px currentColor;box-shadow:0 0 12px -2px currentColor}
-.lane + .lane .laneSign{border-color:var(--mag);color:var(--mag)}
+.laneSign{--tone:var(--yellow);font-family:var(--font-bungee),sans-serif;font-size:18px;padding:5px 12px;border:2px solid var(--tone);color:var(--tone);text-shadow:0 0 8px currentColor;box-shadow:0 0 12px -2px currentColor}
+.lane[style] .laneSign{--tone:inherit}
 .laneSub{color:var(--muted);font-size:14px}
 .recs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:26px}
 @media (max-width:1000px){.recs{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.recCell{display:grid;align-content:start;gap:8px}
+.recActions{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
 .rec{display:grid;gap:14px;justify-items:center;text-decoration:none;color:var(--fg);padding:14px 8px 10px}
 .recBox{display:block;perspective:1200px;transition:transform .15s ease-out}
 .rec:hover .recBox,.rec:focus-visible .recBox{transform:translateY(-8px)}
 .rec:focus-visible{outline:3px solid #fff;outline-offset:2px}
 .card{display:block;width:100%;background:#fbf7ec;color:#222;padding:10px 12px;font-family:var(--font-marker),cursive;font-size:14.5px;line-height:1.3;transform:rotate(-1.2deg);box-shadow:2px 3px 0 rgba(0,0,0,.45)}
-.rec:nth-child(even) .card{transform:rotate(1.2deg)}
+.recCell:nth-child(even) .card{transform:rotate(1.2deg)}
 .card b{display:block;font-weight:400;font-size:12px;color:var(--print-red);margin-top:4px}
 @media (max-width:520px){.recs{grid-template-columns:1fr}}
 .deck{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:18px;margin-top:14px}

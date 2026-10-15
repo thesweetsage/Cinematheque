@@ -96,3 +96,55 @@ export async function seasons(id: number): Promise<TmdbSeason[]> {
   }));
   return [...list.filter((s) => s.number > 0), ...list.filter((s) => s.number === 0)];
 }
+
+/* ---------- Recommendations (phase 5) ---------- */
+
+/** A title TMDB suggests, with what the lanes need to sort it: votes, average, language, age. */
+export type Candidate = {
+  tmdbId: number; kind: TmdbKind; title: string; year: number | null; votes: number; avg: number;
+  language: string; genreIds: number[]; poster: string | null; overview: string;
+};
+type RawCandidate = RawHit & { vote_count: number; vote_average: number; original_language: string; genre_ids?: number[] };
+const toCandidate = (r: RawCandidate, kind: TmdbKind): Candidate => ({
+  ...toHit(r, kind), votes: r.vote_count ?? 0, avg: r.vote_average ?? 0, language: r.original_language ?? "", genreIds: r.genre_ids ?? [],
+  poster: r.poster_path ? IMG("w342", r.poster_path) : null,
+});
+
+/** TMDB's "recommendations" or "similar" list for one title (first page, about 20). */
+export async function related(kind: TmdbKind, id: number, list: "recommendations" | "similar"): Promise<Candidate[]> {
+  const { results } = await get<{ results: RawCandidate[] }>(`/${kind}/${id}/${list}`, { language: "en-US" });
+  return results.map((r) => toCandidate(r, kind));
+}
+
+/** Discover: well-rated titles with any of these genres / keywords (TMDB ids). */
+export async function discover(kind: TmdbKind, opts: { genres?: number[]; keywords?: number[]; minVotes: number; maxVotes?: number; before?: number; page?: number }): Promise<Candidate[]> {
+  const p: Record<string, string> = { sort_by: "vote_average.desc", "vote_count.gte": String(opts.minVotes), include_adult: "false", page: String(opts.page ?? 1) };
+  if (opts.maxVotes) p["vote_count.lte"] = String(opts.maxVotes);
+  if (opts.genres?.length) p.with_genres = opts.genres.join("|");
+  if (opts.keywords?.length) p.with_keywords = opts.keywords.join("|");
+  if (opts.before) p[kind === "movie" ? "primary_release_date.lte" : "first_air_date.lte"] = `${opts.before}-12-31`;
+  const { results } = await get<{ results: RawCandidate[] }>(`/discover/${kind}`, p);
+  return results.map((r) => toCandidate(r, kind));
+}
+
+/** TMDB's genre ids by name (films and series name some genres differently). */
+export async function genreIds(kind: TmdbKind): Promise<Map<string, number>> {
+  const { genres } = await get<{ genres: { id: number; name: string }[] }>(`/genre/${kind}/list`, { language: "en-US" });
+  return new Map(genres.map((g) => [g.name, g.id]));
+}
+
+/** A keyword's TMDB id, by its exact name. */
+export async function keywordId(name: string): Promise<number | null> {
+  const { results } = await get<{ results: { id: number; name: string }[] }>("/search/keyword", { query: name });
+  return results.find((k) => k.name.toLowerCase() === name.toLowerCase())?.id ?? null;
+}
+
+/** Looks a title up by name and year. Used to check Claude's suggestions: anything TMDB can't find is dropped. */
+export async function lookupTitle(kind: TmdbKind, title: string, year: number | null): Promise<Candidate | null> {
+  const p: Record<string, string> = { query: title, include_adult: "false" };
+  if (year) p[kind === "movie" ? "year" : "first_air_date_year"] = String(year);
+  const { results } = await get<{ results: RawCandidate[] }>(`/search/${kind}`, p);
+  const norm = (s: string) => s.toLowerCase().normalize("NFKD").replace(/[^a-z0-9]/g, "");
+  const hit = results.map((r) => toCandidate(r, kind)).find((c) => norm(c.title) === norm(title) && (!year || !c.year || Math.abs(c.year - year) <= 1));
+  return hit ?? null;
+}

@@ -12,6 +12,26 @@ It needs two files in `public/store/`:
 
 Until they exist, the Store Front uses a darkened still from Tonight's pick behind the shelf.
 
+## The rendered walk-in (what's in the repo now)
+
+The current `walk-in.mp4` is not AI footage: it is a 3D store built in code (three.js) and rendered offline in headless
+Chromium, frame by frame, at 1920x1080 and 30 fps. Free, no accounts, no credits. 12 seconds: the street at night under the
+VIDEO / Cinematheque sign, through the glass doors, down the main aisle, then it stops square-on to the new releases wall
+and holds for 2 seconds. The covers are invented (no real films, no TMDB art). The source is in `scripts/walkin/`.
+
+To change and re-render it (about an hour on a 4-core machine with software WebGL):
+
+```bash
+cd scripts/walkin
+npm i && npm run fonts
+node render.mjs stills 0,3,6,12          # quick check: out/still_<t>.png
+node render.mjs frames 30                # all 360 frames into out/frames/ (pass a frame range to split across processes)
+ffmpeg -framerate 30 -i out/frames/f_%05d.png -c:v libx264 -crf 18 -preset slow -pix_fmt yuv420p -movflags +faststart ../../public/store/walk-in.mp4
+cp out/frames/f_00359.png /tmp/last.png && ffmpeg -i /tmp/last.png -q:v 2 ../../public/store/shelf.jpg
+```
+
+`CHROME_PATH` points `render.mjs` at a Chromium binary if it isn't at the Playwright default.
+
 ## Prompt for the video tool (Veo, Kling, Runway, Sora...)
 
 Camera move: slow first-person steadicam walk / dolly in, eye level, one continuous shot.

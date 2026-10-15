@@ -1,0 +1,15 @@
+{
+  "name": "cinematheque-walkin",
+  "private": true,
+  "type": "module",
+  "description": "Renders public/store/walk-in.mp4 and shelf.jpg from a 3D scene. See docs/WALK_IN.md.",
+  "scripts": {
+    "fonts": "sh fonts.sh",
+    "stills": "node render.mjs stills 0,3,6,12",
+    "frames": "node render.mjs frames 30"
+  },
+  "dependencies": {
+    "playwright-core": "1.56.0",
+    "three": "0.170.0"
+  }
+}

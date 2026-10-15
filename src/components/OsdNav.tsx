@@ -3,7 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import s from "./OsdNav.module.css";
 
-const LINKS = [["/", "Store front"], ["/shelves", "Shelves"], ["/title/thing", "The box"], ["/search", "Returns slot"], ["/settings", "Membership"]] as const;
+const LINKS = [["/", "Store front"], ["/shelves", "Shelves"], ["/programmes", "Festival wall"], ["/wishlist", "Coming soon"], ["/search", "Returns slot"], ["/settings", "Membership"]] as const;
 
 export function OsdNav() {
   const path = usePathname();

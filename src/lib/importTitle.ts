@@ -48,3 +48,21 @@ export async function importTitle(kind: TmdbKind, tmdbId: number) {
   if (error) throw new Error(error.message);
   return data as { id: string; slug: string };
 }
+
+/**
+ * Saves a title without putting it on the shelves (a recommendation, a wishlist item), or returns it if it's already saved.
+ * Slugs clash now and then (a remake in the same year): then the TMDB id goes on the end.
+ */
+export async function saveOffShelf(kind: TmdbKind, tmdbId: number) {
+  const client = db();
+  if (!client) throw new Error("The database isn't connected yet.");
+  const { data: known } = await client.from("titles").select("id, slug").eq("kind", kind === "tv" ? "series" : "movie").eq("tmdb_id", tmdbId).maybeSingle();
+  if (known) return known as { id: string; slug: string };
+  const row = await buildTitleRow(kind, tmdbId);
+  for (const slug of [row.slug, `${row.slug}-${tmdbId}`]) {
+    const { data, error } = await client.from("titles").upsert({ ...row, slug }, { onConflict: "kind,tmdb_id" }).select("id, slug").single();
+    if (!error) return data as { id: string; slug: string };
+    if (error.code !== "23505") throw new Error(error.message);
+  }
+  throw new Error(`no free slug for ${row.slug}`);
+}

@@ -2,12 +2,15 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BoxViewer } from "@/components/BoxViewer";
-import { VhsBox } from "@/components/VhsBox";
 import { PlayOnPlex } from "@/components/PlayOnPlex";
 import { SampleTag } from "@/components/SampleTag";
-import { artOf, findTitle, getCatalog, moreLikeThis, type Catalog, type Title } from "@/lib/catalog";
+import { artOf, findTitle, getCatalog, type Catalog, type Title } from "@/lib/catalog";
 import { titleExtras } from "@/lib/titleExtras";
+import { WishButton } from "@/components/RecActions";
 import { Booklet } from "./Booklet";
+import { MoreLikeThis } from "./MoreLikeThis";
+import { InductButton } from "../../programmes/client";
+import { editionOf, getProgrammes, spineLabel } from "@/lib/programmes";
 import { Reviews } from "./Reviews";
 import { Seasons } from "./Seasons";
 import s from "./title.module.css";
@@ -27,7 +30,6 @@ export default async function TitlePage({ params }: { params: Promise<{ id: stri
   if (!t) notFound();
   const art = artOf(cat, t.id);
   const series = t.kind === "series";
-  const more = moreLikeThis(cat, t);
   return (
     <>
       <div className={s.tagRow}><SampleTag catalog={cat} /></div>
@@ -50,27 +52,27 @@ export default async function TitlePage({ params }: { params: Promise<{ id: stri
           <p className={s.syn}>{t.syn}</p>
           <div className={s.play}>
             {t.plex && t.plexKey && cat.plexServer ? <PlayOnPlex machineId={cat.plexServer} ratingKey={t.plexKey} series={series} />
-              : t.plex ? <button className="btn primary">Play on Plex ▶</button> : <button className="btn">+ Add to wishlist</button>}
+              : t.plex ? <button className="btn primary">Play on Plex ▶</button>
+              : cat.source === "db" ? <WishButton slug={t.id} on={cat.wish.includes(t.id)} title={t.t} big />
+              : <button className="btn">+ Add to wishlist</button>}
             <button className="btn">Open in Stremio</button>
           </div>
+          <Suspense fallback={null}><Collection cat={cat} t={t} /></Suspense>
         </div>
       </div>
       <Suspense fallback={null}><TitleExtras cat={cat} t={t} /></Suspense>
       {t.tmdb && <Suspense fallback={null}><Reviews kind={series ? "tv" : "movie"} tmdbId={t.tmdb} /></Suspense>}
-      {more.length > 0 && (
-        <section className={s.more}>
-          <h2 className="sec-title">More like this</h2>
-          <div className={s.moreRow}>
-            {more.map((x) => (
-              <Link key={x.id} href={`/title/${x.id}`} className={s.moreItem} aria-label={`${x.t}, ${x.y}`}>
-                <span className={s.moreBox}><VhsBox title={x} art={artOf(cat, x.id)} width={120} /></span>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
+      <Suspense fallback={null}><MoreLikeThis cat={cat} t={t} /></Suspense>
     </>
   );
+}
+
+/* The collection: this title's edition number, or the button that inducts it. */
+async function Collection({ cat, t }: { cat: Catalog; t: Title }) {
+  const progs = await getProgrammes();
+  const ed = editionOf(progs, t.id);
+  if (ed) return <p className={s.edition}><Link href={`/programmes/${ed.slug}`}>★ {spineLabel(ed.spine)} in the collection: read the essay</Link></p>;
+  return cat.source === "db" && progs.source === "db" ? <div className={s.play}><InductButton titleSlug={t.id} title={t.t} /></div> : null;
 }
 
 /* Seasons (series) and the booklet: per-title reads that stream in after the box. */
