@@ -9,7 +9,7 @@ Read `BRIEF.md` first; the full plan is in `docs/BUILD_PLAN.md`.
 npm install
 cp .env.local.example .env.local   # add your TMDB_API_KEY
 npm run art                        # fetches sample covers, logos and backdrops into public/art (not committed)
-npm run dev                        # http://localhost:3000
+npm run dev                        # http://localhost:3001 (npm start also uses 3001)
 ```
 
 Use the arrow keys, Enter and Backspace to drive it like the TV remote.

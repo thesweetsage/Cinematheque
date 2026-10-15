@@ -9,7 +9,7 @@ export async function register() {
   if (g.__cineTimer) return;
   process.env.CINE_TIMER_KEY = crypto.randomUUID();
   const tick = () => {
-    const port = process.env.PORT || "3000";
+    const port = process.env.PORT || "3001"; // npm start / npm run dev use 3001 (3000 is taken by another app)
     const call = (route: string, label: string) =>
       fetch(`http://127.0.0.1:${port}${route}`, { method: "POST", headers: { "x-cine-timer": process.env.CINE_TIMER_KEY! } })
         .then((r) => { if (!r.ok) console.error(`[${label}] timer call refused: ${r.status}`); })
