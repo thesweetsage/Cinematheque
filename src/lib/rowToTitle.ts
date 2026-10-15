@@ -3,7 +3,7 @@ import type { Art, Kind, Title } from "./catalog";
 import type { TitleRow } from "./importTitle";
 
 /** A `titles` row as read back from the database (the importer's row plus the shelf flags). */
-export type DbTitleRow = TitleRow & { on_plex?: boolean; in_library?: boolean };
+export type DbTitleRow = TitleRow & { on_plex?: boolean; in_library?: boolean; plex_rating_key?: string | null };
 
 /** Which aisle a title lives in, from its TMDB genres. */
 export function aisleOf(kind: Kind, genres: string[], language: string | null) {
@@ -24,7 +24,7 @@ export function rowToTitle(r: DbTitleRow): { title: Title; art: Art } {
     title: {
       id: r.slug, t: r.title, y: r.year ?? 0, kind: r.kind, g: aisleOf(r.kind, r.genres, r.language), dir: r.director_or_creator ?? "",
       run: r.runtime ? `${Math.floor(r.runtime / 60)}h ${r.runtime % 60}m` : r.seasons_count ? `${r.seasons_count} season${r.seasons_count > 1 ? "s" : ""}` : undefined,
-      lib: !!(r.on_plex || r.in_library), plex: !!r.on_plex,
+      lib: !!(r.on_plex || r.in_library), plex: !!r.on_plex, plexKey: r.plex_rating_key ?? undefined,
       imdb: r.rating_imdb ?? undefined, rt: r.rating_rt ?? undefined, mc: r.rating_metacritic ?? undefined,
       cast: r.cast_names.join(", ") || undefined, ctry: r.country ?? undefined, syn: r.overview ?? "",
     },

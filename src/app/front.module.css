@@ -29,3 +29,7 @@
 .rec:nth-child(even) .card{transform:rotate(1.2deg)}
 .card b{display:block;font-weight:400;font-size:12px;color:var(--print-red);margin-top:4px}
 @media (max-width:520px){.recs{grid-template-columns:1fr}}
+.deck{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:18px;margin-top:14px}
+.deckLabel{font-family:var(--font-vt323),monospace;font-size:19px;line-height:1;color:var(--cyan);text-align:center}
+.bar{display:block;width:80%;height:4px;background:var(--edge)}
+.bar i{display:block;height:100%;background:var(--mag);box-shadow:0 0 6px var(--mag)}

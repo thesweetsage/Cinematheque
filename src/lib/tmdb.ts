@@ -65,3 +65,9 @@ export async function details(kind: TmdbKind, id: number): Promise<Details> {
     posterPath: d.poster_path, backdropPath: d.backdrop_path, logoPath: logo?.file_path ?? null,
   };
 }
+
+/** TMDB id for a title known only by its IMDb or TVDB id (from Plex). */
+export async function findByExternalId(source: "imdb_id" | "tvdb_id", id: string, kind: TmdbKind): Promise<number | null> {
+  const r = await get<{ movie_results: { id: number }[]; tv_results: { id: number }[] }>(`/find/${id}`, { external_source: source });
+  return (kind === "movie" ? r.movie_results : r.tv_results)[0]?.id ?? null;
+}

@@ -1,6 +1,7 @@
 "use client";
 import { useSyncExternalStore } from "react";
 import { signOut } from "../login/actions";
+import { PlexPanel } from "./PlexPanel";
 
 /* The <html> classes are the source of truth for these switches (set before paint in layout.tsx). */
 function watchClasses(cb: () => void) {
@@ -9,7 +10,7 @@ function watchClasses(cb: () => void) {
   return () => o.disconnect();
 }
 
-/* Membership card: the switches that live on this device (TV mode, effects). Connections arrive in phase 2 and 3. */
+/* Membership card: the switches that live on this device (TV mode, effects), sign out, and the Plex connection. */
 export default function Settings() {
   const tv = useSyncExternalStore(watchClasses, () => document.documentElement.classList.contains("tv"), () => false);
   const fx = useSyncExternalStore(watchClasses, () => document.documentElement.classList.contains("fx"), () => true);
@@ -31,7 +32,8 @@ export default function Settings() {
       {row("TV mode", "Bigger text and safe margins for the projector, lighter effects. On automatically on the TV box.", tv, () => flip("tv", "cine_tv", !tv), true)}
       {row("Effects", "Scanlines and the lights-on sequence. Always off when your device asks for reduced motion.", fx, () => flip("fx", "cine_fx", !fx))}
       {row("Membership", "Signed in on this device for a year at a time. Signing out means asking for a new code.", true, () => signOut())}
-      <p style={{ color: "var(--muted)", fontSize: 14, marginTop: 18 }}>Plex, TMDB and Stremio connections are added in the next phases.</p>
+      <PlexPanel />
+      <p style={{ color: "var(--muted)", fontSize: 14, marginTop: 18 }}>The Stremio add-on link arrives in a later phase.</p>
     </div>
   );
 }

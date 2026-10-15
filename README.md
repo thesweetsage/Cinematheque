@@ -38,6 +38,20 @@ The app then keeps its own signed session cookie for a year, renewed while you u
 Sign out on the Membership card. Supabase's built-in email sender allows only a few emails an hour; add your own SMTP
 in Supabase if that gets in the way.
 
+### Plex
+
+1. Run `supabase/migrations/20261015120000_app_settings.sql` in the Supabase SQL Editor (it adds the table the
+   Plex connection is kept in).
+2. Open the **Membership** card, choose **Connect Plex**, then go to plex.tv/link on any device and type the code shown.
+   If your account has one server it's picked straight away; otherwise choose it.
+3. The first sync starts at once. After that the library syncs every hour while the app is running (and on **Sync now**):
+   films and series are matched by their IMDb/TMDB ids (new ones are added from TMDB), every episode is stored,
+   anything watched since the last sync is logged as a watch, titles that left Plex lose their ON PLEX sticker,
+   and wishlist titles that arrived come off the wishlist. Titles Plex can't identify are listed under "not matched".
+
+The app has to reach the Plex server: run it on the same computer or network. **Play on Plex** opens Plex Web,
+or the Plex app on Android (its `plex://` link isn't documented by Plex, so check it on the TV box).
+
 Every page reads the catalogue from the database (`src/lib/catalog.ts`, cached for a minute and refreshed when a title is added).
 It falls back to the sample catalogue, with a SAMPLE DATA tag that says why, while the database isn't connected,
 refuses access, or has no titles yet.
@@ -49,4 +63,5 @@ remote navigation, TV mode, store radio.
 Phase 2 is done: database schema, TMDB + OMDb lookups, generated spine colours, the Returns Slot search page
 (preview any film or series as a VHS box, put it on the shelf), and the Store Front, Shelves and title pages reading
 titles, ratings, recommendations, fact cards and editions from the database. Email login (Supabase Auth code or link, one member) guards every page and API route.
-Phase 3 (the Plex sync) fills the shelves with the real library.
+Phase 3 is done: Plex connection on the Membership card (plex.tv/link code), hourly library and watch sync, ON PLEX
+stickers, Play on Plex, Continue watching on the Store Front, and the wishlist cleared by the sync.

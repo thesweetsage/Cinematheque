@@ -22,6 +22,7 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Everything except the login page, Next's own files, sample artwork and the icon.
-  matcher: ["/((?!login|_next/static|_next/image|art/|favicon.ico).*)"],
+  // Everything except the login page, Next's own files, sample artwork, the icon, and the Plex sync route
+  // (the hourly timer calls it with its own key; the route checks that key or the session itself).
+  matcher: ["/((?!login|_next/static|_next/image|art/|favicon.ico|api/plex/sync).*)"],
 };

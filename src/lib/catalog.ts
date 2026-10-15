@@ -7,7 +7,9 @@ import artData from "@/data/art.json";
 import store from "@/data/sample-store.json";
 import { brighten } from "./colour";
 import { rowToTitle, type DbTitleRow } from "./rowToTitle";
-import { db } from "./supabase";
+import { db, selectAll as all } from "./supabase";
+import { getSetting } from "./settings";
+import { plexServer as connectedPlex, usingEnv, type PlexSettings } from "./plex/connection";
 
 /*
  * The catalogue every page reads: titles from Supabase, with the sample set as a fallback while the database
@@ -21,8 +23,8 @@ export type Title = {
   id: string; t: string; y: number; kind: Kind; g: string; dir: string; run?: string;
   /** On the shelves (sample: on Plex; database: on Plex or added in the Returns Slot). */
   lib: boolean;
-  /** On the Plex server. */
-  plex: boolean;
+  /** On the Plex server, and its Plex id (for Play on Plex). */
+  plex: boolean; plexKey?: string;
   imdb?: number; rt?: number; mc?: number; my?: number;
   cast?: string; ctry?: string; syn: string;
 };
@@ -42,6 +44,8 @@ export type Catalog = {
   recs: { pop: Rec[]; deep: Rec[] };
   facts: Record<string, { cards: Fact[]; draft: boolean }>;
   editions: Record<string, string>;
+  /** The Plex server's machine id, for Play on Plex links. */
+  plexServer?: string;
 };
 
 export const CATALOG_TAG = "catalog";
@@ -82,18 +86,7 @@ const FALLBACK_ART: Art = { poster: null, logo: null, backdrop: null, bg: "#1411
 
 const TITLE_COLUMNS =
   "id, slug, kind, tmdb_id, imdb_id, title, year, runtime, seasons_count, genres, keywords, director_or_creator, cast_names, country, language, overview, " +
-  "poster_url, backdrop_url, logo_url, spine_bg, spine_accent, logo_dark, logo_ratio, on_plex, in_library, rating_imdb, rating_rt, rating_metacritic, metadata_updated_at";
-
-/** Reads every row of a query, 1000 at a time (the API's page limit). */
-async function all<T>(query: (from: number, to: number) => PromiseLike<{ data: unknown; error: { message: string } | null }>) {
-  const rows: T[] = [];
-  for (let from = 0; ; from += 1000) {
-    const { data, error } = await query(from, from + 999);
-    if (error) throw new Error(error.message);
-    rows.push(...(data as T[]));
-    if ((data as T[]).length < 1000) return rows;
-  }
-}
+  "poster_url, backdrop_url, logo_url, spine_bg, spine_accent, logo_dark, logo_ratio, on_plex, in_library, plex_rating_key, rating_imdb, rating_rt, rating_metacritic, metadata_updated_at";
 
 async function dbCatalog(): Promise<Catalog | null> {
   const client = db()!;
@@ -150,7 +143,8 @@ async function dbCatalog(): Promise<Catalog | null> {
     }
   }
 
-  return { source: "db", titles, art, picks: tonightsPick(titles, watched, rows), recs, facts, editions };
+  const plexServer = (await getSetting<PlexSettings>("plex").catch(() => null))?.server?.machineId ?? (await envMachineId());
+  return { source: "db", titles, art, picks: tonightsPick(titles, watched, rows), recs, facts, editions, plexServer };
 }
 
 /** Tonight's pick: an unplayed tape off the shelf, a different one each day. */
@@ -197,4 +191,10 @@ function sampleCatalog(reason: Catalog["reason"]): Catalog {
     facts,
     editions: store.editions as Record<string, string>,
   };
+}
+
+/** Machine id of a server set by PLEX_URL + PLEX_TOKEN in .env.local (asks the server). */
+async function envMachineId() {
+  if (!usingEnv()) return undefined;
+  return (await connectedPlex().catch(() => null))?.machineId;
 }

@@ -35,6 +35,7 @@ export function VhsBox({ title: t, art, width = 290, view = "angle", kase = "sle
             : <div className={s.fallback}><span>{t.t}</span><small>{t.y}</small></div>}
         </div>
         {edition && <span className={s.edition}>No. {edition}</span>}
+        {t.plex && <span className={s.onPlex}>ON PLEX</span>}
         <span className={`${s.stk} ${s.rent}`}>CINEMATHEQUE<b>RENTAL</b>VIDEO</span>
         <span className={`${s.stk} ${s.price}`}>€1,50 · 2 NIGHTS</span>
         <span className={s.residue} /><span className={s.gloss} /><span className={s.wearLayer} />

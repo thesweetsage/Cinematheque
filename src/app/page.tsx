@@ -1,8 +1,10 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { Aisle } from "@/components/Aisle";
 import { VhsBox } from "@/components/VhsBox";
 import { SampleTag } from "@/components/SampleTag";
-import { artOf, findTitle, getCatalog, shelf, type Rec } from "@/lib/catalog";
+import { artOf, findTitle, getCatalog, shelf, type Catalog, type Rec } from "@/lib/catalog";
+import { continueWatching } from "@/lib/plex/deck";
 import s from "./front.module.css";
 
 export default async function StoreFront() {
@@ -38,6 +40,7 @@ export default async function StoreFront() {
     <>
       <div className={s.tagRow}><SampleTag catalog={cat} /></div>
       <Aisle catalog={cat} faceOut={faceOut} />
+      <Suspense fallback={null}><ContinueWatching cat={cat} /></Suspense>
       {pick && (
         <section className={s.tonight}>
           <div className={s.crt}>
@@ -66,5 +69,29 @@ export default async function StoreFront() {
         )}
       </section>
     </>
+  );
+}
+
+/* Plex's On Deck, read fresh every couple of minutes; streams in so a slow Plex never holds up the store front. */
+async function ContinueWatching({ cat }: { cat: Catalog }) {
+  const deck = await continueWatching();
+  if (!deck.length) return null;
+  return (
+    <section className={s.section} aria-labelledby="cw">
+      <h2 id="cw" className="sec-title">Continue watching</h2>
+      <div className={s.deck}>
+        {deck.map((d) => {
+          const t = findTitle(cat, d.id);
+          if (!t) return null;
+          return (
+            <Link key={d.id} href={`/title/${t.id}`} className={s.rec} aria-label={`${t.t}, ${d.label}`}>
+              <span className={s.recBox}><VhsBox title={t} art={artOf(cat, t.id)} width={130} /></span>
+              <span className={s.deckLabel}>{d.label}</span>
+              <span className={s.bar} aria-hidden="true"><i style={{ width: `${Math.round(d.progress * 100)}%` }} /></span>
+            </Link>
+          );
+        })}
+      </div>
+    </section>
   );
 }

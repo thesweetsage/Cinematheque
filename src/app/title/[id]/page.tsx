@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BoxViewer } from "@/components/BoxViewer";
 import { VhsBox } from "@/components/VhsBox";
+import { PlayOnPlex } from "@/components/PlayOnPlex";
 import { SampleTag } from "@/components/SampleTag";
 import { artOf, findTitle, getCatalog, moreLikeThis } from "@/lib/catalog";
 import s from "./title.module.css";
@@ -44,7 +45,8 @@ export default async function TitlePage({ params }: { params: Promise<{ id: stri
           </div>
           <p className={s.syn}>{t.syn}</p>
           <div className={s.play}>
-            {t.plex ? <button className="btn primary">Play on Plex ▶</button> : <button className="btn">+ Add to wishlist</button>}
+            {t.plex && t.plexKey && cat.plexServer ? <PlayOnPlex machineId={cat.plexServer} ratingKey={t.plexKey} series={series} />
+              : t.plex ? <button className="btn primary">Play on Plex ▶</button> : <button className="btn">+ Add to wishlist</button>}
             <button className="btn">Open in Stremio</button>
           </div>
           {fc && (
