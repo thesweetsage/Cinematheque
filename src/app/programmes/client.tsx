@@ -3,7 +3,7 @@ import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { ProgStatus } from "@/lib/programmes";
 import {
-  addItem, createProgramme, deleteProgramme, draftEssay, induct, moveItem, removeItem, saveEssay, setAward, setDone, setPair, setStatus, updateDetails, updateItem,
+  addItem, autoProgramme, createProgramme, deleteProgramme, draftEssay, induct, moveItem, removeItem, saveEssay, setAward, setDone, setPair, setStatus, updateDetails, updateItem,
 } from "./actions";
 import s from "./programmes.module.css";
 
@@ -54,7 +54,58 @@ function Accents({ value }: { value: string }) {
   );
 }
 
-/** Start a festival or a 31 Days. */
+/**
+ * Start a programme the easy way: choose Festival or 31 Days, then one button (a genre, a decade, or Surprise me)
+ * and it builds itself from the shelves. A typed theme works too. Everything can be edited afterwards.
+ */
+export function AutoProgrammeForm({ genres, decades, curator }: { genres: { g: string; n: number }[]; decades: string[]; curator: boolean }) {
+  const router = useRouter();
+  const [kind, setKind] = useState<"festival" | "days31">("festival");
+  const [theme, setTheme] = useState("");
+  const [busy, setBusy] = useState<string | null>(null);
+  const [error, setError] = useState("");
+  const [, go] = useTransition();
+  const build = (label: string, genre: string | null, th: string | null) => go(async () => {
+    setError(""); setBusy(label);
+    const r = await autoProgramme(kind, genre, th).catch((e: Error) => ({ error: e.message, slug: undefined }));
+    if (r.error || !r.slug) { setError(r.error ?? "Something went wrong."); setBusy(null); } else router.push(`/programmes/${r.slug}`);
+  });
+  const chip = (label: string, genre: string | null, extra?: string, first = false) => (
+    <button key={label} type="button" className={s.chip} disabled={!!busy} onClick={() => build(label, genre, null)} data-autofocus={first ? true : undefined}>
+      {label}{extra && <small>{extra}</small>}
+    </button>
+  );
+  return (
+    <div className={s.form}>
+      <div className={s.choice} role="radiogroup" aria-label="What kind">
+        {(["festival", "days31"] as const).map((k) => (
+          <button key={k} type="button" role="radio" aria-checked={kind === k} className={s.option} data-on={kind === k} onClick={() => setKind(k)} disabled={!!busy}>
+            <b>{k === "festival" ? "Festival" : "31 Days of ___"}</b>
+            <span>{k === "festival" ? "About 8 titles over four weeks, with a booklet, a schedule and jury awards at the end." : "One title a night for 31 nights, on a rental card with a stamp for every day and a streak."}</span>
+          </button>
+        ))}
+      </div>
+      <div>
+        <div className={s.fieldLabel}>Pick one and it builds itself from your shelves</div>
+        <div className={s.chips}>
+          {chip("Surprise me", null, curator ? "Claude picks a theme" : "your biggest aisle", true)}
+          {genres.map((g) => chip(g.g, g.g, `${g.n}`))}
+          {decades.map((d) => chip(`The ${d}`, d.toUpperCase()))}
+        </div>
+      </div>
+      {curator && (
+        <form className={s.themeRow} onSubmit={(e) => { e.preventDefault(); if (theme.trim()) build(theme.trim(), null, theme.trim()); }}>
+          <label className={s.field}><span>Or any theme</span><input value={theme} onChange={(e) => setTheme(e.target.value)} maxLength={200} placeholder="Medieval, one country, road movies, final girls…" disabled={!!busy} /></label>
+          <button className="btn" disabled={!!busy || !theme.trim()}>Build it</button>
+        </form>
+      )}
+      {busy && <p className={s.muted} role="status">Programming “{busy}”{curator ? ": Claude is picking from your shelves, about half a minute" : ""}…</p>}
+      <Err msg={error} />
+    </div>
+  );
+}
+
+/** Start a festival or a 31 Days by hand. */
 export function NewProgrammeForm({ today, monthEnd }: { today: string; monthEnd: string }) {
   const router = useRouter();
   const [type, setType] = useState<"festival" | "days31">("festival");

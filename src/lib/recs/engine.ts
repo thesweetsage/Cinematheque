@@ -182,7 +182,7 @@ async function run(force: boolean): Promise<RecsReport> {
   }
   report.finishedAt = new Date().toISOString();
   await setSetting(RECS_KEY, report).catch((e) => console.error("[recs] couldn't save the report:", e.message));
-  revalidateTag(CATALOG_TAG, { expire: 0 });
+  try { revalidateTag(CATALOG_TAG, { expire: 0 }); } catch (e) { console.error("[recs] couldn't refresh the pages:", (e as Error).message); }
   return report;
 }
 

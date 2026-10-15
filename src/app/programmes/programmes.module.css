@@ -169,3 +169,17 @@ button.tick:focus-visible{outline:3px solid var(--mag);outline-offset:3px;box-sh
   .endPoster,.endPoster *{visibility:visible}
   .endPoster{position:absolute;inset:0 auto auto 0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
+
+/* ---------- Build it for me ---------- */
+.fieldLabel{font-family:var(--font-vt323),monospace;font-size:19px;text-transform:uppercase;color:var(--cyan);margin-bottom:8px}
+.chips{display:flex;flex-wrap:wrap;gap:10px}
+.chip{display:grid;gap:2px;justify-items:start;font-family:var(--font-bungee),sans-serif;font-size:18px;line-height:1.1;color:var(--fg);background:var(--panel);border:2px solid var(--edge);padding:10px 14px;text-align:left}
+.chip small{font-family:var(--font-vt323),monospace;font-size:16px;color:var(--muted)}
+.chip:first-child{border-color:var(--mag);box-shadow:0 0 14px -4px rgba(255,79,184,.8)}
+.chip:hover,.chip:focus-visible{border-color:var(--cyan)}
+.chip:disabled{opacity:.5}
+.themeRow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:end}
+@media (max-width:520px){.themeRow{grid-template-columns:1fr}}
+button.option{font:inherit;color:inherit;text-align:left}
+.byHand{margin-top:34px;border-top:1px solid var(--edge);padding-top:14px}
+.byHand summary{font-family:var(--font-vt323),monospace;font-size:20px;color:var(--muted);cursor:pointer}

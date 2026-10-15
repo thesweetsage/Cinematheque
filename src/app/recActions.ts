@@ -85,3 +85,9 @@ export async function recsStatus(): Promise<RecsStatus> {
     seeds: profile?.seeds.slice(0, 5).map((x) => x.title) ?? [],
   };
 }
+
+/** Called by the Membership card when a run it started has finished, so the Store Front shows the new cards at once. */
+export async function refreshCards(): Promise<void> {
+  await requireMember();
+  updateTag(CATALOG_TAG);
+}
