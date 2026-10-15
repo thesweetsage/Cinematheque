@@ -1,6 +1,4 @@
 import "server-only";
-import { cacheLife, cacheTag } from "next/cache";
-import { CATALOG_TAG } from "./catalog";
 import { canWrite, type FactCard } from "./notes/write";
 import { db } from "./supabase";
 
@@ -11,10 +9,8 @@ export type Extras = { notes: Notes | null; episodes: { season: number; episode:
 
 export const titleTag = (slug: string) => `title:${slug}`;
 
+/** Read fresh on every view, so new liner notes and ticked episodes show straight away. */
 export async function titleExtras(slug: string): Promise<Extras | null> {
-  "use cache";
-  cacheLife("minutes");
-  cacheTag(CATALOG_TAG, titleTag(slug));
   const client = db();
   if (!client) return null;
   try {

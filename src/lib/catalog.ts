@@ -1,6 +1,7 @@
 import "server-only";
 import { existsSync } from "node:fs";
 import path from "node:path";
+import { cache } from "react";
 import { cacheLife, cacheTag } from "next/cache";
 import sampleTitles from "@/data/sample-titles.json";
 import artData from "@/data/art.json";
@@ -65,10 +66,21 @@ export type Catalog = {
 
 export const CATALOG_TAG = "catalog";
 
-export async function getCatalog(): Promise<Catalog> {
+/**
+ * The catalogue as it is right now: read fresh from the database on every page view (once per request).
+ * A cached copy came back one change late (a staff card you'd hidden, a title you'd just wishlisted).
+ */
+export const getCatalog = cache(loadCatalog);
+
+/** A cached copy, for the build-time page list and browser tab titles only (they can be a minute out of date). */
+export async function getCatalogCached(): Promise<Catalog> {
   "use cache";
   cacheLife("minutes");
   cacheTag(CATALOG_TAG);
+  return loadCatalog();
+}
+
+async function loadCatalog(): Promise<Catalog> {
   const client = db();
   if (!client) return sampleCatalog("not-connected");
   try {
@@ -136,10 +148,12 @@ async function dbCatalog(): Promise<Catalog | null> {
 
   const recs: Catalog["recs"] = { pop: [], deep: [], shelf: [], because: [] };
   const lib = new Set(titles.filter((t) => t.lib).map((t) => t.id));
+  // Wishlisted titles leave the staff cards: they're on the Coming Soon board now.
+  const wished = new Set((wishRows.data as { title_id: string }[]).map((w) => w.title_id));
   const bySeed = new Map<string, Rec[]>();
   for (const r of recRows.data as RecRow[]) {
     const id = slugOf.get(r.title_id);
-    if (!id || lib.has(id)) continue; // it reached the shelves since the run
+    if (!id || lib.has(id) || wished.has(r.title_id)) continue; // on the shelves or the wishlist since the run
     const rec = { id, why: r.reason ?? "", who: r.source === "claude" ? "Staff deep cut" : r.lane === "popular" ? "Popular pick" : "Deep cut", recId: r.id };
     (r.lane === "popular" ? recs.pop : recs.deep).push(rec);
     const seed = r.seed_title_id && slugOf.get(r.seed_title_id);

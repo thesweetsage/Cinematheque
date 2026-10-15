@@ -5,19 +5,19 @@ import { VhsBox } from "@/components/VhsBox";
 import { SampleTag } from "@/components/SampleTag";
 import { artOf, findTitle, getCatalog, type Catalog } from "@/lib/catalog";
 import { canWriteEssay } from "@/lib/editionEssay";
-import { findProgramme, getProgrammes, spineLabel, stamps, TYPE_NAME, type Programme } from "@/lib/programmes";
+import { findProgramme, getProgrammes, getProgrammesCached, spineLabel, stamps, TYPE_NAME, type Programme } from "@/lib/programmes";
 import { AwardForm, EssayEditor, Editor, PairToggles, PrintButton, RemoveAward } from "../client";
 import { Flyer, Poster, RentalCard, span, TapeRow } from "../parts";
 import s from "../programmes.module.css";
 
 export async function generateStaticParams() {
-  const slugs = (await getProgrammes()).list.map((p) => ({ slug: p.slug }));
+  const slugs = (await getProgrammesCached()).list.map((p) => ({ slug: p.slug }));
   // Cache Components needs at least one: with no programmes yet, a placeholder that renders "not found".
   return slugs.length ? slugs : [{ slug: "none-yet" }];
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
-  const p = findProgramme(await getProgrammes(), (await params).slug);
+  const p = findProgramme(await getProgrammesCached(), (await params).slug);
   return { title: p ? `${p.type === "edition" ? spineLabel(p.spine) : p.title} · The Cinematheque` : "Not found" };
 }
 

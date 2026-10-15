@@ -65,10 +65,17 @@ async function run(force: boolean): Promise<RecsReport> {
     // What's already known: watched, on the shelves, or turned down.
     const watched = new Set(taste.watches.map((w) => w.title_id));
     const turnedDown = new Set(taste.feedback.filter((f) => f.feedback !== "up").map((f) => f.title_id));
+    // Wishlisted titles are already chosen; last run's cards (no reaction) step back so the wall changes each run.
+    const [{ data: wishRows }, { data: shownRows }] = await Promise.all([
+      client.from("wishlist").select("title_id"),
+      client.from("recommendations").select("title_id").is("feedback", null),
+    ]);
+    const wished = new Set(((wishRows ?? []) as { title_id: string }[]).map((w) => w.title_id));
+    const shownBefore = new Set(((shownRows ?? []) as { title_id: string }[]).map((r) => r.title_id));
     const byTmdb = new Map(taste.titles.filter((t) => t.tmdb_id).map((t) => [key(asKind(t.kind), t.tmdb_id!), t]));
     const skip = (c: Candidate) => {
       const t = byTmdb.get(key(c.kind, c.tmdbId));
-      return !!t && (watched.has(t.id) || t.on_plex || t.in_library || turnedDown.has(t.id));
+      return !!t && (watched.has(t.id) || t.on_plex || t.in_library || turnedDown.has(t.id) || wished.has(t.id));
     };
 
     // 2. Candidates.
@@ -108,11 +115,15 @@ async function run(force: boolean): Promise<RecsReport> {
     const gWeight = new Map(profile.genres);
     const maxG = Math.max(1e-6, ...profile.genres.map(([, w]) => w));
     const langs = new Set(profile.languages.map(([l]) => l));
+    const runSeed = Math.floor(Date.now() / 60_000) % 100_000;
     const popular: Found[] = [], deep: Found[] = [];
     for (const f of found.values()) {
       const taste = f.genreIds.reduce((s, id) => s + Math.max(0, gWeight.get(gNames.get(id) ?? "") ?? 0), 0) / maxG;
       const fromSeeds = f.seeds.reduce((s, x) => s + x.seed.weight * (x.list === "recommendations" ? 1 : 0.7), 0);
-      f.score = fromSeeds * 1.6 + taste * 0.5 + (f.via ? 0.4 : 0) + (f.avg - 6.5) * 0.35;
+      const known = byTmdb.get(key(f.kind, f.tmdbId));
+      const repeat = known && shownBefore.has(known.id) ? 1.2 : 0; // on the wall last time: make room for new ones
+      const jitter = ((f.tmdbId * 9301 + runSeed) % 233) / 233 * 0.5; // a little variety between runs
+      f.score = fromSeeds * 1.6 + taste * 0.5 + (f.via ? 0.4 : 0) + (f.avg - 6.5) * 0.35 - repeat + jitter;
       const bigVotes = f.kind === "movie" ? 1500 : 400;
       const isPopular = f.votes >= bigVotes && f.avg >= 7;
       const isDeep = f.votes >= 40 && ((f.votes < bigVotes && f.avg >= 6.6) || (f.avg >= 6.9 && (f.year! < 1985 || (f.language !== "en" && !langs.has(f.language)))));

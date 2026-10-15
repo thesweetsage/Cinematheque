@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { cacheLife, cacheTag } from "next/cache";
 import store from "@/data/sample-store.json";
 import { CATALOG_TAG } from "./catalog";
@@ -28,10 +29,18 @@ export type Programmes = { source: "db" | "sample"; list: Programme[]; today: st
 export const ACCENTS = ["#FF4FB8", "#7EE6FF", "#FFE38A", "#FF9A5C", "#B9B2FF", "#7CFF9E"] as const;
 export const TYPE_NAME: Record<ProgType, string> = { edition: "Edition", festival: "Festival", days31: "31 Days" };
 
-export async function getProgrammes(): Promise<Programmes> {
+/** The programmes as they are right now: read fresh on every page view (a cached copy showed deleted programmes). */
+export const getProgrammes = cache(loadProgrammes);
+
+/** A cached copy, for the build-time page list and browser tab titles only. */
+export async function getProgrammesCached(): Promise<Programmes> {
   "use cache";
   cacheLife("minutes");
   cacheTag(PROG_TAG, CATALOG_TAG);
+  return loadProgrammes();
+}
+
+async function loadProgrammes(): Promise<Programmes> {
   const client = db();
   if (!client) return sample();
   try {

@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { BoxViewer } from "@/components/BoxViewer";
 import { PlayOnPlex } from "@/components/PlayOnPlex";
 import { SampleTag } from "@/components/SampleTag";
-import { artOf, findTitle, getCatalog, type Catalog, type Title } from "@/lib/catalog";
+import { artOf, findTitle, getCatalog, getCatalogCached, type Catalog, type Title } from "@/lib/catalog";
 import { titleExtras } from "@/lib/titleExtras";
 import { WishButton } from "@/components/RecActions";
 import { Booklet } from "./Booklet";
@@ -15,10 +15,10 @@ import { Reviews } from "./Reviews";
 import { Seasons } from "./Seasons";
 import s from "./title.module.css";
 
-export async function generateStaticParams() { return (await getCatalog()).titles.map((t) => ({ id: t.id })); }
+export async function generateStaticParams() { return (await getCatalogCached()).titles.map((t) => ({ id: t.id })); }
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
-  const t = findTitle(await getCatalog(), (await params).id);
+  const t = findTitle(await getCatalogCached(), (await params).id);
   return { title: t ? `${t.t} · The Cinematheque` : "Not found" };
 }
 
