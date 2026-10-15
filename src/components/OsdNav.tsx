@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { usePathname } from "next/navigation";
 import s from "./OsdNav.module.css";
 
-const LINKS = [["/", "Store front"], ["/shelves", "Shelves"], ["/programmes", "Festival wall"], ["/wishlist", "Coming soon"], ["/search", "Returns slot"], ["/settings", "Membership"]] as const;
+const LINKS = [["/", "Store front"], ["/shelves", "Shelves"], ["/library", "Library"], ["/programmes", "Festival wall"], ["/wishlist", "Coming soon"], ["/search", "Returns slot"], ["/settings", "Membership"]] as const;
 
 /* The links, marked with the current page. They read the address, so they stream in (Suspense) and the rest of the
    page can still be built ahead of time; until then the same links show without the highlight. */

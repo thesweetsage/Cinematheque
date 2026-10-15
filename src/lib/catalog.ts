@@ -22,6 +22,8 @@ export type Kind = "movie" | "series";
 export type Title = {
   /** Slug, used in URLs. */
   id: string; t: string; y: number; kind: Kind; g: string; dir: string; run?: string;
+  /** All its genres (shelf names), and when it came into the store (database only). */
+  gs?: string[]; added?: string;
   /** On the shelves (sample: on Plex; database: on Plex or added in the Returns Slot). */
   lib: boolean;
   /** On the Plex server, and its Plex id (for Play on Plex). */
@@ -101,7 +103,7 @@ export function moreLikeThis(c: Catalog, t: Title, n = 6) {
 }
 
 /** Aisles in store order. Anything else gets its own aisle after these. */
-export const AISLES = ["HORROR", "ROM-COM", "SCI-FI", "FANTASY", "ANIME", "COMEDY", "SERIES"] as const;
+export const AISLES = ["HORROR", "ROM-COM", "SCI-FI", "FANTASY", "ANIME", "COMEDY", "DRAMA", "CRIME", "MYSTERY", "THRILLER", "ACTION", "ADVENTURE"] as const;
 export function aisles(titles: Title[]) {
   const extra = [...new Set(titles.map((t) => t.g))].filter((g) => !(AISLES as readonly string[]).includes(g)).sort();
   return [...AISLES, ...extra].map((g) => ({ g, titles: titles.filter((t) => t.g === g) })).filter((a) => a.titles.length);
@@ -113,7 +115,7 @@ const FALLBACK_ART: Art = { poster: null, logo: null, backdrop: null, bg: "#1411
 
 const TITLE_COLUMNS =
   "id, slug, kind, tmdb_id, imdb_id, title, year, runtime, seasons_count, genres, keywords, director_or_creator, cast_names, country, language, overview, " +
-  "poster_url, backdrop_url, logo_url, spine_bg, spine_accent, logo_dark, logo_ratio, on_plex, in_library, plex_rating_key, rating_imdb, rating_rt, rating_metacritic, metadata_updated_at";
+  "poster_url, backdrop_url, logo_url, spine_bg, spine_accent, logo_dark, logo_ratio, on_plex, in_library, plex_rating_key, rating_imdb, rating_rt, rating_metacritic, metadata_updated_at, created_at";
 
 async function dbCatalog(): Promise<Catalog | null> {
   const client = db()!;

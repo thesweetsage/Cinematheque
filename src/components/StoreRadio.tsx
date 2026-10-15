@@ -106,7 +106,7 @@ export function StoreRadio() {
   };
 
   return (
-    <div className={`${s.radio} ${on ? s.playing : ""}`} role="region" aria-label="Store radio">
+    <div className={`${s.radio} ${on ? s.playing : ""}`} role="region" aria-label="Store radio" data-remote-last>
       <button className={s.cass} onClick={toggle} aria-label={on ? "Pause the store radio" : "Play the store radio"}>
         <span className={`${s.reel} ${s.l}`} /><span className={`${s.reel} ${s.r}`} /><span className={s.pl}>{on ? "❚❚" : "▶ PLAY"}</span>
       </button>

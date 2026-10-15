@@ -51,10 +51,21 @@ function move(dir: Dir) {
     // Targets that line up with the current item (same row or column, e.g. a wide field straight above) count as
     // no sideways offset; anything else pays its centre offset plus a little for leaving the row.
     const lined = horizontal ? r.top < a.bottom && r.bottom > a.top : r.left < a.right && r.right > a.left;
-    const score = (horizontal ? Math.abs(dx) : Math.abs(dy)) + (lined ? 0 : (horizontal ? Math.abs(dy) : Math.abs(dx)) * 2.2 + 40);
+    // Things floating over the page (the store radio) are only picked when nothing else lies that way,
+    // so moving down a page never lands on the radio by accident.
+    const floating = !!el.closest("[data-remote-last]") && !cur.closest("[data-remote-last]");
+    const score = (horizontal ? Math.abs(dx) : Math.abs(dy)) + (lined ? 0 : (horizontal ? Math.abs(dy) : Math.abs(dx)) * 2.2 + 40) + (floating ? 100_000 : 0);
     if (score < bestScore) { bestScore = score; best = el; }
   }
   if (best) { best.focus({ preventScroll: true }); reveal(best); }
+}
+
+/** Is the cursor already at the edge it's moving towards? Date and other fields without a text cursor: always. */
+function atEdge(el: HTMLInputElement | HTMLTextAreaElement, dir: "left" | "right") {
+  let start: number | null = null, end: number | null = null;
+  try { start = el.selectionStart; end = el.selectionEnd; } catch { return true; }
+  if (start == null || end == null) return true;
+  return dir === "left" ? start === 0 && end === 0 : start === el.value.length && end === el.value.length;
 }
 
 export function RemoteNav() {
@@ -69,7 +80,9 @@ export function RemoteNav() {
       const dir = keys[e.key];
       if (dir) {
         if ((t as HTMLInputElement).type === "range" && (dir === "left" || dir === "right")) return;
-        if (typing && (dir === "left" || dir === "right")) return;
+        // In a text box, Left / Right move the cursor until it's at the start / end, then move focus out,
+        // so a field next to another one (Starts / Ends) is never a dead end for the remote.
+        if (typing && (dir === "left" || dir === "right") && !atEdge(t as HTMLInputElement | HTMLTextAreaElement, dir)) return;
         e.preventDefault();
         document.documentElement.classList.add("remote");
         move(dir);

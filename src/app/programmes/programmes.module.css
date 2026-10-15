@@ -91,13 +91,13 @@ button.tick:focus-visible{outline:3px solid var(--mag);outline-offset:3px;box-sh
 .tapeBox > div{--ry:12deg !important;--rx:2deg !important}
 .tape:hover .tapeBox,.tape:focus-visible .tapeBox{transform:translateY(-8px)}
 
-/* ---------- Booklet (reading skin) ---------- */
-.booklet{max-width:760px;margin-top:40px;background:var(--paper);color:var(--ink);padding:30px clamp(18px,4vw,44px) 26px;box-shadow:0 14px 30px rgba(0,0,0,.5)}
-.bookletKicker{font-family:var(--font-vt323),monospace;font-size:18px;letter-spacing:.08em;text-transform:uppercase;color:var(--print-red)}
-.bookletTitle{font-family:var(--font-fraunces),serif;font-weight:700;font-size:clamp(28px,3.6vw,40px);line-height:1.05;margin:4px 0 16px}
-.booklet p{font-family:var(--font-newsreader),serif;font-size:19px;line-height:1.55;margin-top:12px;max-width:62ch}
-.bookletEmpty{font-style:italic;color:#6b625a}
-.draftNote{font-family:var(--font-vt323),monospace!important;font-size:17px!important;color:var(--print-red)}
+/* ---------- Programme notes and essays: the store's own panels, full width ---------- */
+.booklet{margin-top:40px;background:var(--panel);border:1px solid var(--edge);border-left:4px solid var(--mag);padding:20px clamp(16px,3vw,30px)}
+.bookletKicker{font-family:var(--font-vt323),monospace;font-size:19px;letter-spacing:.06em;text-transform:uppercase;color:var(--mag)}
+.bookletTitle{font-family:var(--font-shoulders),sans-serif;font-weight:900;text-transform:uppercase;font-size:clamp(26px,3vw,36px);line-height:1;margin:6px 0 12px}
+.booklet p{font-size:17px;line-height:1.6;margin-top:10px;max-width:72ch}
+.bookletEmpty{color:var(--muted)}
+.draftNote{font-family:var(--font-vt323),monospace!important;font-size:18px!important;color:var(--yellow)}
 
 /* ---------- Awards ---------- */
 .awards{list-style:none;padding:0;margin:14px 0 0;display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}

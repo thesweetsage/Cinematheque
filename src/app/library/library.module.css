@@ -1,0 +1,25 @@
+.head{display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap}
+.h1{font-family:var(--font-bungee),Impact,sans-serif;font-weight:400;font-size:clamp(34px,5vw,58px);line-height:1;margin-top:6px}
+.tabs{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.tabs a{font-family:var(--font-bungee),sans-serif;font-size:20px;text-decoration:none;color:var(--fg);background:var(--panel);border:2px solid var(--edge);padding:10px 18px 8px}
+.tabs a small{font-family:var(--font-vt323),monospace;font-size:18px;color:var(--muted);margin-left:6px}
+.tabs a[aria-current="page"]{border-color:var(--mag);color:#fff;box-shadow:0 0 14px -4px rgba(255,79,184,.85)}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:14px}
+.barLabel{font-family:var(--font-vt323),monospace;font-size:19px;text-transform:uppercase;color:var(--cyan);min-width:58px}
+.pill{font-family:var(--font-vt323),monospace;font-size:19px;line-height:1;text-transform:uppercase;text-decoration:none;color:var(--fg);background:rgba(21,18,57,.9);border:2px solid var(--edge);padding:7px 11px 6px}
+.pill small{color:var(--muted);font-size:16px}
+.pill[aria-current="true"]{border-color:var(--yellow);color:var(--yellow)}
+.empty{color:var(--muted);margin-top:24px}
+.grid{list-style:none;margin:26px 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:26px 18px}
+.cell{position:relative;display:grid;justify-items:center}
+.letter{position:absolute;left:0;top:-6px;z-index:1;font-family:var(--font-shoulders),sans-serif;font-weight:900;font-size:22px;line-height:1;color:var(--yellow);background:var(--bg);padding:2px 6px;border:1px solid var(--yellow)}
+.slot{display:grid;justify-items:center;gap:8px;text-decoration:none;color:var(--fg);padding:8px 4px;perspective:1100px}
+.box{display:block;transition:transform .15s ease-out}
+.box > div{--ry:12deg !important;--rx:2deg !important}
+.slot:hover .box,.slot:focus-visible .box{transform:translateY(-8px)}
+.cap{font-family:var(--font-vt323),monospace;font-size:18px;line-height:1.05;text-align:center;max-width:160px;color:var(--muted)}
+.cap small{display:block;font-size:16px}
+.slot:hover .cap,.slot:focus-visible .cap{color:#fff}
+.pager{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:30px}
+.pageNo{font-family:var(--font-vt323),monospace;font-size:20px;color:var(--muted)}
+@media (max-width:520px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}

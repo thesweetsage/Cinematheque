@@ -71,6 +71,15 @@ Thumbs up / down on a card count towards the next night. **Write new cards now**
 Also new: "Because you watched…" and "On your shelf, unwatched" rows, TMDB's *More like this* on every title page, and the
 **Coming soon** wishlist board (titles come off it by themselves when the Plex sync finds them).
 
+### The Library and the Shelves
+
+**Library** lists everything on your shelves in one place, Films and Series separately: A to Z (with letter markers),
+newest in, or by year, and narrowed to any genre. 40 tapes a page. **Shelves** has the same Films / Series switch, with
+genre aisles inside each (series get their own Horror, Comedy, Sci-Fi… aisles).
+
+Every screen works with the remote alone: arrows move between everything, and in a text box Left/Right move the cursor
+until it reaches the edge, then move on to the next control.
+
 ### Programmes
 
 The **Festival wall** holds the programmes:
