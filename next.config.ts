@@ -9,7 +9,7 @@ const nextConfig: NextConfig = {
   experimental: {
     // Every click asks the server for the page: a page kept in the browser for 5 minutes showed staff cards you'd hidden,
     // a wishlist without what you'd just added, and programmes you'd deleted. On a home network the request is quick.
-    staleTimes: { dynamic: 0, static: 0 },
+    staleTimes: { dynamic: 0, static: 30 }, // 30 is the lowest this version accepts
   },
   turbopack: {
     rules: {
