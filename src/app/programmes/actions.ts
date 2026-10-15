@@ -1,8 +1,6 @@
 "use server";
 import { updateTag } from "next/cache";
 import { CATALOG_TAG } from "@/lib/catalog";
-import { curate, type AutoKind } from "@/lib/autoProgramme";
-import { writeEssay } from "@/lib/editionEssay";
 import { slugify } from "@/lib/importTitle";
 import { requireMember } from "@/lib/member";
 import { ACCENTS, PROG_TAG, type ProgStatus } from "@/lib/programmes";
@@ -33,42 +31,6 @@ async function titleId(slug: string) {
 }
 const ymd = (v: FormDataEntryValue | null) => (typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : null);
 const text = (v: FormDataEntryValue | null, max = 4000) => (typeof v === "string" ? v.trim().slice(0, max) : "");
-
-/**
- * Builds a festival or a 31 Days by itself from the shelves: a genre (aisle or decade), a typed theme, or neither ("surprise me").
- * Starts today. A festival runs four weeks with its titles spread across them; a 31 Days gets one title per day.
- */
-export async function autoProgramme(kind: AutoKind, genre: string | null, theme: string | null): Promise<Result & { slug?: string }> {
-  await requireMember();
-  try {
-    const c = await curate(kind, genre?.trim() || null, theme?.trim().slice(0, 200) || null);
-    const start = new Date().toLocaleDateString("en-CA");
-    const days = kind === "days31" ? 31 : 28;
-    const end = addDays(start, days - 1);
-    const n = c.items.length;
-    const dateOf = (i: number) => kind === "days31" ? addDays(start, i) : addDays(start, n > 1 ? Math.round((i * (days - 1)) / (n - 1)) : 0);
-    const accent = kind === "days31" ? "#FF4FB8" : ACCENTS[(start.charCodeAt(9) + n) % ACCENTS.length];
-    const base = slugify(c.title, Number(start.slice(0, 4)));
-    for (const slug of [base, `${base}-${start.slice(5, 7)}`, `${base}-${Date.now().toString(36)}`]) {
-      const { data, error } = await client().from("programmes").insert({
-        type: kind, title: c.title, slug, theme: c.theme || null, essay: c.essay, start_date: start, end_date: end, accent_color: accent, status: "live",
-        source_note: genre ? `Built from the ${genre} aisle` : theme ? `Built from the theme "${theme}"` : "Built by surprise",
-      }).select("id").single();
-      if (error?.code === "23505") continue;
-      if (error) return { error: error.message };
-      const pid = (data as { id: string }).id;
-      const { error: e2 } = await client().from("programme_items").insert(c.items.map((it, i) => ({
-        programme_id: pid, title_id: it.titleId, position: i, slot_date: dateOf(i), programme_note: it.note,
-      })));
-      if (e2) return { error: e2.message };
-      refresh();
-      return { slug };
-    }
-    return { error: "Couldn't find a free name for it. Try again." };
-  } catch (e) { return fail(e); }
-}
-
-const addDays = (ymd: string, n: number) => { const d = new Date(`${ymd}T12:00:00`); d.setDate(d.getDate() + n); return d.toLocaleDateString("en-CA"); };
 
 /** Starts a festival or a 31 Days by hand. Returns its slug. */
 export async function createProgramme(form: FormData): Promise<Result & { slug?: string }> {
@@ -244,18 +206,6 @@ export async function induct(titleSlug: string): Promise<Result & { slug?: strin
     }
     return { error: "Couldn't get a spine number. Try again." };
   } catch (e) { return fail(e); }
-}
-
-export async function draftEssay(slug: string): Promise<Result> {
-  await requireMember();
-  try {
-    await writeEssay(slug);
-    refresh();
-    return {};
-  } catch (e) {
-    console.error(`[essay] ${slug}:`, (e as Error).message);
-    return fail(e);
-  }
 }
 
 export async function saveEssay(slug: string, essay: string, checked: boolean): Promise<Result> {

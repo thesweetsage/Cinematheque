@@ -75,9 +75,11 @@ Also new: "Because you watched…" and "On your shelf, unwatched" rows, TMDB's *
 
 The **Festival wall** holds the programmes:
 
-- **Start a programme** builds one for you (films only; series get marathons later): choose Festival or 31 Days, then press a genre, a decade or *Surprise me* (or type any theme).
-  It picks from your shelves, unwatched first; with a Claude key, Claude curates it, names it and writes the booklet and notes
-  (only from what's on your shelves; `CURATOR_MODEL` in `src/lib/autoProgramme.ts`). Everything can be edited afterwards.
+- **Start a programme** builds one for you (films only; series get marathons later): choose Festival or 31 Days, then a genre
+  and/or a decade, or *Surprise me*, or type any theme. The films come from all of TMDB, with the ones on your Plex mixed in and
+  unwatched first; the others are marked "not on Plex" and can go on the wishlist. With a Claude key, Claude curates it, names it and
+  writes the booklet and notes (typed themes need it; every suggestion is checked on TMDB; `CURATOR_MODEL` in `src/lib/autoProgramme.ts`).
+  It builds in the background (up to a minute), so the rest of the app stays usable. Everything can be edited afterwards.
 - **Festivals:** any theme and dates. A poster, a booklet, a schedule with tick boxes, and jury awards once closing night has passed.
 - **31 Days of ___:** a rental card with a box per day, stamped on each day you watched one of its titles, and a streak. When it ends, an end poster you can print.
 - **Editions:** on any title's page, **Induct into the collection** gives it the next spine number (No. 001, No. 002…) and an essay

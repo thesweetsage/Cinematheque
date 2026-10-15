@@ -1,21 +1,28 @@
 "use client";
 import { useEffect, useRef, useState, useTransition } from "react";
-import { markBooklet, writeBooklet } from "./actions";
+import { useRouter } from "next/navigation";
+import { markBooklet } from "./actions";
 import s from "./booklet.module.css";
 
 /* Write (on first open), rewrite, and mark checked. Writing takes about a minute. */
 export function BookletActions({ slug, hasNotes, draft, canWrite, autoWrite }: { slug: string; hasNotes: boolean; draft: boolean; canWrite: boolean; autoWrite: boolean }) {
-  const [writing, startWrite] = useTransition();
+  const [writing, setWriting] = useState(false);
+  const router = useRouter();
   const [marking, startMark] = useTransition();
   const pending = writing || marking;
   const [error, setError] = useState("");
   const started = useRef(false);
 
-  const write = () => startWrite(async () => {
-    setError("");
-    const r = await writeBooklet(slug);
-    if (r.error) setError(r.error);
-  });
+  // A plain request, not a server action: the page and menu stay usable during the minute Claude writes.
+  const write = async () => {
+    setError(""); setWriting(true);
+    try {
+      const r = await fetch("/api/notes", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ slug }) });
+      const out = (await r.json().catch(() => ({ error: `The server answered ${r.status}.` }))) as { error?: string };
+      if (out.error) setError(out.error); else router.refresh();
+    } catch { setError("Lost the connection to the app."); }
+    setWriting(false);
+  };
   const mark = (checked: boolean) => startMark(async () => {
     setError("");
     const r = await markBooklet(slug, checked);

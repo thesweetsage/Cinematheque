@@ -18,12 +18,12 @@ export function RecThumbs({ recId, title }: { recId: string; title: string }) {
     if (r.error) setError(r.error); else setFb(next);
   });
   if (fb === "down" || fb === "dismissed") {
-    return <p className={s.note} role="status">Off the wall. <button className={s.link} onClick={() => send(null)} disabled={pending}>Undo</button></p>;
+    return <p className={s.note} role="status">Gone, and it won&apos;t come back. <button className={s.link} onClick={() => send(null)} disabled={pending}>Undo</button></p>;
   }
   return (
     <span className={s.row}>
-      <button className={s.btn} aria-pressed={fb === "up"} aria-label={`More like ${title}`} onClick={() => send(fb === "up" ? null : "up")} disabled={pending}>▲ Yes</button>
-      <button className={s.btn} aria-label={`Not for me: ${title}`} onClick={() => send("down")} disabled={pending}>▼ No</button>
+      <button className={s.btn} aria-pressed={fb === "up"} aria-label={`More like ${title}`} onClick={() => send(fb === "up" ? null : "up")} disabled={pending}>▲ More like this</button>
+      <button className={s.btn} aria-label={`Not for me: ${title}`} onClick={() => send("down")} disabled={pending}>✕ Not for me</button>
       {error && <span className={s.error} role="alert">{error}</span>}
     </span>
   );

@@ -183,3 +183,8 @@ button.tick:focus-visible{outline:3px solid var(--mag);outline-offset:3px;box-sh
 button.option{font:inherit;color:inherit;text-align:left}
 .byHand{margin-top:34px;border-top:1px solid var(--edge);padding-top:14px}
 .byHand summary{font-family:var(--font-vt323),monospace;font-size:20px;color:var(--muted);cursor:pointer}
+.chip[aria-pressed="true"]{border-color:var(--yellow);color:var(--yellow);box-shadow:0 0 12px -3px rgba(255,227,138,.8)}
+.chips .chip:first-child{border-color:var(--edge);box-shadow:none}
+.chips .chip[aria-pressed="true"]:first-child{border-color:var(--yellow)}
+.status{font-family:var(--font-vt323),monospace;font-size:20px;color:var(--cyan)}
+.notOwned{font-family:var(--font-vt323),monospace;font-size:15px;color:var(--print-red)!important}

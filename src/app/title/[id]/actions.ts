@@ -1,23 +1,10 @@
 "use server";
 import { updateTag } from "next/cache";
 import { requireMember } from "@/lib/member";
-import { writeNotes } from "@/lib/notes/write";
 import { db } from "@/lib/supabase";
 import { titleTag } from "@/lib/titleExtras";
 
-/* The booklet's buttons: write (or rewrite) the notes, and mark them checked. */
-
-export async function writeBooklet(slug: string): Promise<{ error?: string }> {
-  await requireMember();
-  try {
-    await writeNotes(slug);
-    updateTag(titleTag(slug));
-    return {};
-  } catch (e) {
-    console.error(`[notes] ${slug}:`, (e as Error).message);
-    return { error: (e as Error).message };
-  }
-}
+/* The booklet's "mark checked" button. Writing the notes goes through /api/notes (it takes a minute). */
 
 export async function markBooklet(slug: string, checked: boolean): Promise<{ error?: string }> {
   await requireMember();

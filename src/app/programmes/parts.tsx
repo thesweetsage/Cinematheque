@@ -43,7 +43,7 @@ export function Flyer({ p, cat, live, compact = false, focus = false }: { p: Pro
             <li key={it.position} className={it.done ? s.seen : undefined}>
               <span className={s.when}>{it.date ? fmt(it.date) : "TBA"}</span>
               <span className={s.what}>
-                <Link href={`/title/${t.id}`} data-autofocus={focus && it === items[0] ? true : undefined}>{t.t}</Link> <small>{t.y || ""}</small>
+                <Link href={`/title/${t.id}`} data-autofocus={focus && it === items[0] ? true : undefined}>{t.t}</Link> <small>{t.y || ""}</small>{!t.plex && <small className={s.notOwned}> · not on Plex</small>}
                 {!compact && it.note && <em>{it.note}</em>}
                 {!compact && it.done && it.doneAt && <small className={s.how}>Seen {fmt(it.doneAt.slice(0, 10))}</small>}
               </span>

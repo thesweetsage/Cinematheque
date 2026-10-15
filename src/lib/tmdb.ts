@@ -116,13 +116,24 @@ export async function related(kind: TmdbKind, id: number, list: "recommendations
   return results.map((r) => toCandidate(r, kind));
 }
 
-/** Discover: well-rated titles with any of these genres / keywords (TMDB ids). */
-export async function discover(kind: TmdbKind, opts: { genres?: number[]; keywords?: number[]; minVotes: number; maxVotes?: number; before?: number; page?: number }): Promise<Candidate[]> {
-  const p: Record<string, string> = { sort_by: "vote_average.desc", "vote_count.gte": String(opts.minVotes), include_adult: "false", page: String(opts.page ?? 1) };
+/**
+ * Discover: well-rated titles with any of these genres / keywords (TMDB ids), or all of `allGenres`,
+ * optionally within years, in one original language, sorted by average (default) or by vote count.
+ */
+export async function discover(kind: TmdbKind, opts: {
+  genres?: number[]; allGenres?: number[]; keywords?: number[]; minVotes: number; maxVotes?: number;
+  before?: number; after?: number; language?: string; sort?: "vote_average.desc" | "vote_count.desc"; page?: number;
+}): Promise<Candidate[]> {
+  const p: Record<string, string> = { sort_by: opts.sort ?? "vote_average.desc", "vote_count.gte": String(opts.minVotes), include_adult: "false", page: String(opts.page ?? 1) };
   if (opts.maxVotes) p["vote_count.lte"] = String(opts.maxVotes);
   if (opts.genres?.length) p.with_genres = opts.genres.join("|");
+  if (opts.allGenres?.length) p.with_genres = opts.allGenres.join(",");
   if (opts.keywords?.length) p.with_keywords = opts.keywords.join("|");
-  if (opts.before) p[kind === "movie" ? "primary_release_date.lte" : "first_air_date.lte"] = `${opts.before}-12-31`;
+  if (opts.language) p.with_original_language = opts.language;
+  if (kind === "movie") p["with_runtime.gte"] = "60"; // feature films only, no shorts
+  const date = kind === "movie" ? "primary_release_date" : "first_air_date";
+  if (opts.before) p[`${date}.lte`] = `${opts.before}-12-31`;
+  if (opts.after) p[`${date}.gte`] = `${opts.after}-01-01`;
   const { results } = await get<{ results: RawCandidate[] }>(`/discover/${kind}`, p);
   return results.map((r) => toCandidate(r, kind));
 }

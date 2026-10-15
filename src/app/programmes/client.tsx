@@ -3,7 +3,7 @@ import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { ProgStatus } from "@/lib/programmes";
 import {
-  addItem, autoProgramme, createProgramme, deleteProgramme, draftEssay, induct, moveItem, removeItem, saveEssay, setAward, setDone, setPair, setStatus, updateDetails, updateItem,
+  addItem, createProgramme, deleteProgramme, induct, moveItem, removeItem, saveEssay, setAward, setDone, setPair, setStatus, updateDetails, updateItem,
 } from "./actions";
 import s from "./programmes.module.css";
 
@@ -55,51 +55,65 @@ function Accents({ value }: { value: string }) {
 }
 
 /**
- * Start a programme the easy way: choose Festival or 31 Days, then one button (a genre, a decade, or Surprise me)
- * and it builds itself from the shelves. A typed theme works too. Everything can be edited afterwards.
+ * Start a programme the easy way: Festival or 31 Days, then a genre and/or a decade (or a typed theme, or Surprise me)
+ * and it builds itself from all of TMDB, with what's on your Plex mixed in. It runs as a plain request, not a
+ * server action, so the menu and the rest of the page keep working while it builds (up to a minute).
  */
-export function AutoProgrammeForm({ genres, decades, curator }: { genres: { g: string; n: number }[]; decades: string[]; curator: boolean }) {
+export function AutoProgrammeForm({ genres, decades, curator }: { genres: { key: string; label: string }[]; decades: { value: number; label: string }[]; curator: boolean }) {
   const router = useRouter();
   const [kind, setKind] = useState<"festival" | "days31">("festival");
+  const [genre, setGenre] = useState<string | null>(null);
+  const [decade, setDecade] = useState<number | null>(null);
   const [theme, setTheme] = useState("");
-  const [busy, setBusy] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [, go] = useTransition();
-  const build = (label: string, genre: string | null, th: string | null) => go(async () => {
-    setError(""); setBusy(label);
-    const r = await autoProgramme(kind, genre, th).catch((e: Error) => ({ error: e.message, slug: undefined }));
-    if (r.error || !r.slug) { setError(r.error ?? "Something went wrong."); setBusy(null); } else router.push(`/programmes/${r.slug}`);
-  });
-  const chip = (label: string, genre: string | null, extra?: string, first = false) => (
-    <button key={label} type="button" className={s.chip} disabled={!!busy} onClick={() => build(label, genre, null)} data-autofocus={first ? true : undefined}>
-      {label}{extra && <small>{extra}</small>}
-    </button>
-  );
+  const build = async (body: { genre?: string | null; decade?: number | null; theme?: string | null }) => {
+    setError(""); setBusy(true);
+    try {
+      const r = await fetch("/api/programmes/auto", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ kind, ...body }) });
+      const out = (await r.json().catch(() => ({ error: `The server answered ${r.status}.` }))) as { slug?: string; error?: string };
+      if (out.slug) { router.push(`/programmes/${out.slug}`); return; }
+      setError(out.error ?? "Something went wrong.");
+    } catch {
+      setError("Lost the connection to the app. Is it still running?");
+    }
+    setBusy(false);
+  };
+  const toggle = <T,>(cur: T | null, v: T, set: (x: T | null) => void) => set(cur === v ? null : v);
+  const what = [decade ? decades.find((d) => d.value === decade)?.label : null, genre ? genres.find((g) => g.key === genre)?.label : null].filter(Boolean).join(" ");
   return (
     <div className={s.form}>
       <div className={s.choice} role="radiogroup" aria-label="What kind">
         {(["festival", "days31"] as const).map((k) => (
-          <button key={k} type="button" role="radio" aria-checked={kind === k} className={s.option} data-on={kind === k} onClick={() => setKind(k)} disabled={!!busy}>
+          <button key={k} type="button" role="radio" aria-checked={kind === k} className={s.option} data-on={kind === k} onClick={() => setKind(k)} disabled={busy} data-autofocus={k === "festival" ? true : undefined}>
             <b>{k === "festival" ? "Festival" : "31 Days of ___"}</b>
             <span>{k === "festival" ? "About 8 films over four weeks, with a booklet, a schedule and jury awards at the end." : "One film a night for 31 nights, on a rental card with a stamp for every day and a streak."}</span>
           </button>
         ))}
       </div>
       <div>
-        <div className={s.fieldLabel}>Pick one and it builds itself from your shelves</div>
+        <div className={s.fieldLabel}>Genre</div>
         <div className={s.chips}>
-          {chip("Surprise me", null, curator ? "Claude picks a theme" : "your biggest aisle", true)}
-          {genres.map((g) => chip(g.g, g.g, `${g.n}`))}
-          {decades.map((d) => chip(`The ${d}`, d.toUpperCase()))}
+          {genres.map((g) => <button key={g.key} type="button" className={s.chip} aria-pressed={genre === g.key} disabled={busy} onClick={() => toggle(genre, g.key, setGenre)}>{g.label}</button>)}
         </div>
       </div>
+      <div>
+        <div className={s.fieldLabel}>Decade (optional)</div>
+        <div className={s.chips}>
+          {decades.map((d) => <button key={d.value} type="button" className={s.chip} aria-pressed={decade === d.value} disabled={busy} onClick={() => toggle(decade, d.value, setDecade)}>{d.label}</button>)}
+        </div>
+      </div>
+      <div className={s.btns}>
+        <button type="button" className="btn primary" disabled={busy || (!genre && !decade)} onClick={() => build({ genre, decade })}>{what ? `Build ${kind === "days31" ? "31 Days of" : "a festival of"} ${what}` : "Pick a genre or a decade"}</button>
+        <button type="button" className="btn" disabled={busy} onClick={() => build({})}>Surprise me</button>
+      </div>
       {curator && (
-        <form className={s.themeRow} onSubmit={(e) => { e.preventDefault(); if (theme.trim()) build(theme.trim(), null, theme.trim()); }}>
-          <label className={s.field}><span>Or any theme</span><input value={theme} onChange={(e) => setTheme(e.target.value)} maxLength={200} placeholder="Medieval, one country, road movies, final girls…" disabled={!!busy} /></label>
-          <button className="btn" disabled={!!busy || !theme.trim()}>Build it</button>
+        <form className={s.themeRow} onSubmit={(e) => { e.preventDefault(); if (theme.trim()) build({ theme: theme.trim() }); }}>
+          <label className={s.field}><span>Or any theme</span><input value={theme} onChange={(e) => setTheme(e.target.value)} maxLength={200} placeholder="Folk horror, road movies, medieval, one country…" disabled={busy} /></label>
+          <button className="btn" disabled={busy || !theme.trim()}>Build it</button>
         </form>
       )}
-      {busy && <p className={s.muted} role="status">Programming “{busy}”{curator ? ": Claude is picking from your shelves, about half a minute" : ""}…</p>}
+      {busy && <p className={s.status} role="status">Building it: finding films on TMDB{curator ? ", Claude is curating" : ""} and fetching their covers. This takes up to a minute; you can leave this page and it carries on.</p>}
       <Err msg={error} />
     </div>
   );
@@ -260,7 +274,18 @@ export function EssayEditor({ slug, essay, draft, canWrite }: { slug: string; es
   const [text, setText] = useState(essay);
   const [editing, setEditing] = useState(false);
   const [writing, setWriting] = useState(false);
-  const write = () => { setWriting(true); run(() => draftEssay(slug).finally(() => setWriting(false))); };
+  const router = useRouter();
+  const [writeError, setWriteError] = useState("");
+  // A plain request, not a server action: the page and menu stay usable during the minute Claude writes.
+  const write = async () => {
+    setWriting(true); setWriteError("");
+    try {
+      const r = await fetch("/api/essay", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ slug }) });
+      const out = (await r.json().catch(() => ({ error: `The server answered ${r.status}.` }))) as { error?: string };
+      if (out.error) setWriteError(out.error); else router.refresh();
+    } catch { setWriteError("Lost the connection to the app."); }
+    setWriting(false);
+  };
   return (
     <div className={s.essayTools}>
       {writing && <p className={s.muted} role="status">Writing the essay from Wikipedia and your notes… about a minute.</p>}
@@ -276,12 +301,12 @@ export function EssayEditor({ slug, essay, draft, canWrite }: { slug: string; es
       ) : (
         <div className={s.btns}>
           <button className="btn" onClick={() => { setText(essay); setEditing(true); }}>{essay ? "Edit the essay" : "Write it yourself"}</button>
-          {canWrite && <button className="btn" disabled={pending} onClick={write}>{essay ? "Redraft with Claude" : "Draft it with Claude"}</button>}
+          {canWrite && <button className="btn" disabled={pending || writing} onClick={write}>{essay ? "Redraft with Claude" : "Draft it with Claude"}</button>}
           {essay && draft && <button className="btn" disabled={pending} onClick={() => run(() => saveEssay(slug, essay, true))}>Mark as checked</button>}
           {essay && !draft && <button className="btn" disabled={pending} onClick={() => run(() => saveEssay(slug, essay, false))}>Back to draft</button>}
         </div>
       )}
-      <Err msg={error} />
+      <Err msg={error || writeError} />
     </div>
   );
 }
