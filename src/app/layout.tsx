@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Big_Shoulders, Bungee, VT323, IBM_Plex_Sans_Condensed, Mr_Dafoe, Permanent_Marker } from "next/font/google";
+import { Big_Shoulders, Bungee, VT323, IBM_Plex_Sans_Condensed, Mr_Dafoe, Permanent_Marker, Fraunces, Newsreader } from "next/font/google";
 import { OsdNav } from "@/components/OsdNav";
 import { RemoteNav } from "@/components/RemoteNav";
 import { StoreRadio } from "@/components/StoreRadio";
@@ -11,6 +11,9 @@ const vt323 = VT323({ subsets: ["latin"], weight: "400", variable: "--font-vt323
 const plex = IBM_Plex_Sans_Condensed({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-plex" });
 const script = Mr_Dafoe({ subsets: ["latin"], weight: "400", variable: "--font-script" });
 const marker = Permanent_Marker({ subsets: ["latin"], weight: "400", variable: "--font-marker" });
+// Reading skin (liner notes, booklets)
+const fraunces = Fraunces({ subsets: ["latin"], style: ["normal", "italic"], variable: "--font-fraunces" });
+const newsreader = Newsreader({ subsets: ["latin"], style: ["normal", "italic"], variable: "--font-newsreader" });
 
 export const metadata: Metadata = {
   title: "The Cinematheque",
@@ -24,7 +27,7 @@ if(tv==="1"||(tv===null&&matchMedia("(pointer:none)").matches))d.classList.add("
 if(fx!=="0"&&!matchMedia("(prefers-reduced-motion: reduce)").matches)d.classList.add("fx")}catch(e){}`;
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const fonts = [shoulders, bungee, vt323, plex, script, marker].map((f) => f.variable).join(" ");
+  const fonts = [shoulders, bungee, vt323, plex, script, marker, fraunces, newsreader].map((f) => f.variable).join(" ");
   return (
     <html lang="en" className={fonts} suppressHydrationWarning>
       <head><script dangerouslySetInnerHTML={{ __html: prefs }} /></head>

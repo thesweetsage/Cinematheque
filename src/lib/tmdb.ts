@@ -71,3 +71,28 @@ export async function findByExternalId(source: "imdb_id" | "tvdb_id", id: string
   const r = await get<{ movie_results: { id: number }[]; tv_results: { id: number }[] }>(`/find/${id}`, { external_source: source });
   return (kind === "movie" ? r.movie_results : r.tv_results)[0]?.id ?? null;
 }
+
+export type Review = { id: string; author: string; rating: number | null; date: string; text: string; url: string };
+
+/** Up to 3 TMDB user reviews, highest rated first (English; TMDB has few in other languages). */
+export async function reviews(kind: TmdbKind, id: number): Promise<Review[]> {
+  type Raw = { id: string; author: string; author_details?: { rating: number | null }; created_at: string; content: string; url: string };
+  const { results } = await get<{ results: Raw[] }>(`/${kind}/${id}/reviews`, { language: "en-US" });
+  return results
+    .map((r) => ({ id: r.id, author: r.author, rating: r.author_details?.rating ?? null, date: r.created_at.slice(0, 10), text: r.content.trim(), url: r.url }))
+    .sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0))
+    .slice(0, 3);
+}
+
+export type TmdbSeason = { number: number; name: string; year: number | null; episodes: { number: number; name: string }[] };
+
+/** A series' seasons with their episode names (specials last). */
+export async function seasons(id: number): Promise<TmdbSeason[]> {
+  type RawSeason = { season_number: number; name: string; air_date: string | null; episode_count: number };
+  const show = await get<{ seasons: RawSeason[] }>(`/tv/${id}`);
+  const list = await Promise.all(show.seasons.filter((s) => s.episode_count > 0).map(async (s) => {
+    const d = await get<{ episodes: { episode_number: number; name: string }[] }>(`/tv/${id}/season/${s.season_number}`);
+    return { number: s.season_number, name: s.name, year: Number(s.air_date?.slice(0, 4)) || null, episodes: d.episodes.map((e) => ({ number: e.episode_number, name: e.name })) };
+  }));
+  return [...list.filter((s) => s.number > 0), ...list.filter((s) => s.number === 0)];
+}

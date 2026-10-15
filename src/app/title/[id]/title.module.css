@@ -14,11 +14,6 @@
 .you b{font-size:24px;color:var(--yellow)}
 .syn{font-size:18px;max-width:62ch;margin-top:20px}
 .play{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
-.facts{margin-top:36px}
-.factGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;margin-top:14px}
-.fact{background:linear-gradient(160deg,var(--panel-2),var(--panel));border:1px solid var(--edge);border-top:4px solid var(--accent);padding:12px 14px}
-.fact span{font-family:var(--font-vt323),monospace;font-size:18px;color:var(--accent);text-transform:uppercase}
-.fact p{font-size:15px;margin-top:4px}
 .more{margin-top:50px}
 .moreRow{display:flex;gap:26px;overflow-x:auto;padding:24px 8px 16px;perspective:1200px}
 .moreItem{display:block;flex:none;padding:6px}

@@ -26,6 +26,8 @@ export type Title = {
   /** On the Plex server, and its Plex id (for Play on Plex). */
   plex: boolean; plexKey?: string;
   imdb?: number; rt?: number; mc?: number; my?: number;
+  /** TMDB id, for reviews and seasons. */
+  tmdb?: number;
   cast?: string; ctry?: string; syn: string;
 };
 export type Art = {
@@ -42,6 +44,7 @@ export type Catalog = {
   art: Record<string, Art>;
   picks: { id: string; why: string }[];
   recs: { pop: Rec[]; deep: Rec[] };
+  /** Sample set only: the database's fact cards are read per title (src/lib/titleExtras.ts). */
   facts: Record<string, { cards: Fact[]; draft: boolean }>;
   editions: Record<string, string>;
   /** The Plex server's machine id, for Play on Plex links. */
@@ -95,15 +98,13 @@ async function dbCatalog(): Promise<Catalog | null> {
 
   type WatchRow = { title_id: string; episode_id: string | null; watched_at: string; rating: number | null };
   type RecRow = { title_id: string; lane: "popular" | "deep_cut"; reason: string | null };
-  type NoteRow = { title_id: string; fact_cards: { label?: string; text?: string }[] | null; status: "draft" | "checked" };
   type EditionRow = { spine_number: number | null; programme_items: { title_id: string }[] };
-  const [watches, recRows, notes, editionRows] = await Promise.all([
+  const [watches, recRows, editionRows] = await Promise.all([
     all<WatchRow>((a, b) => client.from("watches").select("title_id, episode_id, watched_at, rating").order("watched_at", { ascending: false }).range(a, b)),
     client.from("recommendations").select("title_id, lane, reason").or("feedback.is.null,feedback.eq.up").order("score", { ascending: false, nullsFirst: false }).limit(40),
-    client.from("title_notes").select("title_id, fact_cards, status"),
     client.from("programmes").select("spine_number, programme_items(title_id)").eq("type", "edition").neq("status", "draft"),
   ]);
-  for (const r of [recRows, notes, editionRows]) if (r.error) throw new Error(r.error.message);
+  for (const r of [recRows, editionRows]) if (r.error) throw new Error(r.error.message);
 
   const slugOf = new Map(rows.map((r) => [r.id, r.slug]));
   const rating = new Map<string, number>(), watched = new Set<string>();
@@ -128,13 +129,6 @@ async function dbCatalog(): Promise<Catalog | null> {
   }
   recs.pop = recs.pop.slice(0, 4); recs.deep = recs.deep.slice(0, 4);
 
-  const facts: Catalog["facts"] = {};
-  for (const n of notes.data as NoteRow[]) {
-    const id = slugOf.get(n.title_id);
-    const cards = (n.fact_cards ?? []).filter((f) => f.text).map((f) => ({ k: f.label ?? "", x: f.text! }));
-    if (id && cards.length) facts[id] = { cards, draft: n.status !== "checked" };
-  }
-
   const editions: Record<string, string> = {};
   for (const e of editionRows.data as EditionRow[]) {
     for (const item of e.programme_items) {
@@ -144,7 +138,7 @@ async function dbCatalog(): Promise<Catalog | null> {
   }
 
   const plexServer = (await getSetting<PlexSettings>("plex").catch(() => null))?.server?.machineId ?? (await envMachineId());
-  return { source: "db", titles, art, picks: tonightsPick(titles, watched, rows), recs, facts, editions, plexServer };
+  return { source: "db", titles, art, picks: tonightsPick(titles, watched, rows), recs, facts: {}, editions, plexServer };
 }
 
 /** Tonight's pick: an unplayed tape off the shelf, a different one each day. */
@@ -180,7 +174,7 @@ function sampleArt(id: string): Art {
 }
 
 function sampleCatalog(reason: Catalog["reason"]): Catalog {
-  const titles = (sampleTitles as Omit<Title, "plex">[]).map((t) => ({ ...t, plex: t.lib }));
+  const titles = (sampleTitles as Omit<Title, "plex">[]).map((t) => ({ ...t, plex: t.lib, tmdb: (artData as Record<string, RawArt>)[t.id]?.tmdbId }));
   const facts: Catalog["facts"] = {};
   for (const [id, cards] of Object.entries(store.facts as Record<string, Fact[]>)) facts[id] = { cards, draft: false };
   return {

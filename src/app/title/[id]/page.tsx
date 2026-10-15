@@ -1,10 +1,15 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BoxViewer } from "@/components/BoxViewer";
 import { VhsBox } from "@/components/VhsBox";
 import { PlayOnPlex } from "@/components/PlayOnPlex";
 import { SampleTag } from "@/components/SampleTag";
-import { artOf, findTitle, getCatalog, moreLikeThis } from "@/lib/catalog";
+import { artOf, findTitle, getCatalog, moreLikeThis, type Catalog, type Title } from "@/lib/catalog";
+import { titleExtras } from "@/lib/titleExtras";
+import { Booklet } from "./Booklet";
+import { Reviews } from "./Reviews";
+import { Seasons } from "./Seasons";
 import s from "./title.module.css";
 
 export async function generateStaticParams() { return (await getCatalog()).titles.map((t) => ({ id: t.id })); }
@@ -21,7 +26,6 @@ export default async function TitlePage({ params }: { params: Promise<{ id: stri
   const t = findTitle(cat, id);
   if (!t) notFound();
   const art = artOf(cat, t.id);
-  const fc = cat.facts[t.id];
   const series = t.kind === "series";
   const more = moreLikeThis(cat, t);
   return (
@@ -49,16 +53,10 @@ export default async function TitlePage({ params }: { params: Promise<{ id: stri
               : t.plex ? <button className="btn primary">Play on Plex ▶</button> : <button className="btn">+ Add to wishlist</button>}
             <button className="btn">Open in Stremio</button>
           </div>
-          {fc && (
-            <section className={s.facts}>
-              <h2 className="sec-title">Did you know?{fc.draft && <span className="osd-label"> · Draft, not checked yet</span>}</h2>
-              <div className={s.factGrid}>
-                {fc.cards.map((f, i) => <article key={i} className={s.fact}><span>{String(i + 1).padStart(2, "0")} · {f.k}</span><p>{f.x}</p></article>)}
-              </div>
-            </section>
-          )}
         </div>
       </div>
+      <Suspense fallback={null}><TitleExtras cat={cat} t={t} /></Suspense>
+      {t.tmdb && <Suspense fallback={null}><Reviews kind={series ? "tv" : "movie"} tmdbId={t.tmdb} /></Suspense>}
       {more.length > 0 && (
         <section className={s.more}>
           <h2 className="sec-title">More like this</h2>
@@ -71,6 +69,18 @@ export default async function TitlePage({ params }: { params: Promise<{ id: stri
           </div>
         </section>
       )}
+    </>
+  );
+}
+
+/* Seasons (series) and the booklet: per-title reads that stream in after the box. */
+async function TitleExtras({ cat, t }: { cat: Catalog; t: Title }) {
+  const live = cat.source === "db";
+  const extras = live ? await titleExtras(t.id) : null;
+  return (
+    <>
+      {t.kind === "series" && t.tmdb && <Seasons tmdbId={t.tmdb} local={extras?.episodes ?? []} />}
+      <Booklet slug={t.id} title={t.t} notes={extras?.notes ?? null} sampleCards={cat.facts[t.id]?.cards} live={live && !!extras} canWrite={!!extras?.canWrite} />
     </>
   );
 }

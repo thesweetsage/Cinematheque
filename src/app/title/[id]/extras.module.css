@@ -1,0 +1,19 @@
+.section{margin-top:44px}
+.sub{color:var(--muted);font-size:14px;margin-top:4px;display:flex;gap:10px;align-items:center}
+.finished{font-family:var(--font-vt323),monospace;font-size:18px;color:#1a1714;background:var(--yellow);padding:0 8px;transform:rotate(-2deg)}
+.seasonBtns{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.count{font-size:15px;color:var(--muted);margin-left:2px}
+.seasonName{font-family:var(--font-shoulders),sans-serif;font-weight:900;font-size:22px;text-transform:uppercase;margin-top:18px}
+.episodes{list-style:none;padding:0;margin:8px 0 0;display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:0 28px}
+.episodes li{display:grid;grid-template-columns:44px minmax(0,1fr) auto 22px;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--edge)}
+.epNo{font-family:var(--font-vt323),monospace;font-size:19px;color:var(--cyan)}
+.epName{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.onPlex{font-family:var(--font-vt323),monospace;font-size:15px;line-height:1;background:var(--yellow);color:#1a1714;padding:2px 5px}
+.tick{font-size:18px;color:var(--yellow);text-align:center}
+.watched .epName{color:var(--muted)}
+.reviews{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px;margin-top:14px}
+.review{background:var(--panel);border:1px solid var(--edge);border-top:4px solid var(--mag);padding:14px 16px;display:grid;gap:8px;align-content:start}
+.rhead{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline;font-family:var(--font-vt323),monospace;font-size:19px;color:var(--muted)}
+.rhead b{font-weight:400;color:var(--fg)}
+.review p{font-size:15px;line-height:1.5;overflow-wrap:anywhere}
+.rbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}

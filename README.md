@@ -52,6 +52,14 @@ in Supabase if that gets in the way.
 The app has to reach the Plex server: run it on the same computer or network. **Play on Plex** opens Plex Web,
 or the Plex app on Android (its `plex://` link isn't documented by Plex, so check it on the TV box).
 
+### Liner notes (Claude)
+
+Put your Claude API key in `ANTHROPIC_API_KEY` in `.env.local`. The first time you open a title, the app finds its English
+Wikipedia article (through Wikidata, by IMDb id) and has Claude write 4-6 "Did you know?" cards and 300-500 words of liner
+notes from that article and the TMDB details only. They're saved as a draft with links to the article sections; read them
+against the article, then **Mark as checked**. **Rewrite** asks again. Titles without a Wikipedia article get no notes.
+Uses Claude Sonnet 5.5 (`NOTES_MODEL` in `src/lib/notes/write.ts`), roughly a few cents per title.
+
 Every page reads the catalogue from the database (`src/lib/catalog.ts`, cached for a minute and refreshed when a title is added).
 It falls back to the sample catalogue, with a SAMPLE DATA tag that says why, while the database isn't connected,
 refuses access, or has no titles yet.
@@ -63,5 +71,7 @@ remote navigation, TV mode, store radio.
 Phase 2 is done: database schema, TMDB + OMDb lookups, generated spine colours, the Returns Slot search page
 (preview any film or series as a VHS box, put it on the shelf), and the Store Front, Shelves and title pages reading
 titles, ratings, recommendations, fact cards and editions from the database. Email login (Supabase Auth code or link, one member) guards every page and API route.
+Phase 4 is done: title pages with TMDB reviews, a seasons shelf with episode ticks, and the liner-notes booklet
+(fact cards and notes written by Claude from Wikipedia, drafts until you check them).
 Phase 3 is done: Plex connection on the Membership card (plex.tv/link code), hourly library and watch sync, ON PLEX
 stickers, Play on Plex, Continue watching on the Store Front, and the wishlist cleared by the sync.
