@@ -25,8 +25,8 @@ To change and re-render it (about an hour on a 4-core machine with software WebG
 cd scripts/walkin
 npm i && npm run fonts
 node render.mjs stills 0,3,6,12          # quick check: out/still_<t>.png
-node render.mjs frames 30                # all 360 frames into out/frames/ (pass a frame range to split across processes)
-ffmpeg -framerate 30 -i out/frames/f_%05d.png -c:v libx264 -crf 18 -preset slow -pix_fmt yuv420p -movflags +faststart ../../public/store/walk-in.mp4
+node render.mjs frames 30                # all 360 frames into out/frames/ (resumes where it stopped if run again)
+ffmpeg -framerate 30 -i out/frames/f_%05d.png -c:v libx264 -crf 23 -preset slow -tune grain -pix_fmt yuv420p -movflags +faststart ../../public/store/walk-in.mp4
 cp out/frames/f_00359.png /tmp/last.png && ffmpeg -i /tmp/last.png -q:v 2 ../../public/store/shelf.jpg
 ```
 
