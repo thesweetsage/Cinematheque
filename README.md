@@ -28,8 +28,8 @@ Use the arrow keys, Enter and Backspace to drive it like the TV remote.
 Once Supabase is connected, every page needs the member to be signed in (one member: you).
 
 1. Put your email in `MEMBER_EMAIL` in `.env.local`. Only that address can sign in.
-2. In Supabase, **Authentication › URL Configuration**: set **Site URL** to the app's address on your PC
-   (its local IP, e.g. `http://192.168.1.20:3000`, so the TV box can reach it) and add `http://192.168.1.20:3000/**` to **Redirect URLs**, so the email link comes back here.
+2. In Supabase, **Authentication › URL Configuration**: set **Site URL** to the app's address on your network
+   (the PC's local IP while testing, the NAS's later, e.g. `http://192.168.1.20:3000`, so the TV box can reach it) and add `http://192.168.1.20:3000/**` to **Redirect URLs**, so the email link comes back here.
 3. In **Authentication › Email Templates**, add the code to both **Magic Link** and **Confirm signup**
    (the first sign-in uses Confirm signup), e.g. `<p>Or type this code: {{ .Token }}</p>`.
    The TV box can't open an email link, so on the TV you type the code with the remote.
@@ -56,7 +56,7 @@ or the Plex app on Android (its `plex://` link isn't documented by Plex, so chec
 
 The Store Front opens with a 6-second walk into the store, once a day (`public/store/walk-in.mp4`, ending on
 `public/store/shelf.jpg`). It's a 3D store rendered in code with real TMDB covers on the tapes. Because it shows TMDB
-artwork it isn't in git: copy the two files into the project's `public/store/` folder on your PC before building, or render them with
+artwork it isn't in git: copy the two files into the project's `public/store/` folder on the machine running the app (your PC for now, the NAS later) before building, or render them with
 `scripts/walkin/` (steps in `docs/WALK_IN.md`). Without them the Store Front shows a still from Tonight's pick instead.
 
 ### Recommendations (staff cards)
