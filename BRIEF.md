@@ -42,7 +42,8 @@ No GSAP: motion is CSS so it stays smooth on the TV box. Add a library only if C
 Watched is computed from watches. A series is finished when every episode has a watch.
 
 ## Integrations
-- TMDB: films + series search, details, credits, keywords, external_ids, images (posters, backdrops, logos), reviews, recommendations, similar, discover, watch providers (region PT, credit JustWatch). Credit TMDB in the footer.
+- TMDB: films + series search, details, credits, keywords, external_ids, images (posters, backdrops, logos), reviews, recommendations, similar, discover. Credit TMDB in the footer.
+- No streaming services: everything is watched locally from Plex, so no "where to watch" or watch-provider data. A title that isn't on Plex gets "Add to wishlist".
 - OMDb: ratings by IMDb ID (IMDb, Rotten Tomatoes, Metacritic). Cache per title.
 - Wikipedia: find the article via Wikidata by IMDb ID; text is the only source for fact cards and liner notes.
 - Plex (library + history): local API with X-Plex-Token. Hourly sync of movie and TV sections with includeGuids=1 and all episodes; new lastViewedAt = new watch. Wishlist cleared when a title appears.

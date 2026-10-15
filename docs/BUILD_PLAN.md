@@ -42,7 +42,7 @@ Every programme is a list of titles in an order, with a theme and your progress.
 
 ## Recommendations
 
-The app builds a taste profile from what you watch on Plex and your ratings, then suggests films and series in two lanes: **Popular Picks** (well-loved titles you'll probably enjoy) and **Deep Cuts** (niche, older, foreign or overlooked titles). Every suggestion says why it was picked, whether it's already on your Plex, and where to watch it if not.
+The app builds a taste profile from what you watch on Plex and your ratings, then suggests films and series in two lanes: **Popular Picks** (well-loved titles you'll probably enjoy) and **Deep Cuts** (niche, older, foreign or overlooked titles). Every suggestion says why it was picked, and whether it's already on your Plex (if not, Add to Wishlist).
 
 **How it works**
 
@@ -56,7 +56,7 @@ The app builds a taste profile from what you watch on Plex and your ratings, the
 **What you see**
 
 - A **"Staff Recommends" wall** on the Store Front: handwritten-style staff cards on VHS boxes, one lane per row.
-- Per suggestion: poster, year, ratings, the reason, an **ON PLEX** sticker or **Add to Wishlist**, and **Where to watch** (streaming, rental or purchase in Portugal, from TMDB's watch-provider data).
+- Per suggestion: poster, year, ratings, the reason, and an **ON PLEX** sticker or **Add to Wishlist**.
 - "More like this" on every title page, and "Because you watched…" rows for your recent favourites.
 - A **Wishlist** page: titles you want to add to your Plex library, ticked off automatically when they appear in the next Plex sync.
 - Thumbs up/down on suggestions, which feed back into the profile.
@@ -75,7 +75,6 @@ Every film and series gets a full page ("The Box") with metadata, ratings, revie
 | Fact cards | 4–6 short "Did you know?" cards: production, casting, release, legacy | Claude, summarised from the title's Wikipedia article, with a link to it |
 | Liner notes | A 300–500 word mini essay: context, why it matters, what to notice | Claude, from the same sources (Editions get the longer essay) |
 | On your Plex | ON PLEX sticker, Play on Plex, Open in Stremio, your watch history | Plex, Stremio, your watches |
-| Where to watch | Streaming, rental, purchase options in Portugal | TMDB watch providers |
 | Seasons (series) | Season shelf, episode list with watched ticks, "Start a marathon" | TMDB, Plex |
 | More like this | 6 recommendations with reasons | Recommendations engine |
 
@@ -161,11 +160,10 @@ Films and series share one `titles` table with a `kind` field, and episodes hang
 
 Five services, all free for personal use: TMDB for metadata and recommendations, OMDb for IMDb/RT/Metacritic ratings, Wikipedia for facts, Plex as library and watch history, and your own Stremio add-on.
 
-### TMDB (metadata, recommendations, where to watch)
+### TMDB (metadata, recommendations)
 
 - Free API key for personal use; credit TMDB in the footer.
 - Films and series: search, details, credits, keywords, images, `external_ids` (for the IMDb ID), reviews, recommendations, similar titles, Discover, and director/creator filmographies.
-- Where to watch: the watch-providers endpoint for region PT. That data comes from JustWatch, which must be credited where it's shown.
 - Cache in `titles`; refresh when a page is opened and the data is older than 30 days.
 
 ### OMDb (ratings)
@@ -289,7 +287,7 @@ Add a Plex connection in Settings (server URL + token, server side only). Write 
 ### Phase 4: Title pages
 
 ```
-Complete The Box page as in BRIEF.md: ratings, synopsis, TMDB reviews, where to watch in PT (credit JustWatch), seasons and episodes for series. Then add fact cards and liner notes: find the Wikipedia article via Wikidata using the IMDb ID, send its text to the Claude API with the rule "use only these facts", save the result to title_notes as a draft with source links, and show it in the Programme skin.
+Complete The Box page as in BRIEF.md: ratings, synopsis, TMDB reviews, seasons and episodes for series (no where to watch: everything is local on Plex). Then add fact cards and liner notes: find the Wikipedia article via Wikidata using the IMDb ID, send its text to the Claude API with the rule "use only these facts", save the result to title_notes as a draft with source links, and show it in the Programme skin.
 ```
 
 ### Phase 5: Recommendations
@@ -350,7 +348,7 @@ Next.js App Router, TypeScript, Tailwind, Supabase (Postgres, auth, storage, cro
 Watched is computed from watches. A series is finished when every episode has a watch.
 
 ## Integrations
-- TMDB: films + series search, details, credits, keywords, external_ids, reviews, recommendations, similar, discover, watch providers (region PT, credit JustWatch). Credit TMDB in the footer.
+- TMDB: films + series search, details, credits, keywords, external_ids, reviews, recommendations, similar, discover. Credit TMDB in the footer.
 - OMDb: ratings by IMDb ID (IMDb, Rotten Tomatoes, Metacritic). Cache per title.
 - Wikipedia: find the article via Wikidata by IMDb ID; text is the only source for fact cards and liner notes.
 - Plex (library + history): local API with X-Plex-Token. Hourly sync of movie and TV sections with includeGuids=1 and all episodes; new lastViewedAt = new watch. Play deep links. Wishlist cleared when a title appears.
