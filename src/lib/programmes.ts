@@ -46,7 +46,7 @@ export const findProgramme = (p: Programmes, slug: string) => p.list.find((x) =>
 export const editionOf = (p: Programmes, titleSlug: string) => p.list.find((x) => x.type === "edition" && x.status !== "draft" && x.items[0]?.id === titleSlug);
 export const spineLabel = (n?: number) => (n == null ? "" : `No. ${String(n).padStart(3, "0")}`);
 
-/** The member's local date (the NAS's time zone) as YYYY-MM-DD. */
+/** The member's local date (the server's time zone) as YYYY-MM-DD. */
 export const today = () => new Date().toLocaleDateString("en-CA");
 export const dayOf = (iso: string) => new Date(iso).toLocaleDateString("en-CA");
 export const addDays = (ymd: string, n: number) => { const d = new Date(`${ymd}T12:00:00`); d.setDate(d.getDate() + n); return d.toLocaleDateString("en-CA"); };

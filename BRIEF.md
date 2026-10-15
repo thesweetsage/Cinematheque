@@ -2,16 +2,16 @@
 
 A personal 80s video store for everything on my Plex server (films and series): watch history, recommendations (popular + deep cuts), title pages with facts and essays, and programmes (editions, festivals, 31 Days of ___, series marathons, curricula, retrospectives). Single user (me).
 
-It runs on my NAS next to Plex and is used mainly **on the projector through a Xiaomi Android TV box, with the remote**. It also works in a normal browser.
+It runs on my PC next to Plex and is used mainly **on the projector through a Xiaomi Android TV box, with the remote**. It also works in a normal browser.
 
 The full original plan is in `docs/BUILD_PLAN.md`. Where this file and the plan disagree, this file wins.
 
 ## Stack
-Next.js 16 App Router, TypeScript, Tailwind 4 (tokens) + plain CSS modules for the store look, Supabase (Postgres, auth, storage, cron). Docker on the NAS next to Plex.
+Next.js 16 App Router, TypeScript, Tailwind 4 (tokens) + plain CSS modules for the store look, Supabase (Postgres, auth, storage, cron). Runs on my PC next to Plex.
 No GSAP: motion is CSS so it stays smooth on the TV box. Add a library only if CSS can't do it.
 
 ## TV app (Android TV / Google TV)
-- The web app is the product. A small Android TV wrapper app (Capacitor or a plain WebView app) opens the NAS URL full screen, with a 320x180 home-screen banner. Installed by sideloading (Downloader app), not the Play Store.
+- The web app is the product. A small Android TV wrapper app (Capacitor or a plain WebView app) opens the app's address on my PC full screen, with a 320x180 home-screen banner. Installed by sideloading (Downloader app), not the Play Store.
 - **Remote first.** Every screen works with arrows, OK (Enter) and Back. Focus is always visible (white ring + pink glow). Arrow keys move to the nearest focusable item in that direction (`src/components/RemoteNav.tsx`). Back closes the top overlay, otherwise goes to the previous page.
 - **TV mode** (auto on when there is no fine pointer, switch in Settings): bigger type (zoom 1.25), 3vw safe margins for overscan, lighter effects (no scanline overlay, no backdrop blur).
 - Performance budget for the box: no canvas noise loops, no large blurs, few simultaneous transforms, images at w342 for covers.

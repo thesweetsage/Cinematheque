@@ -21,7 +21,7 @@ The tapes and wall posters are real covers from TMDB: the store's sample titles 
 well-known films from 1975-1999. The source is in `scripts/walkin/`.
 
 **Not in git.** The video shows TMDB posters, so like all artwork it is never committed: `public/store/` is git-ignored.
-Copy `walk-in.mp4` and `shelf.jpg` into `public/store/` on the NAS (the Store Front picks them up at the next build),
+Copy `walk-in.mp4` and `shelf.jpg` into the project's `public/store/` folder on your PC (the Store Front picks them up at the next build),
 or render them yourself:
 
 ```bash
