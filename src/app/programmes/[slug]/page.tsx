@@ -11,7 +11,9 @@ import { Flyer, Poster, RentalCard, span, TapeRow } from "../parts";
 import s from "../programmes.module.css";
 
 export async function generateStaticParams() {
-  return (await getProgrammes()).list.map((p) => ({ slug: p.slug }));
+  const slugs = (await getProgrammes()).list.map((p) => ({ slug: p.slug }));
+  // Cache Components needs at least one: with no programmes yet, a placeholder that renders "not found".
+  return slugs.length ? slugs : [{ slug: "none-yet" }];
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
