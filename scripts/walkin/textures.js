@@ -304,3 +304,27 @@ export function makePegboard() {
   grain(ctx, S, S, 10);
   return tex(c, true, [1, 1]);
 }
+
+// A spine for a real poster: its darkest common colour, the title running down it in light type, the year.
+export function makeSpine(img, title, year) {
+  const [s, sctx] = canvas(12, 18);
+  sctx.drawImage(img, 0, 0, 12, 18);
+  const d = sctx.getImageData(0, 0, 12, 18).data;
+  let best = null, r = 0, g = 0, b = 0;
+  for (let i = 0; i < d.length; i += 4) {
+    r += d[i]; g += d[i + 1]; b += d[i + 2];
+    const l = d[i] * 0.3 + d[i + 1] * 0.59 + d[i + 2] * 0.11;
+    if (!best || l < best[3]) best = [d[i], d[i + 1], d[i + 2], l];
+  }
+  const n = d.length / 4, avg = `rgb(${r / n | 0},${g / n | 0},${b / n | 0})`;
+  const bg = `rgb(${(best[0] + r / n * 0.3) * 0.7 | 0},${(best[1] + g / n * 0.3) * 0.7 | 0},${(best[2] + b / n * 0.3) * 0.7 | 0})`;
+  const [c, ctx] = canvas(64, 580);
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, 64, 580);
+  ctx.fillStyle = avg; ctx.fillRect(0, 0, 64, 46); ctx.fillRect(0, 548, 64, 32);
+  ctx.save(); ctx.translate(40, 300); ctx.rotate(-Math.PI / 2); ctx.textAlign = 'center';
+  const t = String(title).toUpperCase();
+  const sz = fitText(ctx, t, 'Bungee', 440, 28); ctx.fillStyle = '#f4f1ea'; ctx.fillText(t, 0, sz * 0.35); ctx.restore();
+  ctx.fillStyle = '#f4f1ea'; ctx.font = '22px "VT323"'; ctx.textAlign = 'center'; ctx.fillText(String(year || ''), 32, 570);
+  grain(ctx, 64, 580, 8);
+  return { spine: tex(c), color: bg };
+}

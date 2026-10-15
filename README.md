@@ -55,8 +55,9 @@ or the Plex app on Android (its `plex://` link isn't documented by Plex, so chec
 ### The walk-in
 
 The Store Front opens with a 12-second walk into the store, once a day (`public/store/walk-in.mp4`, ending on
-`public/store/shelf.jpg`). It's a 3D store rendered in code, no AI tool or credits needed: the source and the render
-commands are in `scripts/walkin/` and `docs/WALK_IN.md`, along with prompts if you'd rather make real footage.
+`public/store/shelf.jpg`). It's a 3D store rendered in code with real TMDB covers on the tapes. Because it shows TMDB
+artwork it isn't in git: copy the two files into `public/store/` on the NAS before building, or render them with
+`scripts/walkin/` (steps in `docs/WALK_IN.md`). Without them the Store Front shows a still from Tonight's pick instead.
 
 ### Recommendations (staff cards)
 
@@ -109,4 +110,4 @@ Phase 5 is done: the nightly taste profile and recommendations (Popular Picks, D
 against TMDB), thumbs up/down, Because you watched, More like this, and the Coming soon wishlist.
 Phase 6 is done: Editions with spine numbers and essays, Festivals with booklet, schedule, tick-off and jury awards, and
 31 Days rental cards with stamps and a streak; items tick themselves from Plex watches.
-The walk-in footage is in (a rendered 3D store; see `docs/WALK_IN.md`).
+The walk-in footage is rendered (a 3D store with real covers; kept out of git, see `docs/WALK_IN.md`).

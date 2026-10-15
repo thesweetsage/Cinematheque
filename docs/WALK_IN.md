@@ -12,23 +12,29 @@ It needs two files in `public/store/`:
 
 Until they exist, the Store Front uses a darkened still from Tonight's pick behind the shelf.
 
-## The rendered walk-in (what's in the repo now)
+## The rendered walk-in
 
-The current `walk-in.mp4` is not AI footage: it is a 3D store built in code (three.js) and rendered offline in headless
-Chromium, frame by frame, at 1920x1080 and 30 fps. Free, no accounts, no credits. 12 seconds: the street at night under the
-VIDEO / Cinematheque sign, through the glass doors, down the main aisle, then it stops square-on to the new releases wall
-and holds for 2 seconds. The covers are invented (no real films, no TMDB art). The source is in `scripts/walkin/`.
+The walk-in is a 3D store built in code (three.js) and rendered offline in headless Chromium, frame by frame, at
+1920x1080 and 30 fps. Free, no AI tool, no credits. 12 seconds: the street at night under the VIDEO / Cinematheque sign,
+through the glass doors, down the main aisle, then it stops square-on to the new releases wall and holds for 2 seconds.
+The tapes and wall posters are real covers from TMDB: the store's sample titles (on the new releases wall) plus
+well-known films from 1975-1999. The source is in `scripts/walkin/`.
 
-To change and re-render it (about an hour on a 4-core machine with software WebGL):
+**Not in git.** The video shows TMDB posters, so like all artwork it is never committed: `public/store/` is git-ignored.
+Copy `walk-in.mp4` and `shelf.jpg` into `public/store/` on the NAS (the Store Front picks them up at the next build),
+or render them yourself:
 
 ```bash
 cd scripts/walkin
 npm i && npm run fonts
+TMDB_API_KEY=… npm run covers            # 140 posters into covers/ (git-ignored)
 node render.mjs stills 0,3,6,12          # quick check: out/still_<t>.png
-node render.mjs frames 30                # all 360 frames into out/frames/ (resumes where it stopped if run again)
+node render.mjs frames 30                # all 360 frames into out/frames/ (resumes where it stopped if run again); about an hour on 4 cores
 ffmpeg -framerate 30 -i out/frames/f_%05d.png -c:v libx264 -crf 23 -preset slow -tune grain -pix_fmt yuv420p -movflags +faststart ../../public/store/walk-in.mp4
 cp out/frames/f_00359.png /tmp/last.png && ffmpeg -i /tmp/last.png -q:v 2 ../../public/store/shelf.jpg
 ```
+
+Without `covers/` the scene falls back to invented covers (no artwork, so that version could be committed).
 
 `CHROME_PATH` points `render.mjs` at a Chromium binary if it isn't at the Playwright default.
 

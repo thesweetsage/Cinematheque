@@ -43,3 +43,6 @@ next-env.d.ts
 # TMDB artwork is fetched locally, never committed
 /public/art/
 !.env.local.example
+
+# The walk-in footage shows TMDB posters, so it's artwork: rendered locally, never committed (docs/WALK_IN.md)
+/public/store/

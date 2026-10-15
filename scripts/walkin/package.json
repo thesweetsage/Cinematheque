@@ -2,8 +2,9 @@
   "name": "cinematheque-walkin",
   "private": true,
   "type": "module",
-  "description": "Renders public/store/walk-in.mp4 and shelf.jpg from a 3D scene. See docs/WALK_IN.md.",
+  "description": "Renders public/store/walk-in.mp4 and shelf.jpg from a 3D store with real TMDB covers. See docs/WALK_IN.md.",
   "scripts": {
+    "covers": "node fetch-covers.mjs 140",
     "fonts": "sh fonts.sh",
     "stills": "node render.mjs stills 0,3,6,12",
     "frames": "node render.mjs frames 30"
