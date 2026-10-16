@@ -16,6 +16,13 @@
 .small:disabled{opacity:.5}
 
 /* ---------- The wall: poster + flyer ---------- */
+/* The board: the pan's end frame (wall.jpg) behind, this month's poster and flyer pinned on the cork. */
+.board{margin-top:24px;background:#0b0920 var(--wall) no-repeat center 30%/cover;border:1px solid var(--edge);padding:clamp(64px,9.5vw,170px) clamp(16px,5.5vw,110px) clamp(48px,7vw,130px)}
+.board .wall{margin-top:0;grid-template-columns:minmax(240px,400px) minmax(0,540px);justify-content:center}
+.board .wallSide :global(.osd-label){display:none} /* the neon sign on the wall says it */
+.board .lede{margin:clamp(24px,6vw,90px) auto;background:#f4efe6;color:#1a1714;padding:16px 20px;max-width:46ch;transform:rotate(-1deg)}
+/* Narrow screens: the photo would only be a stretched sliver behind a tall stack, so the board goes plain. */
+@media (max-width:860px){.board{background-image:none;padding:16px}.board .wall{grid-template-columns:1fr}.board .wallSide :global(.osd-label){display:block}}
 .wall{display:grid;grid-template-columns:minmax(260px,420px) minmax(0,1fr);gap:40px;align-items:start;margin-top:28px}
 @media (max-width:860px){.wall{grid-template-columns:1fr}}
 .wallSide{display:grid;gap:14px;justify-items:start;min-width:0}

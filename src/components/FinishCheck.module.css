@@ -1,0 +1,10 @@
+/* "Did you finish it?": a store panel over a dimmed page (no blur: the TV box). */
+.veil{position:fixed;inset:0;z-index:250;display:grid;place-items:center;background:rgba(5,4,15,.82);padding:max(3vw,16px)}
+.card{display:grid;grid-template-columns:auto minmax(0,1fr);gap:24px;align-items:start;max-width:720px;width:100%;background:var(--panel);border:2px solid var(--edge);border-top:4px solid var(--mag);padding:24px}
+.poster{width:150px;aspect-ratio:2/3;object-fit:cover;background:var(--wall);border:1px solid var(--edge)}
+.h{font-family:var(--font-shoulders);font-weight:900;font-size:clamp(28px,3.4vw,44px);line-height:1;margin:6px 0 10px;text-transform:uppercase}
+.sub{color:var(--muted);margin:0 0 18px}
+.row{display:flex;flex-wrap:wrap;gap:10px}
+.stars{font-family:var(--font-vt323);letter-spacing:.05em}
+.err{color:var(--orange);margin:12px 0 0}
+@media (max-width:560px){.card{grid-template-columns:1fr}.poster{width:110px}}

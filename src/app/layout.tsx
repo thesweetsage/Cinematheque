@@ -5,6 +5,7 @@ import { Big_Shoulders, Bungee, VT323, IBM_Plex_Sans_Condensed, Mr_Dafoe, Perman
 import { OsdNav } from "@/components/OsdNav";
 import { RemoteNav } from "@/components/RemoteNav";
 import { StoreRadio } from "@/components/StoreRadio";
+import { FinishCheck } from "@/components/FinishCheck";
 import "./globals.css";
 
 const shoulders = Big_Shoulders({ subsets: ["latin"], weight: ["700", "900"], variable: "--font-shoulders" });
@@ -54,6 +55,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body>
         <Suspense fallback={null}><RemoteNav /></Suspense>
         <OsdNav />
+        <FinishCheck />
         <main id="main" className="wrap" style={{ paddingBlock: "24px 40px" }}>
           <Suspense fallback={<p className="osd-label" role="status" style={{ paddingBlock: 40 }}>TRACKING…</p>}><Live>{children}</Live></Suspense>
         </main>

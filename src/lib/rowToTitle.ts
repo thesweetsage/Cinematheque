@@ -33,7 +33,7 @@ export function rowToTitle(r: DbTitleRow): { title: Title; art: Art } {
       id: r.slug, t: r.title, y: r.year ?? 0, kind: r.kind, g: aisleOf(r.kind, r.genres, r.language), dir: r.director_or_creator ?? "",
       run: r.runtime ? `${Math.floor(r.runtime / 60)}h ${r.runtime % 60}m` : r.seasons_count ? `${r.seasons_count} season${r.seasons_count > 1 ? "s" : ""}` : undefined,
       lib: !!(r.on_plex || r.in_library), plex: !!r.on_plex, gs: [...new Set(r.genres.map(genreName))], added: r.created_at, plexKey: r.plex_rating_key ?? undefined,
-      tmdb: r.tmdb_id, imdb: r.rating_imdb ?? undefined, rt: r.rating_rt ?? undefined, mc: r.rating_metacritic ?? undefined,
+      tmdb: r.tmdb_id, tt: r.imdb_id ?? undefined, imdb: r.rating_imdb ?? undefined, rt: r.rating_rt ?? undefined, mc: r.rating_metacritic ?? undefined,
       cast: r.cast_names.join(", ") || undefined, ctry: r.country ?? undefined, syn: r.overview ?? "",
     },
     art: {

@@ -52,8 +52,9 @@ function move(dir: Dir) {
     // no sideways offset; anything else pays its centre offset plus a little for leaving the row.
     const lined = horizontal ? r.top < a.bottom && r.bottom > a.top : r.left < a.right && r.right > a.left;
     // Things floating over the page (the store radio) are only picked when nothing else lies that way,
-    // so moving down a page never lands on the radio by accident.
-    const floating = !!el.closest("[data-remote-last]") && !cur.closest("[data-remote-last]");
+    // so moving down a page never lands on the radio by accident; and once inside, focus stays in the radio
+    // unless nothing in it lies that way (Right from Play is Next track, not a button behind the radio).
+    const floating = !!el.closest("[data-remote-last]") !== !!cur.closest("[data-remote-last]");
     const score = (horizontal ? Math.abs(dx) : Math.abs(dy)) + (lined ? 0 : (horizontal ? Math.abs(dy) : Math.abs(dx)) * 2.2 + 40) + (floating ? 100_000 : 0);
     if (score < bestScore) { bestScore = score; best = el; }
   }

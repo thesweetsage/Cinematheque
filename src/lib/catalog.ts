@@ -31,6 +31,8 @@ export type Title = {
   imdb?: number; rt?: number; mc?: number; my?: number;
   /** TMDB id, for reviews and seasons. */
   tmdb?: number;
+  /** IMDb id (tt…), for Stremio. */
+  tt?: string;
   cast?: string; ctry?: string; syn: string;
 };
 export type Art = {

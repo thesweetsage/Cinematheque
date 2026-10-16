@@ -14,7 +14,9 @@ const { rr, rand, pick } = T;
 
 const P = new URLSearchParams(location.search);
 const W = +P.get('w') || 1920, H = +P.get('h') || 1080;
-export const DURATION = 6, MOVE = 5;
+// ?shot=pan renders the second clip: from the new releases wall, a turn to the festival board on the right wall.
+const SHOT = P.get('shot') === 'pan' ? 'pan' : 'walk';
+export const DURATION = SHOT === 'pan' ? 2.6 : 6, MOVE = SHOT === 'pan' ? 2.1 : 5;
 
 await T.loadFonts();
 RectAreaLightUniformsLib.init();
@@ -177,7 +179,17 @@ const LEN = IN.z0 - IN.z1;
   }
   // wall shelving
   shelfUnit(-IN.x + 0.17, -7.7, Math.PI / 2, 11.6, [0.14, 0.5, 0.86, 1.22, 1.58, 1.94], 2.2, 0.32, { back: peg(11.6, 2.2) });
+  const before = scene.children.length;
   shelfUnit(IN.x - 0.17, -9.0, -Math.PI / 2, 9.0, [0.14, 0.5, 0.86, 1.22, 1.58, 1.94], 2.2, 0.32, { back: peg(9, 2.2) });
+  if (SHOT === 'pan') {
+    // The pan needs the back of the right wall free for the festival board: swap in a shorter unit,
+    // without touching the random sequence the rest of the store (the new releases wall) is built from.
+    for (const o of scene.children.slice(before)) scene.remove(o);
+    for (const list of tapeLists) for (let k = list.length - 1; k >= 0; k--) if (list[k].elements[12] > 3.9) list.splice(k, 1);
+    const seed = T.getSeed();
+    shelfUnit(IN.x - 0.17, -7.15, -Math.PI / 2, 5.3, [0.14, 0.5, 0.86, 1.22, 1.58, 1.94], 2.2, 0.32, { back: peg(5.3, 2.2) });
+    T.setSeed(seed);
+  }
   // the new releases wall (back): two long shelves + base cabinet
   {
     const g = shelfUnit(0, IN.z1 + 0.17, 0, 8.4, [0.1, 0.44, 0.78, 1.12, 1.46], 1.75, 0.32, { gap: 0.02, step: 0.142, drop: 0.26, deck: wallCover, back: peg(8.4, 1.75) });
@@ -206,6 +218,7 @@ const LEN = IN.z0 - IN.z1;
   let pi = 0;
   for (const side of [-1, 1]) for (let z = -2.6; z > IN.z1 + 1; z -= 1.75) {
     if (side === 1 && z > -4.4) continue;
+    if (SHOT === 'pan' && side === 1 && z < -9.6) continue;
     const g = new THREE.Group(); g.position.set(side * (IN.x - 0.03), 2.68, z); g.rotation.y = -side * Math.PI / 2; scene.add(g);
     box(0.62, 0.86, 0.03, M.dark, 0, 0, 0, g);
     plane(0.56, 0.8, new THREE.MeshPhysicalMaterial({ map: posterTex(pi++), roughness: 0.3, clearcoat: 1, clearcoatRoughness: 0.08 }), 0, 0, 0.017, 0, 0, g);
@@ -243,6 +256,47 @@ const LEN = IN.z0 - IN.z1;
   }
 }
 flushTapes();
+
+// ---------- the festival board (pan shot only) ----------
+// Right wall, square-on to where the pan ends. The middle stays clear: the app puts the live poster and flyer there.
+if (SHOT === 'pan') {
+  const seed = T.getSeed();
+  const g = new THREE.Group(); g.position.set(IN.x - 0.02, 0, -12.2); g.rotation.y = -Math.PI / 2; scene.add(g);
+  const BW = 3.0, BH = 1.55, BY = 1.42;
+  box(BW + 0.12, BH + 0.12, 0.04, M.white, 0, BY, 0.02, g);
+  const cork = T.makeCork(); cork.repeat.set(BW / 0.8, BH / 0.8);
+  plane(BW, BH, new THREE.MeshStandardMaterial({ map: cork, roughness: 0.95 }), 0, BY, 0.045, 0, 0, g);
+  // pink neon under the board, like the shelves
+  box(BW, 0.014, 0.014, M.neonPink, 0, BY - BH / 2 - 0.08, 0.06, g);
+  const sp = plane(BW, 0.5, spillMat, 0, BY - BH / 2 - 0.34, 0.07, 0, 0, g); sp.renderOrder = 2;
+  // the sign over it
+  const ns = T.makeNeonText('NOW SHOWING', 'Big Shoulders', 170, '#7ee6ff', 1600, 260, { weight: 900 });
+  plane(1.9, 0.31, new THREE.MeshBasicMaterial({ map: ns, color: new THREE.Color(1, 1, 1).multiplyScalar(1.1), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }), 0, BY + BH / 2 + 0.28, 0.05, 0, 0, g);
+  const fs = T.makeNeonText('festivals', 'Mr Dafoe', 200, '#ff4fb8', 1400, 320, { dy: 10 });
+  plane(1.0, 0.23, new THREE.MeshBasicMaterial({ map: fs, color: new THREE.Color(1, 1, 1).multiplyScalar(1.5), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }), 1.25, BY + BH / 2 + 0.24, 0.06, 0, 0, g);
+  // what's pinned round the edges: past festival posters, old flyers, ticket stubs
+  const pin = new THREE.MeshPhysicalMaterial({ color: '#ff4fb8', roughness: 0.3, clearcoat: 1 });
+  const pinAt = (x, y) => { const m = new THREE.Mesh(new THREE.SphereGeometry(0.011, 12, 8), pin); m.position.set(x, y, 0.07); g.add(m); };
+  const stick = (w, h, map, x, y, rot) => {
+    const m = plane(w, h, new THREE.MeshStandardMaterial({ map, roughness: 0.8 }), x, y, 0.05 + rr(0.001, 0.004), 0, 0, g);
+    m.rotation.z = rot; pinAt(x + Math.sin(-rot) * h * 0.47, y + Math.cos(rot) * h * 0.47);
+  };
+  stick(0.36, 0.53, posterTex(31), -1.22, BY + 0.38, 0.04);
+  stick(0.3, 0.44, T.makePaper('flyer', 1), -1.25, BY - 0.36, -0.06);
+  stick(0.25, 0.115, T.makePaper('ticket', 2), -0.88, BY - 0.62, 0.12);
+  stick(0.36, 0.53, posterTex(37), 1.22, BY + 0.34, -0.05);
+  stick(0.3, 0.44, T.makePaper('flyer', 2), 1.2, BY - 0.38, 0.05);
+  stick(0.25, 0.115, T.makePaper('ticket', 5), 0.9, BY + 0.66, -0.1);
+  stick(0.25, 0.115, T.makePaper('ticket', 7), -0.95, BY + 0.68, 0.08);
+  // two track spots on the board
+  for (const dx of [-0.8, 0.8]) {
+    const l = new THREE.SpotLight('#e8e2ff', 9, 5, 0.55, 0.7, 2);
+    l.position.set(IN.x - 1.4, IN.h - 0.1, -12.2 + dx); l.target.position.set(IN.x, BY, -12.2 + dx * 0.9);
+    scene.add(l, l.target);
+    box(0.08, 0.12, 0.08, M.dark, IN.x - 1.4, IN.h - 0.12, -12.2 + dx);
+  }
+  T.setSeed(seed);
+}
 
 // ---------- storefront and street ----------
 const doors = [];
@@ -358,7 +412,7 @@ const F = (x) => -Math.cos(Math.PI * (0.12 + 0.88 * x)) / (0.88 * Math.PI);
 const ease = (x) => (F(x) - F(0)) / (F(1) - F(0));
 const sm = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
 
-window.renderAt = (t) => {
+function walkCamera(t) {
   const x = Math.min(1, t / MOVE), u = ease(x);
   const p = path.getPointAt(u);
   const still = sm(0.85, 1, x);
@@ -369,8 +423,28 @@ window.renderAt = (t) => {
   camera.rotateZ(Math.sin(t * 0.9) * 0.004 * sway);
   const open = sm(3.4, 1.2, p.z);
   for (const d of doors) d.pivot.rotation.y = d.side * -open * 1.5;
-  dust(t);
-  grade.uniforms.seed.value = (t * 37.13) % 100;
+}
+
+// The pan starts exactly where the walk-in ends (still, facing the new releases wall) and turns right to the board.
+const PAN0 = new THREE.Vector3(0, 1.2, -12.75), PAN1 = new THREE.Vector3(1.55, 1.5, -12.2);
+function panCamera(t) {
+  const x = Math.min(1, t / MOVE);
+  const u = x * x * x * (x * (x * 6 - 15) + 10); // smootherstep: starts and ends at rest
+  const pu = sm(0.08, 1, u), sway = 4 * u * (1 - u);
+  const yaw = u * Math.PI / 2;
+  camera.position.lerpVectors(PAN0, PAN1, pu);
+  camera.position.y += Math.sin(t * 2.1) * 0.004 * sway;
+  const ty = THREE.MathUtils.lerp(1.2, 1.55, pu);
+  camera.lookAt(camera.position.x + Math.sin(yaw) * 2, ty, camera.position.z - Math.cos(yaw) * 2);
+  camera.rotateZ(Math.sin(t * 1.7) * 0.003 * sway);
+}
+
+// Dust keeps the walk-in's clock, so the first pan frame matches the walk-in's last.
+window.renderAt = (t) => {
+  if (SHOT === 'pan') panCamera(t); else walkCamera(t);
+  const clock = SHOT === 'pan' ? 6 + t : t;
+  dust(clock);
+  grade.uniforms.seed.value = (clock * 37.13) % 100;
   composer.render();
 };
 window.DURATION = DURATION;

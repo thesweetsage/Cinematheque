@@ -5,6 +5,9 @@ let seed = 1337;
 export const rand = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
 export const rr = (a, b) => a + rand() * (b - a);
 export const pick = (arr) => arr[Math.floor(rand() * arr.length)];
+// Extra scenery for the pan shot is built between getSeed / setSeed, so the shared walk-in layout stays identical.
+export const getSeed = () => seed;
+export const setSeed = (v) => { seed = v; };
 
 const FONTS = [
   ['Bungee', 'Bungee-Regular.ttf'], ['Mr Dafoe', 'MrDafoe-Regular.ttf'], ['Big Shoulders', 'BigShoulders.ttf'],
@@ -303,6 +306,38 @@ export function makePegboard() {
   for (let y = 16; y < S; y += 32) for (let x = 16; x < S; x += 32) { ctx.fillStyle = '#07061a'; ctx.beginPath(); ctx.arc(x, y, 4, 0, 7); ctx.fill(); }
   grain(ctx, S, S, 10);
   return tex(c, true, [1, 1]);
+}
+
+// Cork for the festival board: warm brown, darker flecks, fine grain.
+export function makeCork() {
+  const S = 512; const [c, ctx] = canvas(S, S);
+  ctx.fillStyle = '#7a5236'; ctx.fillRect(0, 0, S, S);
+  for (let i = 0; i < 2600; i++) { ctx.fillStyle = pick(['#5e3c25', '#94683f', '#6b4630', '#a87a4c']); ctx.globalAlpha = rr(0.35, 0.8); ctx.beginPath(); ctx.ellipse(rr(0, S), rr(0, S), rr(1, 3.5), rr(1, 2.5), rr(0, 3.14), 0, 7); ctx.fill(); }
+  ctx.globalAlpha = 1; grain(ctx, S, S, 22);
+  return tex(c, true, [1, 1]);
+}
+
+// Paper pinned to the board: an old flyer (printed red bands and ink rules) or a ticket stub.
+export function makePaper(kind, i) {
+  const ticket = kind === 'ticket';
+  const W = ticket ? 300 : 360, H = ticket ? 140 : 500;
+  const [c, ctx] = canvas(W, H);
+  const papers = ['#f4efe6', '#ffe38a', '#ffd0e8', '#d8f4ff'];
+  ctx.fillStyle = ticket ? papers[(i % 3) + 1] : papers[i % 2 ? 0 : (i % 4)]; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#b3261e'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  if (ticket) {
+    ctx.strokeStyle = '#b3261e'; ctx.lineWidth = 4; ctx.setLineDash([10, 8]); ctx.strokeRect(10, 10, W - 20, H - 20); ctx.setLineDash([]);
+    ctx.font = '52px "Bungee"'; ctx.fillText('ADMIT ONE', W / 2, H / 2 - 8);
+    ctx.font = '30px "VT323"'; ctx.fillStyle = '#1a1714'; ctx.fillText(`No. ${String(4120 + i * 37).padStart(5, '0')}`, W / 2, H - 32);
+  } else {
+    ctx.fillRect(0, 0, W, 70); ctx.fillStyle = '#f4efe6'; ctx.font = '40px "Bungee"';
+    ctx.fillText(['FESTIVAL', '31 DAYS', 'DOUBLE BILL', 'MIDNIGHT'][i % 4], W / 2, 38);
+    ctx.fillStyle = '#1a1714';
+    for (let y = 110; y < H - 30; y += 34) { ctx.globalAlpha = 0.75; ctx.fillRect(30, y, rr(160, W - 60), 9); ctx.fillRect(W - 70, y, 40, 9); }
+    ctx.globalAlpha = 1;
+  }
+  grain(ctx, W, H, 14);
+  return tex(c);
 }
 
 // A spine for a real poster: its darkest common colour, the title running down it in light type, the year.

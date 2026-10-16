@@ -3,6 +3,7 @@ import { useSyncExternalStore } from "react";
 import { signOut } from "../login/actions";
 import { PlexPanel } from "./PlexPanel";
 import { RecsPanel } from "./RecsPanel";
+import { StremioPanel } from "./StremioPanel";
 
 /* The <html> classes are the source of truth for these switches (set before paint in layout.tsx). */
 function watchClasses(cb: () => void) {
@@ -11,7 +12,7 @@ function watchClasses(cb: () => void) {
   return () => o.disconnect();
 }
 
-/* Membership card: the switches that live on this device (TV mode, effects), sign out, and the Plex connection. */
+/* Membership card: the switches that live on this device (TV mode, effects), sign out, Plex, staff cards and the Stremio add-on. */
 export default function Settings() {
   const tv = useSyncExternalStore(watchClasses, () => document.documentElement.classList.contains("tv"), () => false);
   const fx = useSyncExternalStore(watchClasses, () => document.documentElement.classList.contains("fx"), () => true);
@@ -35,7 +36,7 @@ export default function Settings() {
       {row("Membership", "Signed in on this device for a year at a time. Signing out means asking for a new code.", true, () => signOut())}
       <PlexPanel />
       <RecsPanel />
-      <p style={{ color: "var(--muted)", fontSize: 14, marginTop: 18 }}>The Stremio add-on link arrives in a later phase.</p>
+      <StremioPanel />
     </div>
   );
 }

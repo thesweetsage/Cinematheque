@@ -59,6 +59,11 @@ The Store Front opens with a 6-second walk into the store, once a day (`public/s
 artwork it isn't in git: copy the two files into the project's `public/store/` folder on the machine running the app (your PC for now, the NAS later) before building, or render them with
 `scripts/walkin/` (steps in `docs/WALK_IN.md`). Without them the Store Front shows a still from Tonight's pick instead.
 
+The **Festival wall** has a second clip from the same store: a 2.6-second turn from the new releases wall to the festival
+board on the right wall (`public/store/pan.mp4`), once a day on your first visit (OK or Back skips it). Its end frame,
+`public/store/wall.jpg`, stays behind this month's poster and flyer, so they sit pinned on the cork. Same rules: not in
+git, copy both files in or render them (`docs/WALK_IN.md`). Without them the wall looks as before.
+
 ### Recommendations (staff cards)
 
 Run `supabase/migrations/20261015160000_recs_programmes.sql` once in the SQL Editor (it also adds what programmes need).
@@ -97,6 +102,23 @@ The **Festival wall** holds the programmes:
 
 Festival and 31 Days items tick themselves when the Plex sync logs a watch of that title on or after the start date.
 
+### Stremio
+
+The app is also a Stremio add-on: every running festival and 31 Days is a catalogue in Stremio, in programme order, plus
+**The Cinematheque collection** (your editions). It lists titles by IMDb id; Stremio fills in the details and your own
+stream add-ons do the playing. Titles without an IMDb id are left out.
+
+- **Install:** open the Membership card **on the device that runs Stremio** (the TV box) and press **Install in Stremio**,
+  or paste the address shown there into Stremio's add-on search. The address carries a private key (made from
+  `SESSION_SECRET`); keep it to yourself. Changing `SESSION_SECRET` changes it, and you install it again.
+- **Open in Stremio** on a box opens the title in the Stremio app. The next time you come back to the app (a few minutes
+  later or more), it asks **Did you finish it?**: *Yes* (then your stars) logs a watch and ticks it off any running
+  programme, *Not yet* asks again next time, *Dropped it* forgets it. Back on the remote is *Not yet*.
+- **http or https:** Stremio's documentation says add-ons must be on https unless they run on the same device.
+  Many people use a plain `http://<PC address>:3001/...` address on Android TV without trouble, so try that first. If
+  Stremio refuses it, put the app behind https: a free Cloudflare Tunnel or Tailscale Funnel to port 3001, or a reverse
+  proxy with a certificate on the NAS later. Then open the Membership card through that https address and install from there.
+
 ### Liner notes (Claude)
 
 Put your Claude API key in `ANTHROPIC_API_KEY` in `.env.local`. The first time you open a title, the app finds its English
@@ -125,3 +147,5 @@ against TMDB), thumbs up/down, Because you watched, More like this, and the Comi
 Phase 6 is done: Editions with spine numbers and essays, Festivals with booklet, schedule, tick-off and jury awards, and
 31 Days rental cards with stamps and a streak; items tick themselves from Plex watches.
 The walk-in footage is rendered (a 3D store with real covers; kept out of git, see `docs/WALK_IN.md`).
+Phase 7 is done: the walk-in on the Store Front and the pan from the shelves to the festival board on the Festival wall.
+Phase 8 is done: the Stremio add-on (festivals, 31 Days and the collection as catalogues), Open in Stremio and Did you finish it?

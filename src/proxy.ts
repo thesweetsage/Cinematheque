@@ -23,6 +23,7 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   // Everything except the login page, Next's own files, sample artwork, the icon, and the timer routes
-  // (the hourly timer calls them with its own key; the routes check that key or the session themselves).
-  matcher: ["/((?!login|_next/static|_next/image|art/|favicon.ico|api/plex/sync|api/recs/run).*)"],
+  // (the hourly timer calls them with its own key; the routes check that key or the session themselves),
+  // and the Stremio add-on (Stremio has no cookie; its address carries a secret token the route checks).
+  matcher: ["/((?!login|_next/static|_next/image|art/|favicon.ico|api/plex/sync|api/recs/run|api/stremio/).*)"],
 };

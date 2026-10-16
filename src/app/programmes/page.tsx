@@ -1,7 +1,10 @@
 import Link from "next/link";
+import { existsSync } from "node:fs";
+import path from "node:path";
+import { WalkIn } from "@/components/WalkIn";
 import { SampleTag } from "@/components/SampleTag";
 import { getCatalog } from "@/lib/catalog";
-import { getProgrammes, spineLabel, TYPE_NAME } from "@/lib/programmes";
+import { getProgrammes, spineLabel, TYPE_NAME, type Programme } from "@/lib/programmes";
 import { Flyer, Poster, RentalCard, span, TapeRow } from "./parts";
 import s from "./programmes.module.css";
 
@@ -20,6 +23,19 @@ export default async function FestivalWall() {
   const editions = progs.list.filter((p) => p.type === "edition" && p.status !== "draft").sort((a, b) => (a.spine ?? 0) - (b.spine ?? 0));
   const shown = new Set([...festivals, ...challenges].map((p) => p.slug));
   const backRoom = progs.list.filter((p) => p.type !== "edition" && !shown.has(p.slug));
+  const footage = wallFootage();
+  // The board photo frames what's now showing (or the empty-wall note), not a wall with only a 31 Days below it.
+  const onBoard = !!footage.still && (festivals.length > 0 || !challenges.length);
+  const showing = (p: Programme, first: boolean, label: string) => (
+    <section key={p.slug} className={s.wall} aria-label={`${p.title}, ${label.toLowerCase()}`}>
+      <Link href={`/programmes/${p.slug}`} className={s.posterLink} aria-label={`Open the programme: ${p.title}`} data-autofocus={first ? true : undefined}><Poster p={p} cat={cat} /></Link>
+      <div className={s.wallSide}>
+        <div className="osd-label">{label} · {TYPE_NAME.festival}</div>
+        <Flyer p={p} cat={cat} live={live} compact />
+        <Link className="btn" href={`/programmes/${p.slug}`}>Open the programme</Link>
+      </div>
+    </section>
+  );
 
   return (
     <>
@@ -31,20 +47,15 @@ export default async function FestivalWall() {
         </div>
       </div>
 
-      {!festivals.length && !challenges.length && (
-        <p className={s.lede}>Nothing on the wall this month. Start a festival (any theme: rom-coms, medieval, one decade, one country) or a 31 Days of ___ challenge.</p>
-      )}
-
-      {festivals.map((p, i) => (
-        <section key={p.slug} className={s.wall} aria-label={`${p.title}, now showing`}>
-          <Link href={`/programmes/${p.slug}`} className={s.posterLink} aria-label={`Open the programme: ${p.title}`} data-autofocus={i === 0 ? true : undefined}><Poster p={p} cat={cat} /></Link>
-          <div className={s.wallSide}>
-            <div className="osd-label">Now showing · {TYPE_NAME.festival}</div>
-            <Flyer p={p} cat={cat} live={live} compact />
-            <Link className="btn" href={`/programmes/${p.slug}`}>Open the programme</Link>
-          </div>
-        </section>
-      ))}
+      {footage.pan && <WalkIn src={footage.pan} poster={footage.still} storageKey="cine_pan" label="Turning to the festival wall" replay="cine:pan" />}
+      <div className={onBoard ? s.board : undefined} style={onBoard ? ({ "--wall": `url(${footage.still})` } as React.CSSProperties) : undefined}>
+        {!festivals.length && !challenges.length && (
+          <p className={s.lede}>Nothing on the wall this month. Start a festival (any theme: rom-coms, medieval, one decade, one country) or a 31 Days of ___ challenge.</p>
+        )}
+        {festivals.slice(0, onBoard ? 1 : undefined).map((p, i) => showing(p, i === 0, "Now showing"))}
+      </div>
+      {/* The board holds one festival; any others running at the same time hang below it. */}
+      {onBoard && festivals.slice(1).map((p) => showing(p, false, "Also showing"))}
 
       {challenges.map((p, i) => (
         <section key={p.slug} className={s.section} aria-label={p.title}>
@@ -79,4 +90,14 @@ export default async function FestivalWall() {
       )}
     </>
   );
+}
+
+/*
+ * The pan from the shelves to the festival board, if it's been rendered: public/store/pan.mp4 and its end frame
+ * public/store/wall.jpg, which then stays behind this month's poster and flyer.
+ */
+function wallFootage() {
+  const has = (f: string) => existsSync(path.join(process.cwd(), "public", "store", f));
+  const still = has("wall.jpg") ? "/store/wall.jpg" : null;
+  return { pan: still && has("pan.mp4") ? "/store/pan.mp4" : null, still };
 }

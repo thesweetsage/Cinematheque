@@ -16,7 +16,8 @@
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "server-only": "^0.0.1",
-    "sharp": "^0.34.5"
+    "sharp": "^0.34.5",
+    "stremio-addon-sdk": "^1.6.10"
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "^4",

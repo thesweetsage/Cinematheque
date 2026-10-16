@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BoxViewer } from "@/components/BoxViewer";
 import { PlayOnPlex } from "@/components/PlayOnPlex";
+import { OpenInStremio } from "@/components/OpenInStremio";
 import { SampleTag } from "@/components/SampleTag";
 import { artOf, findTitle, getCatalog, getCatalogCached, type Catalog, type Title } from "@/lib/catalog";
 import { titleExtras } from "@/lib/titleExtras";
@@ -55,7 +56,7 @@ export default async function TitlePage({ params }: { params: Promise<{ id: stri
               : t.plex ? <button className="btn primary">Play on Plex ▶</button>
               : cat.source === "db" ? <WishButton slug={t.id} on={cat.wish.includes(t.id)} title={t.t} big />
               : <button className="btn">+ Add to wishlist</button>}
-            <button className="btn">Open in Stremio</button>
+            {t.tt && <OpenInStremio slug={t.id} imdbId={t.tt} kind={t.kind} live={cat.source === "db"} />}
           </div>
           <Suspense fallback={null}><Collection cat={cat} t={t} /></Suspense>
         </div>

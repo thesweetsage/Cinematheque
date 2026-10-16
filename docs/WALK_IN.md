@@ -38,6 +38,28 @@ Without `covers/` the scene falls back to invented covers (no artwork, so that v
 
 `CHROME_PATH` points `render.mjs` at a Chromium binary if it isn't at the Playwright default.
 
+## The festival-wall pan
+
+A second clip from the same scene: from the walk-in's last frame (still, facing the new releases wall) the camera turns
+right and steps over to the festival board on the right wall: a white-framed cork board under a NOW SHOWING sign, with
+old flyers, ticket stubs and two past posters round the edges and the middle left clear. 2.6 seconds (2.1 moving, 0.5 held).
+The Festival wall plays it once a day, then puts this month's live poster and flyer on the cork in front of its end frame.
+
+| File | What it is |
+| --- | --- |
+| `pan.mp4` | The pan, 2.6 seconds, no sound |
+| `wall.jpg` | Its last frame, behind the poster and flyer |
+
+```bash
+cd scripts/walkin
+SHOT=pan node render.mjs stills 0,1,2.6            # quick check: out/pan/still_<t>.png
+SHOT=pan node render.mjs frames 30                 # 78 frames into out/pan/frames/ (about 12 minutes on 4 cores)
+ffmpeg -framerate 30 -i out/pan/frames/f_%05d.png -c:v libx264 -crf 23 -preset slow -tune grain -pix_fmt yuv420p -movflags +faststart ../../public/store/pan.mp4
+ffmpeg -i out/pan/frames/f_00077.png -q:v 2 ../../public/store/wall.jpg
+```
+
+The store is built from the same random seed as the walk-in, so the pan's first frame matches the walk-in's last.
+
 ## Prompt for the video tool (Veo, Kling, Runway, Sora...)
 
 Camera move: slow first-person steadicam walk / dolly in, eye level, one continuous shot.
