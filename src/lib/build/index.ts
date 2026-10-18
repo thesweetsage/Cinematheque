@@ -2,6 +2,7 @@ import "server-only";
 import { todayYmd } from "./common";
 import { buildCurriculum } from "./curriculum";
 import { buildMarathon } from "./marathon";
+import { buildRetrospective } from "./retrospective";
 
 /* Checks a build request from the "Start a programme" forms and hands it to the right builder. Returns the slug. */
 
@@ -14,6 +15,9 @@ export async function buildV2(b: Record<string, unknown>): Promise<string> {
       return buildMarathon({ series: str(b.series), per: Number(b.per) || 1, unit: b.unit === "week" ? "week" : "day", start: ymd(b.start), skipWatched: b.skipWatched !== false });
     case "curriculum":
       return buildCurriculum({ title: str(b.title, 120), source: str(b.source, 200), text: str(b.text, 40000) });
+    case "retrospective":
+      if (!Number.isInteger(Number(b.personId)) || Number(b.personId) <= 0) throw new Error("Choose a director first.");
+      return buildRetrospective(Number(b.personId));
     default:
       throw new Error("Unknown kind of programme.");
   }

@@ -159,3 +159,32 @@ export async function lookupTitle(kind: TmdbKind, title: string, year: number | 
   const hit = results.map((r) => toCandidate(r, kind)).find((c) => norm(c.title) === norm(title) && (!year || !c.year || Math.abs(c.year - year) <= 1));
   return hit ?? null;
 }
+
+/* ---------- People (director retrospectives, phase 9) ---------- */
+
+export type PersonHit = { id: number; name: string; department: string; knownFor: string[]; photo: string | null };
+
+/** People by name, directors first. */
+export async function searchPeople(query: string): Promise<PersonHit[]> {
+  type Raw = { id: number; name: string; known_for_department: string; profile_path: string | null; known_for?: { title?: string; name?: string }[] };
+  const { results } = await get<{ results: Raw[] }>("/search/person", { query, include_adult: "false" });
+  return results.slice(0, 12).map((r) => ({
+    id: r.id, name: r.name, department: r.known_for_department, photo: r.profile_path ? IMG("w185", r.profile_path) : null,
+    knownFor: (r.known_for ?? []).map((k) => k.title ?? k.name ?? "").filter(Boolean).slice(0, 3),
+  })).sort((a, b) => Number(b.department === "Directing") - Number(a.department === "Directing"));
+}
+
+export type Filmography = { id: number; name: string; imdbId: string | null; films: { tmdbId: number; title: string; date: string; votes: number }[] };
+
+/** The feature films a person directed that have come out, oldest first. */
+export async function directed(personId: number): Promise<Filmography> {
+  type Raw = { id: number; name: string; external_ids?: { imdb_id?: string | null }; movie_credits?: { crew: { id: number; title: string; job: string; release_date?: string; vote_count: number }[] } };
+  const p = await get<Raw>(`/person/${personId}`, { append_to_response: "movie_credits,external_ids" });
+  const today = new Date().toISOString().slice(0, 10);
+  const seen = new Set<number>();
+  const films = (p.movie_credits?.crew ?? [])
+    .filter((c) => c.job === "Director" && c.release_date && c.release_date <= today && !seen.has(c.id) && seen.add(c.id))
+    .map((c) => ({ tmdbId: c.id, title: c.title, date: c.release_date!, votes: c.vote_count }))
+    .sort((a, b) => a.date.localeCompare(b.date));
+  return { id: p.id, name: p.name, imdbId: p.external_ids?.imdb_id ?? null, films };
+}

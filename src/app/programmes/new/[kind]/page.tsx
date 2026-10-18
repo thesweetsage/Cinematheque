@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCatalog } from "@/lib/catalog";
 import { getProgrammes } from "@/lib/programmes";
-import { CurriculumForm, MarathonForm, type PickTitle } from "../forms";
+import { CurriculumForm, MarathonForm, RetrospectiveForm, type PickTitle } from "../forms";
 import { KINDS } from "../kinds";
 import s from "../../programmes.module.css";
 
@@ -26,6 +26,7 @@ export default async function NewKind({ params, searchParams }: { params: Promis
       {progs.source !== "db" ? <p className={s.lede}>Programmes are saved in the database, so connect it first (see the README).</p>
         : kind === "marathon" ? <MarathonForm series={pick("series")} preset={one(sp.series)} today={progs.today} />
         : kind === "curriculum" ? <CurriculumForm curator={!!process.env.ANTHROPIC_API_KEY} />
+        : kind === "retrospective" ? <RetrospectiveForm preset={one(sp.name)} />
         : null}
     </div>
   );

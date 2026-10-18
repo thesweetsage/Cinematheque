@@ -3,7 +3,8 @@ import { updateTag } from "next/cache";
 import { CATALOG_TAG } from "@/lib/catalog";
 import { slugify } from "@/lib/importTitle";
 import { requireMember } from "@/lib/member";
-import { ACCENTS, PROG_TAG, type ProgStatus } from "@/lib/programmes";
+import { setExtras } from "@/lib/build/common";
+import { ACCENTS, PROG_TAG, type ProgExtras, type ProgStatus } from "@/lib/programmes";
 import { db } from "@/lib/supabase";
 
 /* Everything that changes a programme: create, details, titles, ticks, awards, status, editions and their essays. */
@@ -240,6 +241,30 @@ export async function setPair(slug: string, otherSlug: string, on: boolean): Pro
         if (error) return { error: error.message };
       }
     }
+    refresh();
+    return {};
+  } catch (e) { return fail(e); }
+}
+
+/* ---------- v2 programmes ---------- */
+
+/** Retrospective: the member's ranking of the films they've watched (title slugs, best first). */
+export async function setTop10(slug: string, ranking: string[]): Promise<Result> {
+  await requireMember();
+  try {
+    await setExtras(slug, { top10: ranking.filter((x) => typeof x === "string").slice(0, 60) });
+    refresh();
+    return {};
+  } catch (e) { return fail(e); }
+}
+
+/** Retrospective: the themes staff card, edited by hand and/or marked checked. */
+export async function saveThemes(slug: string, text: string, checked: boolean): Promise<Result> {
+  await requireMember();
+  try {
+    const { data } = await client().from("programmes").select("extras").eq("slug", slug).maybeSingle();
+    const old = (data as { extras: ProgExtras } | null)?.extras?.themes;
+    await setExtras(slug, { themes: { text: text.trim().slice(0, 3000), draft: !checked, source: old?.source } });
     refresh();
     return {};
   } catch (e) { return fail(e); }

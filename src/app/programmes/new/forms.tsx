@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import s from "../programmes.module.css";
 
@@ -124,6 +124,51 @@ export function CurriculumForm({ curator }: { curator: boolean }) {
       <div className={s.btns}><button type="button" className="btn primary" disabled={busy || !lines} onClick={() => build({ type: "curriculum", title, source, text })}>{lines ? `Build the course from ${lines} line${lines === 1 ? "" : "s"}` : "Paste the list first"}</button></div>
       {busy && <p className={s.status} role="status">Reading the list and matching every title on TMDB… a long list takes a couple of minutes. You can leave this page; it carries on.</p>}
       <Err msg={error} />
+    </div>
+  );
+}
+
+type Person = { id: number; name: string; department: string; knownFor: string[]; photo: string | null };
+
+/** Director retrospective: find the director on TMDB, choose them, and their filmography becomes the shelf. */
+export function RetrospectiveForm({ preset }: { preset: string | null }) {
+  const { busy, error, build } = useBuild();
+  const [q, setQ] = useState(preset ?? "");
+  const [people, setPeople] = useState<Person[] | null>(null);
+  const [looking, setLooking] = useState(false);
+  const [lookError, setLookError] = useState("");
+  const results = useRef<HTMLDivElement>(null);
+  // With the remote, the found names are where you want to be next.
+  useEffect(() => { if (people?.length) results.current?.querySelector<HTMLElement>("button")?.focus(); }, [people]);
+  const find = async (name = q) => {
+    if (!name.trim()) return;
+    setLooking(true); setLookError("");
+    try {
+      const r = await fetch(`/api/people?q=${encodeURIComponent(name.trim())}`);
+      const out = (await r.json()) as { people?: Person[]; error?: string };
+      if (out.error) setLookError(out.error); else setPeople(out.people ?? []);
+    } catch { setLookError("Lost the connection to the app."); }
+    setLooking(false);
+  };
+  return (
+    <div className={s.form}>
+      <form className={s.themeRow} onSubmit={(e) => { e.preventDefault(); void find(); }}>
+        <label className={s.field}><span>Director</span><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="John Carpenter, Agnès Varda, Hayao Miyazaki…" disabled={busy} data-autofocus={!preset ? true : undefined} /></label>
+        <button className="btn" disabled={busy || looking || !q.trim()} data-autofocus={preset ? true : undefined}>{looking ? "Looking…" : "Find"}</button>
+      </form>
+      {people && !people.length && <p className={s.muted}>Nobody by that name on TMDB.</p>}
+      {people && people.length > 0 && (
+        <div className={s.kinds} ref={results}>
+          {people.map((p, i) => (
+            <button key={p.id} type="button" className={s.option} disabled={busy} onClick={() => build({ type: "retrospective", personId: p.id })} data-autofocus={i === 0 ? true : undefined}>
+              <b>{p.name}</b>
+              <span>{p.department}{p.knownFor.length ? ` · ${p.knownFor.join(", ")}` : ""}</span>
+            </button>
+          ))}
+        </div>
+      )}
+      {busy && <p className={s.status} role="status">Fetching the filmography from TMDB{" "}and writing the staff card… up to a minute.</p>}
+      <Err msg={error || lookError} />
     </div>
   );
 }

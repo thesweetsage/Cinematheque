@@ -3,7 +3,7 @@ import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { ProgStatus } from "@/lib/programmes";
 import {
-  addItem, createProgramme, deleteProgramme, induct, moveItem, removeItem, saveEssay, setAward, setDone, setPair, setStatus, updateDetails, updateItem,
+  addItem, createProgramme, deleteProgramme, induct, moveItem, removeItem, saveEssay, saveThemes, setAward, setDone, setPair, setStatus, setTop10, updateDetails, updateItem,
 } from "./actions";
 import s from "./programmes.module.css";
 
@@ -361,4 +361,78 @@ export function RemoveItem({ slug, position, label, text = "✕ Remove" }: { slu
 export function StatusButton({ slug, status, label, primary = false, autofocus = false }: { slug: string; status: ProgStatus; label: string; primary?: boolean; autofocus?: boolean }) {
   const { pending, error, run } = useAct();
   return <>{" "}<button className={primary ? "btn primary" : "btn"} disabled={pending} onClick={() => run(() => setStatus(slug, status))} data-autofocus={autofocus ? true : undefined}>{label}</button><Err msg={error} /></>;
+}
+
+/**
+ * The Top 10 chalkboard: the films watched so far, best first. Move them with the arrows; the first ten are the
+ * Top 10. Each move saves straight away.
+ */
+export function TopTen({ slug, films }: { slug: string; films: { id: string; t: string; y: number }[] }) {
+  const { pending, error, run } = useAct();
+  const [list, setList] = useState(films);
+  const move = (i: number, d: -1 | 1) => {
+    const next = [...list];
+    [next[i], next[i + d]] = [next[i + d], next[i]];
+    setList(next);
+    run(() => setTop10(slug, next.map((f) => f.id)));
+  };
+  return (
+    <div className={s.chalk}>
+      <div className={s.chalkTitle}>Top 10</div>
+      <ol className={s.chalkList}>
+        {list.map((f, i) => (
+          <li key={f.id} className={i >= 10 ? s.chalkRest : undefined}>
+            <span className={s.chalkNo}>{i < 10 ? i + 1 : "·"}</span>
+            <span className={s.chalkName}>{f.t} <small>{f.y || ""}</small></span>
+            <span className={s.rowBtns}>
+              <button className={s.small} disabled={pending || i === 0} aria-label={`Move ${f.t} up`} onClick={() => move(i, -1)}>▲</button>
+              <button className={s.small} disabled={pending || i === list.length - 1} aria-label={`Move ${f.t} down`} onClick={() => move(i, 1)}>▼</button>
+            </span>
+          </li>
+        ))}
+      </ol>
+      <Err msg={error} />
+    </div>
+  );
+}
+
+/** The retrospective's "Themes to watch for" staff card: write it with Claude, edit it, mark it checked. */
+export function ThemesTools({ slug, text, draft, canWrite }: { slug: string; text: string; draft: boolean; canWrite: boolean }) {
+  const { pending, error, run } = useAct();
+  const router = useRouter();
+  const [editing, setEditing] = useState(false);
+  const [value, setValue] = useState(text);
+  const [writing, setWriting] = useState(false);
+  const [writeError, setWriteError] = useState("");
+  const write = async () => {
+    setWriting(true); setWriteError("");
+    try {
+      const r = await fetch("/api/programmes/themes", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ slug }) });
+      const out = (await r.json().catch(() => ({ error: `The server answered ${r.status}.` }))) as { error?: string };
+      if (out.error) setWriteError(out.error); else router.refresh();
+    } catch { setWriteError("Lost the connection to the app."); }
+    setWriting(false);
+  };
+  return (
+    <div className={s.essayTools}>
+      {writing && <p className={s.muted} role="status">Writing the card from Wikipedia… under a minute.</p>}
+      {editing ? (
+        <>
+          <label className={s.field}><span>Themes to watch for</span><textarea rows={7} value={value} onChange={(e) => setValue(e.target.value)} maxLength={3000} /></label>
+          <div className={s.btns}>
+            <button className="btn primary" disabled={pending} onClick={() => run(() => saveThemes(slug, value, false), () => setEditing(false))}>Save draft</button>
+            <button className="btn" disabled={pending} onClick={() => run(() => saveThemes(slug, value, true), () => setEditing(false))}>Save and mark checked</button>
+            <button className="btn" onClick={() => { setValue(text); setEditing(false); }}>Cancel</button>
+          </div>
+        </>
+      ) : (
+        <div className={s.btns}>
+          <button className="btn" onClick={() => { setValue(text); setEditing(true); }}>{text ? "Edit the card" : "Write it yourself"}</button>
+          {canWrite && <button className="btn" disabled={writing} onClick={write}>{text ? "Rewrite with Claude" : "Write it with Claude"}</button>}
+          {text && draft && <button className="btn" disabled={pending} onClick={() => run(() => saveThemes(slug, text, true))}>Mark as checked</button>}
+        </div>
+      )}
+      <Err msg={error || writeError} />
+    </div>
+  );
 }

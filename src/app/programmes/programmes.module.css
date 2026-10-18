@@ -250,3 +250,22 @@ a.option:hover,a.option:focus-visible{border-color:var(--cyan)}
 .matchText b{font-weight:600}
 .matchText b small,.matchText > small{color:var(--muted);font-weight:400}
 .unmatched{columns:2 260px;color:var(--muted);font-family:var(--font-vt323);font-size:19px}
+
+/* ---------- The Director's Shelf: numbered tapes, a staff card, the Top 10 chalkboard ---------- */
+.orderNo{font-family:var(--font-vt323),monospace;font-size:19px;color:var(--orange)}
+.directorBoards{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px;margin-top:40px;align-items:start}
+@media (max-width:860px){.directorBoards{grid-template-columns:1fr}}
+.staffCard{background:#f4efe6;color:var(--ink);padding:18px 22px 16px;transform:rotate(-1deg);border-top:8px solid var(--acc,var(--orange));font-family:var(--font-marker),cursive;font-size:19px;line-height:1.4}
+.staffCard p{margin:0 0 8px}
+.staffTitle{font-family:var(--font-bungee),sans-serif;font-weight:400;font-size:20px;margin:0 0 10px;color:var(--print-red)}
+.staffFoot{font-family:var(--font-vt323),monospace;font-size:17px;color:#6b625a}
+.staffFoot a{color:var(--print-red)}
+.chalk{background:#15181a;border:10px solid #5a4632;padding:16px 20px;color:#f1f1ea;font-family:var(--font-marker),cursive;box-shadow:inset 0 0 40px rgba(0,0,0,.6)}
+.chalkTitle{font-size:30px;letter-spacing:.04em;margin-bottom:8px;color:#fff}
+.chalkList{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.chalkList li{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:10px;align-items:center;font-size:19px}
+.chalkList small{color:#bdbdb0}
+.chalkNo{font-size:24px;color:var(--yellow)}
+.chalkRest{opacity:.55}
+.chalkEmpty{font-size:18px;color:#d8d8cc}
+.chalk .small{background:transparent;color:#f1f1ea;border-color:#77776c}

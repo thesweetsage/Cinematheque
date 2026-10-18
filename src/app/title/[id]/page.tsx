@@ -79,6 +79,8 @@ async function Collection({ cat, t }: { cat: Catalog; t: Title }) {
   const mine = (type: string) => progs.list.find((p) => p.type === type && p.status !== "archived" && p.items[0]?.id === t.id);
   const marathon = t.kind === "series" ? mine("marathon") : undefined;
   const tree = mine("family_tree");
+  const dir = t.dir.split(",")[0].trim();
+  const retro = dir ? progs.list.find((p) => p.type === "retrospective" && p.status !== "archived" && p.extras.person?.name === dir) : undefined;
   return (
     <>
       {ed && <p className={s.edition}><Link href={`/programmes/${ed.slug}`}>★ {spineLabel(ed.spine)} in the collection: read the essay</Link></p>}
@@ -89,7 +91,8 @@ async function Collection({ cat, t }: { cat: Catalog; t: Title }) {
             : <Link className="btn" href={`/programmes/new/marathon?series=${encodeURIComponent(t.id)}`}>Start a marathon</Link>)}
           {tree ? <Link className="btn" href={`/programmes/${tree.slug}`}>Family tree</Link>
             : <Link className="btn" href={`/programmes/new/family-tree?title=${encodeURIComponent(t.id)}`}>Draw its family tree</Link>}
-          {t.kind === "movie" && t.dir && <Link className="btn" href={`/programmes/new/retrospective?name=${encodeURIComponent(t.dir.split(",")[0].trim())}`}>{t.dir.split(",")[0].trim()} retrospective</Link>}
+          {t.kind === "movie" && dir && (retro ? <Link className="btn" href={`/programmes/${retro.slug}`}>{dir} retrospective</Link>
+            : <Link className="btn" href={`/programmes/new/retrospective?name=${encodeURIComponent(dir)}`}>Start a {dir} retrospective</Link>)}
         </div>
       )}
     </>
