@@ -53,7 +53,7 @@ export function StremioPanel() {
             <p className={s.note}>
               Nothing to type on the TV box: in <b>Stremio on this computer</b>, signed in with the same Stremio account as the box,
               open <b>Add-ons</b>, paste this address into the search box at the top and press <b>Install</b>. Stremio adds it to
-              your account, so it appears on the TV box too (keep the app running on this PC to use it there).
+              your account, so it appears on the TV box too. After that you don&apos;t need Stremio on this computer at all: the box reads the catalogues straight from wherever the Cinematheque runs (this PC while testing, the NAS later; move it and you install the new address once).
               {local ? " This computer has no network address right now, so this one only works here." : !onPc ? " This is the address you opened this page on." : ""}
               {" If Stremio says it failed to fetch, it wants https: see “Stremio” in the README."}
             </p>

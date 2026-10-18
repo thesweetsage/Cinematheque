@@ -112,8 +112,10 @@ stream add-ons do the playing. Titles without an IMDb id are left out.
   address with the PC's home-network address in it (`http://192.168.x.x:3001/api/stremio/.../manifest.json`). Press
   **Copy the address**, then in **Stremio on the PC**, signed in with the same Stremio account as the TV box, open
   **Add-ons**, paste it into the search box at the top and press **Install**. Stremio keeps add-ons in your account, so
-  it appears on the TV box by itself. The app has to be running on the PC for the catalogues to load on the box (if
-  Windows asks whether Node.js may use the network, allow it on private networks).
+  it appears on the TV box by itself. Stremio on the PC is only needed for that one install. After that the box reads
+  the catalogues straight from the Cinematheque server: your PC while testing (so it has to be switched on with
+  `npm start` running; if Windows asks whether Node.js may use the network, allow it on private networks), the NAS
+  later, which is always on. When it moves to the NAS the address changes: install the new one once and remove the old.
   The address carries a private key (made from `SESSION_SECRET`); keep it to yourself. Changing `SESSION_SECRET`
   changes it, and you install it again. (A one-press "Install in Stremio" button appears only when the app is on
   https: Stremio turns `stremio://` links into https.)
