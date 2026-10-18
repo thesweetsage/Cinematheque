@@ -108,24 +108,34 @@ The app is also a Stremio add-on: every running festival and 31 Days is a catalo
 **The Cinematheque collection** (your editions). It lists titles by IMDb id; Stremio fills in the details and your own
 stream add-ons do the playing. Titles without an IMDb id are left out.
 
-- **Install (once, on the PC; nothing to type on the TV box):** open the Membership card on the PC. It shows the add-on
-  address with the PC's home-network address in it (`http://192.168.x.x:3001/api/stremio/.../manifest.json`). Press
-  **Copy the address**, then in **Stremio on the PC**, signed in with the same Stremio account as the TV box, open
-  **Add-ons**, paste it into the search box at the top and press **Install**. Stremio keeps add-ons in your account, so
-  it appears on the TV box by itself. Stremio on the PC is only needed for that one install. After that the box reads
-  the catalogues straight from the Cinematheque server: your PC while testing (so it has to be switched on with
-  `npm start` running; if Windows asks whether Node.js may use the network, allow it on private networks), the NAS
-  later, which is always on. When it moves to the NAS the address changes: install the new one once and remove the old.
-  The address carries a private key (made from `SESSION_SECRET`); keep it to yourself. Changing `SESSION_SECRET`
-  changes it, and you install it again. (A one-press "Install in Stremio" button appears only when the app is on
-  https: Stremio turns `stremio://` links into https.)
+**Why Supabase serves it:** Stremio only loads add-ons from another device over **https** (plain http only from the same
+computer), and the app runs on plain http at home. So the add-on also runs as a small Supabase Edge Function
+(`supabase/functions/stremio/index.ts`): https, always on, reading the same programmes from your database, and the same
+whether the app is on your PC or the NAS. No IP address involved.
+
+**Set it up once (Supabase dashboard, nothing to install):**
+
+1. Open your project on supabase.com, then **Edge Functions** → **Deploy a new function** → **Via Editor**.
+2. Name it exactly `stremio`, replace the sample code with the whole of `supabase/functions/stremio/index.ts`, press **Deploy**.
+3. In the function's settings, turn **off** "Verify JWT" ("Enforce JWT verification") and save. Stremio can't send a
+   Supabase key; the add-on checks its own private key instead.
+4. Open the Membership card in the app. It saves that private key for the function and checks the function answers;
+   the Stremio panel then shows `https://<project>.supabase.co/functions/v1/stremio/<key>/manifest.json`.
+
+(With the Supabase CLI instead: `npx supabase login`, then `npx supabase functions deploy stremio --no-verify-jwt --project-ref <project ref>`.)
+
+**Install:** on the Membership card press **Install in Stremio** (on a device with Stremio) or **Copy the address** and
+paste it into the search box on Stremio's **Add-ons** page, then **Install**. Stremio keeps add-ons in your Stremio
+account, so installing it once (on the PC, say) puts it on the TV box too: nothing to type with the remote.
+The address carries a private key (made from `SESSION_SECRET`); keep it to yourself. Changing `SESSION_SECRET`
+changes it: reopen the Membership card and install the new address. Changes to the function's code (rare) mean
+pasting it again in the dashboard.
+
 - **Open in Stremio** on a box opens the title in the Stremio app. The next time you come back to the app (a few minutes
   later or more), it asks **Did you finish it?**: *Yes* (then your stars) logs a watch and ticks it off any running
   programme, *Not yet* asks again next time, *Dropped it* forgets it. Back on the remote is *Not yet*.
-- **http or https:** Stremio's documentation says add-ons must be on https unless they run on the same device.
-  Many people use a plain `http://<PC address>:3001/...` address on Android TV without trouble, so try that first. If
-  Stremio refuses it, put the app behind https: a free Cloudflare Tunnel or Tailscale Funnel to port 3001, or a reverse
-  proxy with a certificate on the NAS later. Then open the Membership card through that https address and install from there.
+- The app's own `/api/stremio/<key>/manifest.json` serves the same catalogues, but only Stremio on the same computer
+  (`http://127.0.0.1:3001/...`) will load it.
 
 ### Liner notes (Claude)
 

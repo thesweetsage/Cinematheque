@@ -12,6 +12,9 @@ import { getProgrammes, type Programme } from "./programmes";
  *
  * Stremio can't sign in, so the add-on's address carries a token derived from the server secret:
  * /api/stremio/<token>/manifest.json. Changing SESSION_SECRET changes the address.
+ *
+ * Stremio only loads http add-ons from the same computer, so for the TV box the same catalogues are served over https
+ * by a Supabase Edge Function (supabase/functions/stremio), which checks this token (saved in app_settings).
  */
 
 /** The token in the add-on's address. "open" when there's no database and so nothing private to protect. */

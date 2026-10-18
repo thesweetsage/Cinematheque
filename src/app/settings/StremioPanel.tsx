@@ -1,39 +1,29 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { addonPath } from "../stremioActions";
+import { addonInfo, type AddonInfo } from "../stremioActions";
 import s from "./plex.module.css";
 
 /*
- * The Stremio add-on on the Membership card: its address. Stremio syncs add-ons through the Stremio account, so it's
- * installed once (in Stremio on the PC) with the PC's home-network address, and then shows up on the TV box as well.
- * Stremio turns a stremio:// link into https://, so the one-press Install only works when the app is on https.
- * On plain http (the PC, the home network) the address is pasted into Stremio's add-on search instead.
- * With no network address, "localhost" is shown as 127.0.0.1, the plain-http address Stremio always accepts.
+ * The Stremio add-on on the Membership card.
+ * Stremio only loads add-ons over https (plain http only from the same computer), so the real address is the
+ * Supabase Edge Function's: always on, whether the app runs on the PC or the NAS. Until it's deployed, the card says
+ * how, and offers the app's own address for Stremio on this computer only.
+ * Stremio keeps add-ons in the Stremio account, so installing once anywhere puts it on the TV box too.
  */
 export function StremioPanel() {
-  const [url, setUrl] = useState<string | null>(null);
-  const [onPc, setOnPc] = useState(false);
+  const [info, setInfo] = useState<AddonInfo | null>(null);
   const [copied, setCopied] = useState(false);
   const field = useRef<HTMLInputElement>(null);
   useEffect(() => {
     let on = true;
-    addonPath().then(({ path, lan }) => {
-      if (!on) return;
-      // Opened on the PC itself: give the network address (reachable from the box), or 127.0.0.1 if there's none.
-      const here = /^http:\/\/(localhost|127\.0\.0\.1)/.test(location.origin);
-      setOnPc(here);
-      setUrl(`${here ? lan ?? location.origin.replace("//localhost", "//127.0.0.1") : location.origin}${path}`);
-    }).catch(() => {});
+    addonInfo().then((x) => { if (on) setInfo(x); }).catch(() => {});
     return () => { on = false; };
   }, []);
-  const https = !!url?.startsWith("https://");
-  const local = !!url && /^http:\/\/127\.0\.0\.1/.test(url);
+  const url = info ? info.cloud ?? `${location.origin.replace("//localhost", "//127.0.0.1")}${info.path}` : null;
   // The clipboard API needs https or localhost; on a home-network http address fall back to the old way.
   const copy = async () => {
     try { await navigator.clipboard.writeText(url!); setCopied(true); return; } catch {}
-    const el = field.current;
-    if (!el) return;
-    el.select();
+    field.current?.select();
     try { setCopied(document.execCommand("copy")); } catch {}
   };
   return (
@@ -43,25 +33,29 @@ export function StremioPanel() {
         Your running festivals and 31 Days, and the collection, as catalogues in Stremio, in programme order. Titles you open
         from a box with Open in Stremio get a &ldquo;Did you finish it?&rdquo; the next time you come back here.
       </p>
-      {!url ? <p className={s.note}>Checking…</p> : (
+      {!info || !url ? <p className={s.note}>Checking…</p> : (
         <>
           <input ref={field} className={s.sync} readOnly value={url} aria-label="Add-on address" onFocus={(e) => e.currentTarget.select()}
             style={{ width: "100%", background: "transparent", border: "1px solid var(--edge)", color: "inherit", padding: "6px 8px" }} />
-          {https ? (
-            <p className={s.note}>Press Install in Stremio, or paste the address into the search box on Stremio&apos;s Add-ons page.</p>
-          ) : (
+          {info.cloud ? (
             <p className={s.note}>
-              Nothing to type on the TV box: in <b>Stremio on this computer</b>, signed in with the same Stremio account as the box,
-              open <b>Add-ons</b>, paste this address into the search box at the top and press <b>Install</b>. Stremio adds it to
-              your account, so it appears on the TV box too. After that you don&apos;t need Stremio on this computer at all: the box reads the catalogues straight from wherever the Cinematheque runs (this PC while testing, the NAS later; move it and you install the new address once).
-              {local ? " This computer has no network address right now, so this one only works here." : !onPc ? " This is the address you opened this page on." : ""}
-              {" If Stremio says it failed to fetch, it wants https: see “Stremio” in the README."}
+              Served by your Supabase project over https, so it works on every device and doesn&apos;t depend on this computer or the NAS.
+              Press <b>Install in Stremio</b> on any device signed in to your Stremio account (or paste the address into the search box on
+              Stremio&apos;s Add-ons page). Stremio keeps it in your account, so it appears on the TV box too.
             </p>
+          ) : (
+            <>
+              <p className={s.bad}>
+                Stremio only takes add-ons from other devices over https, so for the TV box the add-on is served by your Supabase project.
+                That needs setting up once ({info.cloudError ?? "not deployed yet"}): see &ldquo;Stremio&rdquo; in the README, then reopen this card.
+              </p>
+              <p className={s.note}>Meanwhile the address above works in Stremio on this computer only.</p>
+            </>
           )}
           <p className={s.note}>The address has a private key in it: keep it to yourself.</p>
           <div className={s.btns}>
-            <button className="btn primary" onClick={copy}>{copied ? "Copied" : "Copy the address"}</button>
-            {https && <a className="btn" href={url.replace(/^https:\/\//, "stremio://")}>Install in Stremio</a>}
+            {info.cloud && <a className="btn primary" href={info.cloud.replace(/^https:\/\//, "stremio://")}>Install in Stremio</a>}
+            <button className={info.cloud ? "btn" : "btn primary"} onClick={copy}>{copied ? "Copied" : "Copy the address"}</button>
           </div>
         </>
       )}

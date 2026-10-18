@@ -1,18 +1,32 @@
 "use server";
-import { networkInterfaces } from "node:os";
-import { headers } from "next/headers";
 import { requireMember } from "@/lib/member";
+import { getSetting, setSetting } from "@/lib/settings";
 import { addonToken } from "@/lib/stremio";
 
+export type AddonInfo = { path: string; cloud: string | null; cloudError?: string };
+
 /**
- * The add-on's path (with its secret token), and this computer's address on the home network, for the Membership card.
- * Installed with the network address, the add-on syncs through the Stremio account to the TV box and works there too.
+ * Where the Stremio add-on can be installed from, for the Membership card:
+ *  - cloud: the https address of the Supabase Edge Function (supabase/functions/stremio), once it's deployed.
+ *    That's the one Stremio accepts from any device; the token it checks is saved here for it.
+ *  - path: the app's own route, which Stremio only accepts on the same computer (http).
  */
-export async function addonPath(): Promise<{ path: string; lan: string | null }> {
+export async function addonInfo(): Promise<AddonInfo> {
   await requireMember();
-  const host = (await headers()).get("host") ?? "";
-  const port = host.match(/:(\d+)$/)?.[1];
-  const ip = Object.values(networkInterfaces()).flat()
-    .find((n) => n && n.family === "IPv4" && !n.internal && /^(192\.168|10|172\.(1[6-9]|2\d|3[01]))\./.test(n.address))?.address;
-  return { path: `/api/stremio/${addonToken()}/manifest.json`, lan: ip ? `http://${ip}${port ? `:${port}` : ""}` : null };
+  const token = addonToken();
+  const info: AddonInfo = { path: `/api/stremio/${token}/manifest.json`, cloud: null };
+
+  const base = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/$/, "");
+  if (!base || token === "open") return info;
+  try {
+    const saved = await getSetting<{ token?: string }>("stremio");
+    if (saved?.token !== token) await setSetting("stremio", { token });
+    const cloud = `${base}/functions/v1/stremio/${token}/manifest.json`;
+    const r = await fetch(cloud, { cache: "no-store", signal: AbortSignal.timeout(6000) });
+    if (r.ok && ((await r.json()) as { id?: string }).id) info.cloud = cloud;
+    else info.cloudError = r.status === 404 ? "not deployed yet" : r.status === 401 ? "JWT verification is still on" : `answered ${r.status}`;
+  } catch (e) {
+    info.cloudError = (e as Error).message;
+  }
+  return info;
 }
