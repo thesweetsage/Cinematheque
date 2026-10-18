@@ -26,6 +26,11 @@ export async function articleFor(imdbId: string): Promise<Article | null> {
   const entity = await api<{ entities: Record<string, { sitelinks?: { enwiki?: { title: string } } }> }>(WIKIDATA, { action: "wbgetentities", ids: qid, props: "sitelinks", sitefilter: "enwiki" });
   const title = entity.entities[qid]?.sitelinks?.enwiki?.title;
   if (!title) return null;
+  return articleByTitle(title);
+}
+
+/** An English Wikipedia article by its title ("1984 in music", "1980s in fashion"), or null when there isn't one. */
+export async function articleByTitle(title: string): Promise<Article | null> {
   const page = await api<{ query: { pages: { title: string; missing?: boolean; extract?: string; fullurl?: string; lastrevid?: number }[] } }>(WIKIPEDIA, {
     action: "query", prop: "extracts|info", explaintext: "1", exsectionformat: "wiki", inprop: "url", redirects: "1", titles: title,
   });

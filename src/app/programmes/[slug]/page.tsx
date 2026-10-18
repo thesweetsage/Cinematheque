@@ -8,8 +8,10 @@ import { canWriteEssay } from "@/lib/editionEssay";
 import { findProgramme, getProgrammes, getProgrammesCached, spineLabel, stamps, TYPE_NAME, type Programme } from "@/lib/programmes";
 import { AwardForm, EssayEditor, Editor, PairToggles, PrintButton, RemoveAward } from "../client";
 import { Flyer, Poster, RentalCard, span, TapeRow } from "../parts";
+import { Capsule } from "./Capsule";
 import { Course } from "./Course";
 import { Director } from "./Director";
+import { Essays } from "./Essays";
 import { Marathon } from "./Marathon";
 import { Tree } from "./Tree";
 import s from "../programmes.module.css";
@@ -51,6 +53,8 @@ export default async function ProgrammePage({ params }: { params: Promise<{ slug
       {p.type === "curriculum" && <Course p={p} cat={cat} live={live} />}
       {p.type === "retrospective" && <Director p={p} cat={cat} live={live} canWrite={canWriteEssay()} />}
       {p.type === "family_tree" && <Tree p={p} cat={cat} progs={progs} live={live} canSuggest={canWriteEssay()} />}
+      {p.type === "time_capsule" && <Capsule p={p} cat={cat} live={live} canWrite={canWriteEssay()} />}
+      {p.type === "essay_series" && <Essays p={p} cat={cat} live={live} canWrite={canWriteEssay()} />}
       {p.type === "edition" && <Edition p={p} cat={cat} live={live} others={progs.list.filter((x) => x.type === "edition" && x.slug !== p.slug && x.status !== "draft")} />}
       {editable}
     </>

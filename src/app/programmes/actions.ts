@@ -325,3 +325,28 @@ export async function addLink(rootSlug: string, otherSlug: string, side: "ancest
     return {};
   } catch (e) { return fail(e); }
 }
+
+/** Year in a decade: mark the radio / news / fashion notes checked (or back to draft). */
+export async function setCapsuleChecked(slug: string, checked: boolean): Promise<Result> {
+  await requireMember();
+  try {
+    const { data } = await client().from("programmes").select("extras").eq("slug", slug).maybeSingle();
+    const cap = (data as { extras: ProgExtras } | null)?.extras?.capsule;
+    if (!cap) return { error: "There are no notes yet." };
+    await setExtras(slug, { capsule: { ...cap, draft: !checked } });
+    refresh();
+    return {};
+  } catch (e) { return fail(e); }
+}
+
+/** Essay series: one item's essay, edited and/or marked checked. */
+export async function saveItemEssay(slug: string, position: number, essay: string, checked: boolean): Promise<Result> {
+  await requireMember();
+  try {
+    const pid = await programmeId(slug);
+    const { error } = await client().from("programme_items").update({ essay: essay.trim().slice(0, 12000) || null, essay_status: checked ? "checked" : "draft" }).eq("programme_id", pid).eq("position", position);
+    if (error) return { error: error.message };
+    refresh();
+    return {};
+  } catch (e) { return fail(e); }
+}

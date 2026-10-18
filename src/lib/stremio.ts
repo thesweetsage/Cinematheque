@@ -3,10 +3,11 @@ import { timingSafeEqual, createHmac } from "node:crypto";
 // Only the builder: the rest of the SDK is an Express server, and Next serves the add-on itself.
 import addonBuilder from "stremio-addon-sdk/src/builder";
 import { artOf, findTitle, getCatalog, type Title } from "./catalog";
-import { getProgrammes, type Programme } from "./programmes";
+import { getProgrammes, isRunning, type Programme } from "./programmes";
 
 /*
- * The Cinematheque as a Stremio add-on: every live festival and 31 Days becomes a catalogue in programme order,
+ * The Cinematheque as a Stremio add-on: every running programme (festivals, 31 Days, marathons, curricula,
+ * retrospectives, years, essay series) becomes a catalogue in programme order,
  * plus the collection of editions. Catalogues only (IMDb ids); Stremio's own Cinemeta fills in the details and
  * your stream add-ons do the playing.
  *
@@ -42,13 +43,14 @@ async function shelves(): Promise<Shelf[]> {
   const out: Shelf[] = [];
   const add = (id: string, name: string, items: { id: string; note?: string }[]) => {
     const found: Shelf["items"] = [];
-    for (const it of items) { const t = findTitle(cat, it.id); if (t?.tt) found.push({ t, note: it.note }); }
+    // A marathon lists its series once, not once per episode.
+    for (const it of items) { const t = findTitle(cat, it.id); if (t?.tt && !found.some((f) => f.t.id === t.id)) found.push({ t, note: it.note }); }
     for (const type of ["movie", "series"] as const) {
       const mine = found.filter((x) => x.t.kind === type);
       if (mine.length) out.push({ id: `${id}-${type}`, name, type, items: mine });
     }
   };
-  const live = progs.list.filter((p) => (p.type === "festival" || p.type === "days31") && p.status === "live" && (!p.end || p.end >= today))
+  const live = progs.list.filter((p) => p.type !== "edition" && p.type !== "family_tree" && isRunning(p, today))
     .sort((a, b) => (a.start ?? "").localeCompare(b.start ?? ""));
   for (const p of live) add(`prog-${p.slug}`, p.title, order(p).map((it) => ({ id: it.id, note: it.note })));
   const editions = progs.list.filter((p) => p.type === "edition" && p.status !== "draft").sort((a, b) => (a.spine ?? 0) - (b.spine ?? 0));

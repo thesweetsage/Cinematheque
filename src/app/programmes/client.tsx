@@ -3,8 +3,8 @@ import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { ProgStatus } from "@/lib/programmes";
 import {
-  addItem, addLink, createProgramme, deleteProgramme, induct, moveItem, removeItem, removeLink, saveEssay, saveThemes, setAward, setDone, setLinkNote, setPair,
-  setStatus, setTop10, updateDetails, updateItem, verifyLink,
+  addItem, addLink, createProgramme, deleteProgramme, induct, moveItem, removeItem, removeLink, saveEssay, saveItemEssay, saveThemes, setAward, setCapsuleChecked,
+  setDone, setLinkNote, setPair, setStatus, setTop10, updateDetails, updateItem, verifyLink,
 } from "./actions";
 import { Chips, TitleChooser } from "./new/forms";
 import s from "./programmes.module.css";
@@ -500,5 +500,68 @@ export function SuggestBranches({ title }: { title: string }) {
       <button className="btn" disabled={busy} onClick={go}>{busy ? "Reading Wikipedia…" : "Suggest branches from Wikipedia"}</button>
       {msg && <p className={s.muted} role="status">{msg}</p>}
     </>
+  );
+}
+
+/** Asks Claude to write something for a v2 programme (a year's notes, one essay), as a plain request. */
+function useWrite(body: Record<string, unknown>) {
+  const router = useRouter();
+  const [writing, setWriting] = useState(false);
+  const [error, setError] = useState("");
+  const write = async () => {
+    setWriting(true); setError("");
+    try {
+      const r = await fetch("/api/programmes/notes", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+      const out = (await r.json().catch(() => ({ error: `The server answered ${r.status}.` }))) as { error?: string };
+      if (out.error) setError(out.error); else router.refresh();
+    } catch { setError("Lost the connection to the app."); }
+    setWriting(false);
+  };
+  return { writing, error, write };
+}
+
+/** Year in a decade: write the radio / news / fashion notes with Claude, and mark them checked. */
+export function CapsuleTools({ slug, has, draft, canWrite }: { slug: string; has: boolean; draft: boolean; canWrite: boolean }) {
+  const { pending, error, run } = useAct();
+  const w = useWrite({ kind: "capsule", slug });
+  return (
+    <div className={s.essayTools}>
+      {w.writing && <p className={s.muted} role="status">Reading that year&apos;s Wikipedia articles… under a minute.</p>}
+      <div className={s.btns}>
+        {canWrite && <button className="btn" disabled={w.writing} onClick={w.write}>{has ? "Rewrite the notes" : "Write the notes with Claude"}</button>}
+        {has && <button className="btn" disabled={pending} onClick={() => run(() => setCapsuleChecked(slug, draft))}>{draft ? "Mark as checked" : "Back to draft"}</button>}
+      </div>
+      <Err msg={error || w.error} />
+    </div>
+  );
+}
+
+/** Essay series: one title's essay. Write it with Claude, edit it, mark it checked. */
+export function ItemEssayTools({ slug, position, essay, draft, canWrite, label }: { slug: string; position: number; essay: string; draft: boolean; canWrite: boolean; label: string }) {
+  const { pending, error, run } = useAct();
+  const w = useWrite({ kind: "essay", slug, position });
+  const [editing, setEditing] = useState(false);
+  const [text, setText] = useState(essay);
+  return (
+    <div className={s.essayTools}>
+      {w.writing && <p className={s.muted} role="status">Writing from Wikipedia… about a minute.</p>}
+      {editing ? (
+        <>
+          <label className={s.field}><span>Essay: {label}</span><textarea rows={12} value={text} onChange={(e) => setText(e.target.value)} maxLength={12000} /></label>
+          <div className={s.btns}>
+            <button className="btn primary" disabled={pending} onClick={() => run(() => saveItemEssay(slug, position, text, false), () => setEditing(false))}>Save draft</button>
+            <button className="btn" disabled={pending} onClick={() => run(() => saveItemEssay(slug, position, text, true), () => setEditing(false))}>Save and mark checked</button>
+            <button className="btn" onClick={() => { setText(essay); setEditing(false); }}>Cancel</button>
+          </div>
+        </>
+      ) : (
+        <div className={s.btns}>
+          <button className="btn" onClick={() => { setText(essay); setEditing(true); }} aria-label={`${essay ? "Edit" : "Write"} the essay: ${label}`}>{essay ? "Edit" : "Write it yourself"}</button>
+          {canWrite && <button className="btn" disabled={w.writing} onClick={w.write} aria-label={`${essay ? "Redraft" : "Draft"} with Claude: ${label}`}>{essay ? "Redraft with Claude" : "Draft with Claude"}</button>}
+          {essay && draft && <button className="btn" disabled={pending} onClick={() => run(() => saveItemEssay(slug, position, essay, true))}>Mark as checked</button>}
+        </div>
+      )}
+      <Err msg={error || w.error} />
+    </div>
   );
 }

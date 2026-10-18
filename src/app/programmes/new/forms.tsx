@@ -186,3 +186,46 @@ export function FamilyTreeForm({ titles, preset, curator }: { titles: PickTitle[
     </div>
   );
 }
+
+/** Year in a decade: pick a year, and when the month starts. */
+export function TimeCapsuleForm({ today, curator }: { today: string; curator: boolean }) {
+  const { busy, error, build } = useBuild();
+  const thisYear = Number(today.slice(0, 4));
+  const [decade, setDecade] = useState(1980);
+  const [year, setYear] = useState(1984);
+  const [start, setStart] = useState(today);
+  const decades = Array.from({ length: Math.floor((thisYear - 1 - 1930) / 10) + 1 }, (_, i) => 1930 + i * 10);
+  const years = Array.from({ length: 10 }, (_, i) => decade + i).filter((y) => y < thisYear);
+  return (
+    <div className={s.form}>
+      <Chips label="Decade" value={decade} onChange={(d) => { setDecade(d); setYear(Math.min(d + 4, thisYear - 1)); }} busy={busy} options={decades.map((d) => ({ value: d, label: `${d}s` }))} />
+      <Chips label="Year" value={year} onChange={setYear} busy={busy} options={years.map((y) => ({ value: y, label: String(y) }))} />
+      <label className={s.field}><span>The month starts</span><input type="date" value={start} onChange={(e) => setStart(e.target.value)} disabled={busy} /></label>
+      <div className={s.btns}><button type="button" className="btn primary" disabled={busy} onClick={() => build({ type: "time_capsule", year, start })}>Open the {year} time capsule</button></div>
+      {busy && <p className={s.status} role="status">Finding {year}&apos;s films and series on TMDB{curator ? " and reading Wikipedia's articles on the year" : ""}… under a minute.</p>}
+      <Err msg={error} />
+    </div>
+  );
+}
+
+/** Essay series: the Final Girls Archive, or an empty series of your own. */
+export function EssaySeriesForm({ curator }: { curator: boolean }) {
+  const { busy, error, build } = useBuild();
+  const [name, setName] = useState("");
+  return (
+    <div className={s.form}>
+      <div className={s.kinds}>
+        <button type="button" className={s.option} disabled={busy} onClick={() => build({ type: "essay_series", preset: "final_girls" })} data-autofocus>
+          <b>Final Girls Archive</b>
+          <span>Eleven heroines from 1974 to 2022: Sally Hardesty to Maxine Minx.{curator ? " Claude drafts each essay from the film's Wikipedia article." : " Write the essays yourself."}</span>
+        </button>
+      </div>
+      <form className={s.themeRow} onSubmit={(e) => { e.preventDefault(); if (name.trim()) build({ type: "essay_series", preset: "empty", title: name }); }}>
+        <label className={s.field}><span>Or start your own series</span><input value={name} onChange={(e) => setName(e.target.value)} maxLength={120} placeholder="Scream Queens, Monster Kids, Neon Noir…" disabled={busy} /></label>
+        <button className="btn" disabled={busy || !name.trim()}>Start it</button>
+      </form>
+      {busy && <p className={s.status} role="status">Finding the films on TMDB…</p>}
+      <Err msg={error} />
+    </div>
+  );
+}

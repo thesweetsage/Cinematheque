@@ -1,9 +1,11 @@
 import "server-only";
 import { todayYmd } from "./common";
 import { buildCurriculum } from "./curriculum";
+import { buildEssaySeries } from "./essaySeries";
 import { buildFamilyTree } from "./familyTree";
 import { buildMarathon } from "./marathon";
 import { buildRetrospective } from "./retrospective";
+import { buildTimeCapsule } from "./timeCapsule";
 
 /* Checks a build request from the "Start a programme" forms and hands it to the right builder. Returns the slug. */
 
@@ -21,6 +23,10 @@ export async function buildV2(b: Record<string, unknown>): Promise<string> {
       return buildRetrospective(Number(b.personId));
     case "family_tree":
       return buildFamilyTree(str(b.title));
+    case "time_capsule":
+      return buildTimeCapsule({ year: Number(b.year), start: ymd(b.start) });
+    case "essay_series":
+      return buildEssaySeries({ preset: b.preset === "empty" ? "empty" : "final_girls", title: str(b.title, 120) });
     default:
       throw new Error("Unknown kind of programme.");
   }

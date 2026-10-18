@@ -1,6 +1,6 @@
 // The Cinematheque's Stremio add-on, served by Supabase over https (Stremio only loads https add-ons from other devices).
-// Same catalogues as the app's /api/stremio route (src/lib/stremio.ts): every running festival and 31 Days in programme
-// order, and the collection. It reads the database directly, so it works whether the app runs on the PC or the NAS.
+// Same catalogues as the app's /api/stremio route (src/lib/stremio.ts): every running programme in programme order,
+// and the collection. It reads the database directly, so it works whether the app runs on the PC or the NAS.
 //
 // Address: https://<project>.supabase.co/functions/v1/stremio/<token>/manifest.json
 // The token is the one the app shows on the Membership card (saved in app_settings under "stremio").
@@ -40,14 +40,17 @@ async function shelves(): Promise<Shelf[]> {
     "programme_items(position,slot_date,programme_note,titles(kind,imdb_id,title,year,overview,poster_url))&status=neq.draft");
   const out: Shelf[] = [];
   const add = (id: string, name: string, items: Item[]) => {
-    const found = items.filter((it) => it.titles?.imdb_id).map((it) => ({ t: it.titles!, note: it.programme_note }));
+    // A marathon lists its series once, not once per episode.
+    const found = items.filter((it, i) => it.titles?.imdb_id && items.findIndex((x) => x.titles?.imdb_id === it.titles!.imdb_id) === i).map((it) => ({ t: it.titles!, note: it.programme_note }));
     for (const type of ["movie", "series"] as const) {
       const mine = found.filter((x) => x.t.kind === type);
       if (mine.length) out.push({ id: `${id}-${type}`, name, type, items: mine });
     }
   };
   const order = (items: Item[]) => [...items].sort((a, b) => (a.slot_date ?? "9999").localeCompare(b.slot_date ?? "9999") || a.position - b.position);
-  progs.filter((p) => (p.type === "festival" || p.type === "days31") && p.status === "live" && (!p.end_date || p.end_date >= today))
+  const dated = ["festival", "days31", "marathon", "time_capsule"];
+  progs.filter((p) => p.type !== "edition" && p.type !== "family_tree" && p.status === "live"
+      && (!dated.includes(p.type) || !p.end_date || p.end_date >= today) && (p.type !== "festival" || !p.start_date || p.start_date <= today))
     .sort((a, b) => (a.start_date ?? "").localeCompare(b.start_date ?? ""))
     .forEach((p) => add(`prog-${p.slug}`, p.title, order(p.programme_items)));
   const eds = progs.filter((p) => p.type === "edition").sort((a, b) => (a.spine_number ?? 0) - (b.spine_number ?? 0));
