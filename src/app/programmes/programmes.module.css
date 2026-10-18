@@ -339,3 +339,18 @@ a.option:hover,a.option:focus-visible{border-color:var(--cyan)}
 .entryTitle small{font-family:var(--font-vt323),monospace;font-size:19px;color:var(--muted)}
 .essayPanel{background:var(--panel);border:2px solid var(--edge);padding:14px 18px;font-size:16px;line-height:1.55}
 .essayPanel p{margin:0 0 10px}
+
+/* ---------- The Back Wall: past posters, crooked, held up with tape ---------- */
+.backWall{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:44px 34px;margin-top:28px;padding:34px 28px 40px;background:#110d36;background-image:linear-gradient(rgba(58,52,113,.55) 2px,transparent 2px),linear-gradient(90deg,rgba(58,52,113,.55) 2px,transparent 2px);background-size:64px 64px;border:1px solid var(--edge)}
+.taped{position:relative;display:grid;gap:12px;justify-items:center;text-decoration:none;color:inherit;transform:rotate(var(--tilt,0deg));transition:transform .18s ease-out}
+.taped .poster{transform:none;width:100%}
+.taped:hover,.taped:focus-visible{transform:rotate(0deg) translateY(-8px)}
+.taped .tapeStrip{position:absolute;z-index:2;top:-12px;left:18%;width:84px;height:26px;background:rgba(244,239,230,.55);box-shadow:0 1px 3px rgba(0,0,0,.4);transform:rotate(-8deg)}
+.taped .tapeStripRight{left:auto;right:16%;transform:rotate(7deg)}
+.tag{font-family:var(--font-vt323),monospace;font-size:18px;background:#f4efe6;color:var(--ink);padding:3px 10px;transform:rotate(1deg)}
+@media (prefers-reduced-motion:reduce){.taped{transition:none}}
+.taped .posterTitle{font-size:clamp(26px,2.3vw,36px);overflow-wrap:break-word}
+.tile .posterTitle{font-size:28px}
+/* The marathon card's stamps stay in the box's header on every screen, clear of the tick boxes. */
+.mDays > li > .stamp{top:6px!important;bottom:auto!important;font-size:12px}
+.mDays > li{padding-top:9px}

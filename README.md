@@ -20,6 +20,8 @@ Use the arrow keys, Enter and Backspace to drive it like the TV remote.
    - `20261014120000_init.sql` creates the tables.
    - `20261014130000_server_access.sql` grants the server key access to them (newer Supabase projects don't do this
      automatically, so without it every read fails with "permission denied") and adds `titles.in_library`.
+   - Then the later ones as they arrive (settings, recommendations and programmes, and
+     `20261018120000_programmes_v2.sql` for the phase 9 programmes below).
 2. Put the project URL in `NEXT_PUBLIC_SUPABASE_URL` and the secret key (`sb_secret_…`, or the legacy `service_role` key) in `SUPABASE_SECRET_KEY`.
    The secret key stays on the server; row-level security blocks the public key from every table.
 
@@ -102,6 +104,39 @@ The **Festival wall** holds the programmes:
 
 Festival and 31 Days items tick themselves when the Plex sync logs a watch of that title on or after the start date.
 
+### More programmes (phase 9)
+
+Run `supabase/migrations/20261018120000_programmes_v2.sql` once in the SQL Editor first. Then **Start a programme**
+lists these too, each with its own short form, and each gets its own shelf on the Festival wall:
+
+- **Series marathon:** finish a series you keep dropping. From a series' box (**Start a marathon**) or the form: N
+  episodes a day or a week from a start date, skipping the ones you've seen (episodes from Plex, or TMDB when it isn't
+  on Plex). The marathon card has a box per portion with a tick per episode; overdue portions are marked, and the Store
+  Front shows an **OVERDUE** slip with the next episode until you catch up.
+- **Curriculum:** paste a list you trust (every film in *In Search of Darkness*, a syllabus). With a Claude key, Claude
+  sorts it into chapters using only your paste (never filling gaps); without one, headings like "Part I" become
+  chapters, or it goes by year. Every line is matched on TMDB and the course waits as a draft: check each match against
+  the line you pasted, take off wrong ones, then put it on **the Course Shelf** (a shelf per chapter, a progress bar each,
+  a completion seal). Lines TMDB couldn't find are listed.
+- **Director retrospective:** find a director (or start from a film's box). Their released feature films go on **the
+  Director's Shelf** in the order they came out, with a "Themes to watch for" staff card Claude writes from the
+  director's Wikipedia article (a draft until checked), and a **Top 10 chalkboard** you rank as you watch.
+- **Family tree:** a title in the middle, what inspired it on the left (cyan), what it influenced on the right
+  (magenta). Claude suggests branches named in its Wikipedia article, each checked on TMDB; they're dashed until you
+  verify them. Add notes, remove branches, add your own, and open any branch's own tree. A link shows on both titles' trees.
+- **Year in a decade:** pick a year; ten films and two series from it for a month, plus what was on the radio, in the
+  news and being worn, which Claude writes from Wikipedia's articles on that year only.
+- **Essay series:** the **Final Girls Archive** (eleven heroines, 1974 to 2022), or an empty series of your own: a
+  timeline by era with an essay per title, drafted by Claude from the film's Wikipedia article, edited, then checked.
+
+Every programme (but editions and trees) also has **Download the poster** (a 1200x1800 PNG with its covers) and, with
+Plex connected, **Make it a Plex collection** (in programme order; press again to bring it up to date). With Plex
+Pass, **Instant tick-offs** on the Membership card gives a webhook address for plex.tv, so watches are logged and
+items tick within a minute instead of at the hourly sync.
+
+**The Back Wall** (from the Festival wall's back room) has every programme that's over: its poster taped up slightly
+crooked, with how much of it you saw.
+
 ### Stremio
 
 The app is also a Stremio add-on: every running festival and 31 Days is a catalogue in Stremio, in programme order, plus
@@ -128,8 +163,9 @@ whether the app is on your PC or the NAS. No IP address involved.
 paste it into the search box on Stremio's **Add-ons** page, then **Install**. Stremio keeps add-ons in your Stremio
 account, so installing it once (on the PC, say) puts it on the TV box too: nothing to type with the remote.
 The address carries a private key (made from `SESSION_SECRET`); keep it to yourself. Changing `SESSION_SECRET`
-changes it: reopen the Membership card and install the new address. Changes to the function's code (rare) mean
-pasting it again in the dashboard.
+changes it: reopen the Membership card and install the new address. When the function's code changes (it did for
+phase 9, which added the new programmes to the catalogues), paste `supabase/functions/stremio/index.ts` into the
+function's editor in the dashboard again and deploy.
 
 - **Open in Stremio** on a box opens the title in the Stremio app. The next time you come back to the app (a few minutes
   later or more), it asks **Did you finish it?**: *Yes* (then your stars) logs a watch and ticks it off any running
@@ -166,4 +202,7 @@ Phase 6 is done: Editions with spine numbers and essays, Festivals with booklet,
 31 Days rental cards with stamps and a streak; items tick themselves from Plex watches.
 The walk-in footage is rendered (a 3D store with real covers; kept out of git, see `docs/WALK_IN.md`).
 Phase 7 is done: the walk-in on the Store Front and the pan from the shelves to the festival board on the Festival wall.
-Phase 8 is done: the Stremio add-on (festivals, 31 Days and the collection as catalogues), Open in Stremio and Did you finish it?
+Phase 8 is done: the Stremio add-on (every running programme and the collection as catalogues), Open in Stremio and Did you finish it?
+Phase 9 is done: series marathons, curricula (the Course Shelf), director retrospectives (the Director's Shelf), family
+trees, year in a decade, essay series (Final Girls Archive), the poster generator, Plex collection sync and Plex
+webhooks. The Back Wall is up. Next: the Android TV app, then the NAS setup.

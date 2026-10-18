@@ -16,6 +16,7 @@ No GSAP: motion is CSS so it stays smooth on the TV box. Add a library only if C
 - **TV mode** (auto on when there is no fine pointer, switch in Settings): bigger type (zoom 1.25), 3vw safe margins for overscan, lighter effects (no scanline overlay, no backdrop blur).
 - Performance budget for the box: no canvas noise loops, no large blurs, few simultaneous transforms, images at w342 for covers.
 - "Play on Plex" and "Open in Stremio" open the Plex and Stremio Android TV apps through their deep links.
+- Later, after the Android TV app: a Linux build for my Steam Machine (SteamOS desktop mode), installed there and added to Steam as a non-Steam game so it shows up as an app like Plex and YouTube do. Full screen, pointed at the app's address, with the controller working as arrows, OK and Back.
 
 ## Artwork
 - Covers come from Plex (its own poster for each item) or TMDB `poster_path`. Backdrops from TMDB for stills.

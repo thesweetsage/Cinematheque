@@ -18,7 +18,7 @@ export function Poster({ p, cat, big = false }: { p: Programme; cat: Catalog; bi
   return (
     <div className={`${s.poster} ${big ? s.posterBig : ""}`} style={{ "--acc": p.accent } as CSSProperties}>
       {backdrop && <span className={s.posterArt} style={{ backgroundImage: `url(${backdrop})` }} />}
-      <span className={s.posterKicker}>{p.type === "days31" ? "A Cinematheque challenge" : "A Cinematheque festival"}</span>
+      <span className={s.posterKicker}>{p.type === "days31" ? "A Cinematheque challenge" : p.type === "festival" ? "A Cinematheque festival" : `A Cinematheque ${TYPE_NAME[p.type].toLowerCase()}`}</span>
       <span className={s.posterTitle}>{p.title}</span>
       {p.theme && <span className={s.posterTheme}>{p.theme}</span>}
       <span className={s.posterFoot}><b>{span(p)}</b><i>{p.items.length} {p.items.length === 1 ? "title" : "titles"}</i></span>
