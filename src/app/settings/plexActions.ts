@@ -1,4 +1,5 @@
 "use server";
+import { webhookKey } from "@/lib/plex/webhook";
 import { after } from "next/server";
 import { requireMember } from "@/lib/member";
 import { missingTable } from "@/lib/settings";
@@ -101,4 +102,10 @@ async function pick(c: ServerChoice): Promise<string | null> {
   await savePlexSettings({ ...s, server: { name: c.name, machineId: c.machineId, url, token: c.token } });
   after(() => syncOnce()); // first sync straight away
   return null;
+}
+
+/** The Plex webhook's path (with its secret key), for instant tick-offs with Plex Pass. */
+export async function plexWebhookPath(): Promise<string> {
+  await requireMember();
+  return `/api/plex/webhook/${webhookKey()}`;
 }

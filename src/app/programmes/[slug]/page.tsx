@@ -6,7 +6,7 @@ import { SampleTag } from "@/components/SampleTag";
 import { artOf, findTitle, getCatalog, type Catalog } from "@/lib/catalog";
 import { canWriteEssay } from "@/lib/editionEssay";
 import { findProgramme, getProgrammes, getProgrammesCached, spineLabel, stamps, TYPE_NAME, type Programme } from "@/lib/programmes";
-import { AwardForm, EssayEditor, Editor, PairToggles, PrintButton, RemoveAward } from "../client";
+import { AwardForm, EssayEditor, Editor, PairToggles, PrintButton, ProgrammeExtras, RemoveAward } from "../client";
 import { Flyer, Poster, RentalCard, span, TapeRow } from "../parts";
 import { Capsule } from "./Capsule";
 import { Course } from "./Course";
@@ -56,6 +56,9 @@ export default async function ProgrammePage({ params }: { params: Promise<{ slug
       {p.type === "time_capsule" && <Capsule p={p} cat={cat} live={live} canWrite={canWriteEssay()} />}
       {p.type === "essay_series" && <Essays p={p} cat={cat} live={live} canWrite={canWriteEssay()} />}
       {p.type === "edition" && <Edition p={p} cat={cat} live={live} others={progs.list.filter((x) => x.type === "edition" && x.slug !== p.slug && x.status !== "draft")} />}
+      {live && p.type !== "edition" && p.type !== "family_tree" && p.status !== "draft" && (
+        <ProgrammeExtras slug={p.slug} synced={p.extras.plex?.syncedAt ?? null} plex={!!cat.plexServer} />
+      )}
       {editable}
     </>
   );

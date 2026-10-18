@@ -1,11 +1,34 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
-import { plexCheckLink, plexChooseServer, plexDisconnect, plexStartLink, plexStatus, plexSyncNow, type PlexStatus } from "./plexActions";
+import { plexCheckLink, plexChooseServer, plexDisconnect, plexStartLink, plexStatus, plexSyncNow, plexWebhookPath, type PlexStatus } from "./plexActions";
 import s from "./plex.module.css";
 
 const load = () => plexStatus().catch((e): PlexStatus => ({ state: "disconnected", error: e.message }));
 const n = (x: number, one: string, many = one + "s") => `${x} ${x === 1 ? one : many}`;
 const when = (iso: string) => new Date(iso).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
+
+/*
+ * Instant tick-offs with Plex Pass: Plex's webhook calls the app the moment something is watched, so the sync (and the
+ * programme ticks) happen within a minute instead of at the next hourly sync. Plex Media Server makes the call itself,
+ * so the address must be one the Plex server can reach: this page's address, or the PC's network address.
+ */
+function Webhook() {
+  const [open, setOpen] = useState(false);
+  const [path, setPath] = useState<string | null>(null);
+  const show = async () => { setOpen(!open); if (!path) setPath(await plexWebhookPath().catch(() => null)); };
+  return (
+    <div className={s.unmatched}>
+      <button className="btn" aria-expanded={open} onClick={show}>Instant tick-offs (Plex Pass) {open ? "▲" : "▼"}</button>
+      {open && (
+        <>
+          <p>With Plex Pass, Plex can tell the app the moment you finish something. On plex.tv go to <b>Account settings → Webhooks → Add webhook</b> and paste:</p>
+          {path ? <input className={s.sync} readOnly value={`${location.origin}${path}`} onFocus={(e) => e.currentTarget.select()} aria-label="Webhook address" style={{ width: "100%", background: "transparent", border: "1px solid var(--edge)", color: "inherit", padding: "6px 8px" }} /> : <p>Checking…</p>}
+          <p>Plex Media Server sends it, so if Plex runs on another machine (the NAS), use this PC&apos;s network address instead of localhost. Without Plex Pass, the hourly sync does the same job, just later.</p>
+        </>
+      )}
+    </div>
+  );
+}
 
 /* Plex on the Membership card: connect with a plex.tv/link code, pick the server, see and start the sync. */
 export function PlexPanel() {
@@ -104,6 +127,7 @@ export function PlexPanel() {
           <button className="btn primary" onClick={syncNow} disabled={busy || waiting}>Sync now</button>
           {!status.fromEnv && <button className="btn" onClick={disconnect} disabled={busy || waiting}>Disconnect</button>}
         </div>
+        <Webhook />
       </>
     );
   }

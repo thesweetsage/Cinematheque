@@ -110,3 +110,17 @@ export function externalIds(item: Item) {
   }
   return ids;
 }
+
+/* ---------- Writing to the server (collections) ---------- */
+
+/** Any request to the server; answers its MediaContainer, or null when the reply is empty. */
+export async function plexRequest<T>(s: Server, method: "GET" | "POST" | "PUT" | "DELETE", path: string, params: Record<string, string> = {}): Promise<T | null> {
+  const u = new URL(path, s.url.endsWith("/") ? s.url : s.url + "/");
+  for (const [k, v] of Object.entries(params)) u.searchParams.set(k, v);
+  const res = await fetch(u, { method, headers: { Accept: "application/json", "X-Plex-Token": s.token }, cache: "no-store", signal: AbortSignal.timeout(20_000) });
+  if (res.status === 401) throw new Error("Plex refused the token (401). Connect Plex again.");
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error(`Plex answered ${res.status} for ${method} ${u.pathname}`);
+  const text = await res.text();
+  return text ? ((JSON.parse(text) as { MediaContainer: T }).MediaContainer ?? null) : null;
+}

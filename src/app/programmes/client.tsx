@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import type { ProgStatus } from "@/lib/programmes";
 import {
   addItem, addLink, createProgramme, deleteProgramme, induct, moveItem, removeItem, removeLink, saveEssay, saveItemEssay, saveThemes, setAward, setCapsuleChecked,
-  setDone, setLinkNote, setPair, setStatus, setTop10, updateDetails, updateItem, verifyLink,
+  setDone, setLinkNote, setPair, setStatus, setTop10, syncToPlex, updateDetails, updateItem, verifyLink,
 } from "./actions";
 import { Chips, TitleChooser } from "./new/forms";
 import s from "./programmes.module.css";
@@ -562,6 +562,26 @@ export function ItemEssayTools({ slug, position, essay, draft, canWrite, label }
         </div>
       )}
       <Err msg={error || w.error} />
+    </div>
+  );
+}
+
+/** The programme's tools that leave the store: download its poster, copy it to Plex as a collection. */
+export function ProgrammeExtras({ slug, synced, plex }: { slug: string; synced: string | null; plex: boolean }) {
+  const router = useRouter();
+  const [pending, start] = useTransition();
+  const [msg, setMsg] = useState("");
+  const toPlex = () => start(async () => {
+    setMsg("");
+    const r = await syncToPlex(slug).catch((e: Error) => ({ error: e.message, count: 0, skipped: 0 }));
+    if (r.error) setMsg(r.error);
+    else { setMsg(`In Plex as a collection: ${r.count} title${r.count === 1 ? "" : "s"}${r.skipped ? `, ${r.skipped} not on Plex skipped` : ""}.`); router.refresh(); }
+  });
+  return (
+    <div className={s.btns}>
+      <a className="btn" href={`/programmes/${slug}/poster`} download={`${slug}-poster.png`}>Download the poster</a>
+      {plex && <button className="btn" disabled={pending} onClick={toPlex}>{pending ? "Copying to Plex…" : synced ? "Update the Plex collection" : "Make it a Plex collection"}</button>}
+      {msg && <p className={s.muted} role="status">{msg}</p>}
     </div>
   );
 }

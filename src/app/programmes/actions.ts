@@ -4,6 +4,7 @@ import { CATALOG_TAG } from "@/lib/catalog";
 import { slugify } from "@/lib/importTitle";
 import { requireMember } from "@/lib/member";
 import { setExtras } from "@/lib/build/common";
+import { syncCollection } from "@/lib/plex/collections";
 import { ACCENTS, PROG_TAG, type ProgExtras, type ProgStatus } from "@/lib/programmes";
 import { db } from "@/lib/supabase";
 
@@ -348,5 +349,15 @@ export async function saveItemEssay(slug: string, position: number, essay: strin
     if (error) return { error: error.message };
     refresh();
     return {};
+  } catch (e) { return fail(e); }
+}
+
+/** Copies the programme into Plex as a collection (or brings it up to date). */
+export async function syncToPlex(slug: string): Promise<Result & { count?: number; skipped?: number }> {
+  await requireMember();
+  try {
+    const r = await syncCollection(slug);
+    refresh();
+    return r;
   } catch (e) { return fail(e); }
 }
