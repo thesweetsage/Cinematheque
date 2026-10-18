@@ -8,6 +8,7 @@ import { canWriteEssay } from "@/lib/editionEssay";
 import { findProgramme, getProgrammes, getProgrammesCached, spineLabel, stamps, TYPE_NAME, type Programme } from "@/lib/programmes";
 import { AwardForm, EssayEditor, Editor, PairToggles, PrintButton, RemoveAward } from "../client";
 import { Flyer, Poster, RentalCard, span, TapeRow } from "../parts";
+import { Marathon } from "./Marathon";
 import s from "../programmes.module.css";
 
 export async function generateStaticParams() {
@@ -21,7 +22,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return { title: p ? `${p.type === "edition" ? spineLabel(p.spine) : p.title} · The Cinematheque` : "Not found" };
 }
 
-/* One programme: a festival (poster, booklet, schedule, awards), a 31 Days rental card, or an edition. */
+/* One programme: a festival (poster, booklet, schedule, awards), a 31 Days rental card, an edition, or a v2 kind. */
 export default async function ProgrammePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const [cat, progs] = await Promise.all([getCatalog(), getProgrammes()]);
@@ -31,7 +32,8 @@ export default async function ProgrammePage({ params }: { params: Promise<{ slug
   const editable = live && p.type !== "edition" ? (
     <Editor
       p={{ slug: p.slug, type: p.type, title: p.title, theme: p.theme, essay: p.essay, start: p.start, end: p.end, accent: p.accent, status: p.status, items: p.items.map(({ position, id, date, note }) => ({ position, id, date, note })) }}
-      titles={cat.titles.filter((t) => t.kind === "movie").map((t) => ({ id: t.id, t: t.t, y: t.y, lib: t.lib }))}
+      titles={cat.titles.filter((t) => t.kind === "movie" || p.type === "curriculum").map((t) => ({ id: t.id, t: t.t, y: t.y, lib: t.lib }))}
+      bill={p.type !== "marathon" && p.type !== "family_tree"}
     />
   ) : null;
   return (
@@ -42,6 +44,7 @@ export default async function ProgrammePage({ params }: { params: Promise<{ slug
       </div>
       {p.type === "festival" && <Festival p={p} cat={cat} live={live} today={progs.today} />}
       {p.type === "days31" && <Days31 p={p} cat={cat} today={progs.today} />}
+      {p.type === "marathon" && <Marathon p={p} cat={cat} live={live} today={progs.today} />}
       {p.type === "edition" && <Edition p={p} cat={cat} live={live} others={progs.list.filter((x) => x.type === "edition" && x.slug !== p.slug && x.status !== "draft")} />}
       {editable}
     </>

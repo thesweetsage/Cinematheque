@@ -36,3 +36,12 @@
 .bar{display:block;width:80%;height:4px;background:var(--edge)}
 .bar i{display:block;height:100%;background:var(--mag);box-shadow:0 0 6px var(--mag)}
 .again{display:flex;justify-content:flex-end;margin-top:8px}
+
+/* The overdue slip: a marathon that's fallen behind. */
+.overdue{display:grid;gap:10px;margin-top:28px}
+.slip{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:12px 16px;background:#f4efe6;color:var(--ink);text-decoration:none;border-left:10px solid var(--orange);transform:rotate(-.4deg);max-width:980px}
+.slip:focus-visible,.slip:hover{outline:3px solid #fff;outline-offset:3px;box-shadow:0 0 18px rgba(255,79,184,.7)}
+.slipStamp{font-family:var(--font-shoulders),sans-serif;font-weight:900;font-size:22px;letter-spacing:.08em;text-transform:uppercase;color:var(--print-red);border:3px solid var(--print-red);padding:0 8px;transform:rotate(-4deg)}
+.slipText{flex:1;min-width:200px;font-size:16px}
+.slipText b{font-family:var(--font-bungee),sans-serif;font-weight:400}
+.slipGo{font-family:var(--font-vt323),monospace;font-size:20px;color:var(--print-red)}

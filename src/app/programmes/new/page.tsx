@@ -2,13 +2,15 @@ import Link from "next/link";
 import { DECADES, decadeLabel, GENRES } from "@/lib/autoProgramme";
 import { getProgrammes } from "@/lib/programmes";
 import { AutoProgrammeForm, NewProgrammeForm } from "../client";
+import { KINDS } from "./kinds";
 import s from "../programmes.module.css";
 
 export const metadata = { title: "Start a programme · The Cinematheque" };
 
 /*
  * Start a festival or a 31 Days: it builds itself from TMDB (genre, decade, a typed theme, or a surprise).
- * Building one by hand is still there, below.
+ * The v2 kinds (marathon, curriculum, retrospective, family tree, year, essay series) each have their own form.
+ * Building a festival by hand is still there, below.
  */
 export default async function NewProgramme() {
   const { source, today } = await getProgrammes();
@@ -21,6 +23,12 @@ export default async function NewProgramme() {
       {source === "db" ? (
         <>
           <AutoProgrammeForm genres={GENRES.map(({ key, label }) => ({ key, label }))} decades={DECADES.map((v) => ({ value: v, label: `The ${decadeLabel(v)}` }))} curator={!!process.env.ANTHROPIC_API_KEY} />
+          <h2 className={s.h2} style={{ marginTop: 36 }}>More kinds of programme</h2>
+          <div className={s.kinds}>
+            {Object.entries(KINDS).map(([kind, k]) => (
+              <Link key={kind} href={`/programmes/new/${kind}`} className={s.option}><b>{k.title}</b><span>{k.lede}</span></Link>
+            ))}
+          </div>
           <details className={s.byHand}>
             <summary tabIndex={0}>Or build one by hand</summary>
             <NewProgrammeForm today={today} monthEnd={monthEnd} />

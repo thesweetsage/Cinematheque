@@ -195,3 +195,39 @@ button.option{font:inherit;color:inherit;text-align:left}
 .chips .chip[aria-pressed="true"]:first-child{border-color:var(--yellow)}
 .status{font-family:var(--font-vt323),monospace;font-size:20px;color:var(--cyan)}
 .notOwned{font-family:var(--font-vt323),monospace;font-size:15px;color:var(--print-red)!important}
+
+/* ---------- v2 programmes on the wall: tiles with a box, a name and a progress bar ---------- */
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:22px;padding:14px 0 4px}
+.tile{display:grid;gap:6px;justify-items:start;align-content:start;padding:10px;text-decoration:none;color:inherit;border:1px solid transparent}
+.tile:hover,.tile:focus-visible{border-color:var(--edge);background:rgba(21,18,57,.6)}
+.tileBox{display:block;height:200px;perspective:900px;transition:transform .15s ease-out}
+.tile:hover .tileBox,.tile:focus-visible .tileBox{transform:translateY(-6px)}
+.tileYear{display:grid;place-items:center;width:130px;height:190px;border:2px solid var(--acc,var(--lavender));color:var(--acc,var(--lavender));font-family:var(--font-shoulders);font-weight:900;font-size:52px;text-shadow:0 0 12px var(--acc,var(--lavender));background:var(--wall)}
+.tileName{font-family:var(--font-bungee);font-size:17px;line-height:1.1}
+.tileSub{font-family:var(--font-vt323);font-size:19px;color:var(--muted)}
+.overdue{font-family:var(--font-bungee);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#1a1714;background:var(--orange);padding:3px 8px;transform:rotate(-2deg)}
+.progress{display:flex;align-items:center;gap:10px;width:100%}
+.progressBar{flex:1;height:8px;background:var(--wall);border:1px solid var(--edge);min-width:80px}
+.progressBar i{display:block;height:100%;background:var(--cyan);box-shadow:0 0 8px rgba(126,230,255,.6)}
+.progressText{font-family:var(--font-vt323);font-size:19px;color:var(--muted);white-space:nowrap}
+.wallLinks{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px}
+.chosen{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:10px 14px;border:2px solid var(--edge);background:var(--panel)}
+.chosen b{font-family:var(--font-bungee);font-weight:400;font-size:19px}
+.chosen small{font-family:var(--font-vt323);font-size:18px;color:var(--muted)}
+.toggleRow{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:10px 0;border-top:1px solid var(--edge)}
+.toggleRow b{display:block;font-weight:600}
+.toggleRow span{display:block;color:var(--muted);font-size:14px}
+.kinds{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;margin-top:12px}
+a.option{text-decoration:none;color:inherit}
+a.option:hover,a.option:focus-visible{border-color:var(--cyan)}
+
+/* ---------- The marathon card: a box per day or week, its episodes inside ---------- */
+.mDays{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}
+.mDays > li{position:relative;border:1.5px dashed rgba(26,23,20,.45);padding:7px 8px;display:grid;align-content:start;gap:3px}
+.mEps{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:6px}
+.mEps li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:center}
+.mCode{font-family:var(--font-vt323),monospace;font-size:18px;color:var(--print-red)}
+.mName{font-size:14px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mLate{border-style:solid!important;border-color:var(--print-red)!important;background:rgba(255,154,92,.18)}
+.stampLate{color:var(--print-red)}
+.overdueLine{font-family:var(--font-vt323),monospace;font-size:21px;color:var(--orange)}

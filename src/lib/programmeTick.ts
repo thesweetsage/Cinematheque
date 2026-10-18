@@ -3,10 +3,12 @@ import { db } from "./supabase";
 
 /*
  * Programme items tick themselves: when the Plex sync logs a new watch, every unticked item for that title
- * (or that episode, when the item is one) in a live festival or 31 Days is marked done, dated with the watch,
+ * (or that episode, when the item is one) in a live programme is marked done, dated with the watch,
  * as long as the watch falls on or after the programme's start date.
  */
 type Watch = { title_id: string; episode_id: string | null; watched_at: string };
+/** Every programme with things to watch (editions and family trees have nothing to tick). */
+const TICKS = ["festival", "days31", "marathon", "curriculum", "retrospective", "time_capsule", "essay_series"];
 
 export async function tickFromWatches(watches: Watch[]): Promise<number> {
   const client = db();
@@ -14,7 +16,7 @@ export async function tickFromWatches(watches: Watch[]): Promise<number> {
   const titleIds = [...new Set(watches.map((w) => w.title_id))];
   const { data, error } = await client.from("programme_items")
     .select("programme_id, position, title_id, episode_id, programmes!inner(type, status, start_date)")
-    .eq("done", false).in("title_id", titleIds).eq("programmes.status", "live").in("programmes.type", ["festival", "days31"]);
+    .eq("done", false).in("title_id", titleIds).eq("programmes.status", "live").in("programmes.type", TICKS);
   if (error) throw new Error(error.message);
   type Row = { programme_id: string; position: number; title_id: string; episode_id: string | null; programmes: { start_date: string | null } | { start_date: string | null }[] };
   let n = 0;

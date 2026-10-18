@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 import { VhsBox } from "@/components/VhsBox";
 import { artOf, findTitle, type Catalog } from "@/lib/catalog";
-import { addDays, daysBetween, stamps, type Programme } from "@/lib/programmes";
+import { addDays, behind, daysBetween, progress, stamps, TYPE_NAME, type Programme } from "@/lib/programmes";
 import { TickBox } from "./client";
 import s from "./programmes.module.css";
 
@@ -102,6 +102,49 @@ export function TapeRow({ ids, cat, width = 140, label }: { ids: { id: string; h
         return (
           <Link key={href} href={href} className={s.tape} aria-label={label ? label(id) : `${t.t}, ${t.y}`}>
             <span className={s.tapeBox}><VhsBox title={t} art={artOf(cat, t.id)} width={width} edition={edition} wear="mint" /></span>
+          </Link>
+        );
+      })}
+    </div>
+  );
+}
+
+/** A programme's lead title: the series of a marathon, the root of a family tree, the first film of anything else. */
+export const leadOf = (p: Programme, cat: Catalog) => p.items.map((it) => findTitle(cat, it.id)).find(Boolean);
+
+/** A progress bar (done of total), with the count spoken. */
+export function Progress({ done, total, label }: { done: number; total: number; label?: string }) {
+  const pct = total ? Math.round((done / total) * 100) : 0;
+  return (
+    <span className={s.progress} role="img" aria-label={`${label ? `${label}: ` : ""}${done} of ${total} seen`}>
+      <span className={s.progressBar}><i style={{ width: `${pct}%` }} /></span>
+      <span className={s.progressText}>{done} / {total}</span>
+    </span>
+  );
+}
+
+/**
+ * The v2 programmes on the festival wall: one tile each, the lead title's box, the name, a line about it,
+ * a progress bar, and an OVERDUE sticker when a marathon has fallen behind.
+ */
+export function ProgTiles({ list, cat, today, line }: { list: Programme[]; cat: Catalog; today: string; line?: (p: Programme) => string }) {
+  return (
+    <div className={s.tiles}>
+      {list.map((p) => {
+        const t = leadOf(p, cat);
+        const { done, total } = progress(p.items);
+        const late = p.type === "marathon" ? behind(p, today) : 0;
+        const sub = line?.(p) ?? (p.status === "draft" ? "Draft" : TYPE_NAME[p.type]);
+        return (
+          <Link key={p.slug} href={`/programmes/${p.slug}`} className={s.tile} aria-label={`${p.title}. ${sub}${total && p.type !== "family_tree" ? `. ${done} of ${total} seen` : ""}${late ? `. ${late} behind` : ""}`}>
+            <span className={s.tileBox}>
+              {p.type === "time_capsule" && p.extras.year ? <span className={s.tileYear} style={{ "--acc": p.accent } as CSSProperties}>{p.extras.year}</span>
+                : t ? <VhsBox title={t} art={artOf(cat, t.id)} width={120} wear="mint" /> : <span className={s.tileYear}>?</span>}
+            </span>
+            <span className={s.tileName}>{p.title}</span>
+            <span className={s.tileSub}>{sub}</span>
+            {total > 0 && p.type !== "family_tree" && <Progress done={done} total={total} />}
+            {late > 0 && <span className={s.overdue}>Overdue · {late} behind</span>}
           </Link>
         );
       })}

@@ -68,12 +68,32 @@ export default async function TitlePage({ params }: { params: Promise<{ id: stri
   );
 }
 
-/* The collection: this title's edition number, or the button that inducts it. */
+/*
+ * The collection: this title's edition number, or the button that inducts it. For a series, its marathon
+ * (or the button that starts one); for a film, its director's retrospective and its family tree.
+ */
 async function Collection({ cat, t }: { cat: Catalog; t: Title }) {
   const progs = await getProgrammes();
+  const live = cat.source === "db" && progs.source === "db";
   const ed = editionOf(progs, t.id);
-  if (ed) return <p className={s.edition}><Link href={`/programmes/${ed.slug}`}>★ {spineLabel(ed.spine)} in the collection: read the essay</Link></p>;
-  return cat.source === "db" && progs.source === "db" ? <div className={s.play}><InductButton titleSlug={t.id} title={t.t} /></div> : null;
+  const mine = (type: string) => progs.list.find((p) => p.type === type && p.status !== "archived" && p.items[0]?.id === t.id);
+  const marathon = t.kind === "series" ? mine("marathon") : undefined;
+  const tree = mine("family_tree");
+  return (
+    <>
+      {ed && <p className={s.edition}><Link href={`/programmes/${ed.slug}`}>★ {spineLabel(ed.spine)} in the collection: read the essay</Link></p>}
+      {live && (
+        <div className={s.play}>
+          {!ed && <InductButton titleSlug={t.id} title={t.t} />}
+          {t.kind === "series" && (marathon ? <Link className="btn" href={`/programmes/${marathon.slug}`}>Open the marathon card</Link>
+            : <Link className="btn" href={`/programmes/new/marathon?series=${encodeURIComponent(t.id)}`}>Start a marathon</Link>)}
+          {tree ? <Link className="btn" href={`/programmes/${tree.slug}`}>Family tree</Link>
+            : <Link className="btn" href={`/programmes/new/family-tree?title=${encodeURIComponent(t.id)}`}>Draw its family tree</Link>}
+          {t.kind === "movie" && t.dir && <Link className="btn" href={`/programmes/new/retrospective?name=${encodeURIComponent(t.dir.split(",")[0].trim())}`}>{t.dir.split(",")[0].trim()} retrospective</Link>}
+        </div>
+      )}
+    </>
+  );
 }
 
 /* Seasons (series) and the booklet: per-title reads that stream in after the box. */

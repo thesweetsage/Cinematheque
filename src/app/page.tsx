@@ -9,6 +9,7 @@ import { SampleTag } from "@/components/SampleTag";
 import { RecThumbs, WishButton } from "@/components/RecActions";
 import { artOf, findTitle, getCatalog, shelf, type Catalog, type Rec } from "@/lib/catalog";
 import { continueWatching } from "@/lib/plex/deck";
+import { behind, epCode, getProgrammes, isRunning } from "@/lib/programmes";
 import s from "./front.module.css";
 
 export default async function StoreFront() {
@@ -58,6 +59,7 @@ export default async function StoreFront() {
       {store.video && <WalkIn src={store.video} poster={store.still} />}
       <StoreShelf catalog={cat} tapes={faceOut} backdrop={store.still ?? pickArt?.backdrop ?? null} />
       {store.video && <div className={s.again}><WalkInAgain /></div>}
+      <Suspense fallback={null}><Overdue /></Suspense>
       <Suspense fallback={null}><ContinueWatching cat={cat} /></Suspense>
       {pick && (
         <section className={s.tonight}>
@@ -92,6 +94,27 @@ export default async function StoreFront() {
         )}
       </section>
     </>
+  );
+}
+
+/* The nudge: a marathon that's fallen behind gets an OVERDUE slip on the counter, with the next episode due. */
+async function Overdue() {
+  const progs = await getProgrammes();
+  const late = progs.list.filter((p) => p.type === "marathon" && isRunning(p, progs.today)).map((p) => ({ p, n: behind(p, progs.today) })).filter((x) => x.n > 0);
+  if (!late.length) return null;
+  return (
+    <section className={s.overdue} aria-label="Overdue">
+      {late.map(({ p, n }) => {
+        const next = [...p.items].filter((i) => !i.done).sort((a, b) => (a.date ?? "").localeCompare(b.date ?? "") || a.position - b.position)[0];
+        return (
+          <Link key={p.slug} href={`/programmes/${p.slug}`} className={s.slip}>
+            <span className={s.slipStamp}>Overdue</span>
+            <span className={s.slipText}><b>{p.title}</b> {n} episode{n === 1 ? "" : "s"} behind{next?.ep ? `. Next up: ${epCode(next.ep)}${next.ep.name ? ` · ${next.ep.name}` : ""}` : ""}</span>
+            <span className={s.slipGo}>Open the card ▶</span>
+          </Link>
+        );
+      })}
+    </section>
   );
 }
 

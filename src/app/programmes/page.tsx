@@ -4,24 +4,36 @@ import path from "node:path";
 import { WalkIn } from "@/components/WalkIn";
 import { SampleTag } from "@/components/SampleTag";
 import { getCatalog } from "@/lib/catalog";
-import { getProgrammes, spineLabel, TYPE_NAME, type Programme } from "@/lib/programmes";
-import { Flyer, Poster, RentalCard, span, TapeRow } from "./parts";
+import { behind, getProgrammes, isRunning, progress, spineLabel, TYPE_NAME, type ProgType, type Programme } from "@/lib/programmes";
+import { Flyer, Poster, ProgTiles, RentalCard, span, TapeRow } from "./parts";
 import s from "./programmes.module.css";
 
 export const metadata = { title: "The Festival Wall · The Cinematheque" };
 
 /*
- * The festival wall: this month's festival poster with its tick-off flyer, the 31 Days rental card,
- * the Staff Picks shelf of numbered editions, and the back room (drafts and past programmes).
+ * The festival wall: this month's festival poster with its tick-off flyer, the 31 Days rental card, the v2 programmes
+ * (marathons, the Course Shelf, the Director's Shelf, family trees, years, essay series), the Staff Picks shelf of
+ * numbered editions, and the back room (drafts and past programmes), with the way to the Back Wall.
  */
 export default async function FestivalWall() {
   const [cat, progs] = await Promise.all([getCatalog(), getProgrammes()]);
   const live = progs.source === "db";
   const t = progs.today;
-  const running = (type: string) => progs.list.filter((p) => p.type === type && p.status === "live" && (!p.end || p.end >= t) && (!p.start || p.start <= t || type !== "festival"));
+  const running = (type: ProgType) => progs.list.filter((p) => p.type === type && isRunning(p, t));
   const festivals = running("festival"), challenges = running("days31");
+  // The v2 shelves: running ones, plus drafts (a curriculum waiting for its matches to be checked).
+  const shelf = (type: ProgType) => progs.list.filter((p) => p.type === type && (isRunning(p, t) || p.status === "draft"));
+  const v2: { type: ProgType; title: string; blurb: string; line?: (p: Programme) => string }[] = [
+    { type: "marathon", title: "Marathons", blurb: "Series you're finishing, a few episodes at a time.", line: (p) => { const late = behind(p, t); return p.status === "draft" ? "Draft" : late ? `${late} episode${late === 1 ? "" : "s"} behind` : "On schedule"; } },
+    { type: "curriculum", title: "The Course Shelf", blurb: "Whole viewing courses, chapter by chapter.", line: (p) => p.status === "draft" ? "Draft: check the matches" : p.extras.source ?? "Curriculum" },
+    { type: "retrospective", title: "The Director's Shelf", blurb: "A filmography in viewing order, then your Top 10.", line: (p) => p.extras.person?.name ?? "Retrospective" },
+    { type: "family_tree", title: "Family trees", blurb: "What inspired a title, and what it went on to influence.", line: (p) => `${p.items.length > 0 ? "Tree" : "Empty"}` },
+    { type: "time_capsule", title: "Year in a decade", blurb: "One year as a month-long programme, with what was on the radio and in the news.", line: (p) => p.extras.year ? `${p.extras.year}` : "A year" },
+    { type: "essay_series", title: "Essay series", blurb: "One title per era, one essay each.", line: (p) => { const { total } = progress(p.items); const written = p.items.filter((i) => i.essay).length; return `${written} of ${total} essays`; } },
+  ];
+  const shelves = v2.map((x) => ({ ...x, list: shelf(x.type) }));
   const editions = progs.list.filter((p) => p.type === "edition" && p.status !== "draft").sort((a, b) => (a.spine ?? 0) - (b.spine ?? 0));
-  const shown = new Set([...festivals, ...challenges].map((p) => p.slug));
+  const shown = new Set([...festivals, ...challenges, ...shelves.flatMap((x) => x.list)].map((p) => p.slug));
   const backRoom = progs.list.filter((p) => p.type !== "edition" && !shown.has(p.slug));
   const footage = wallFootage();
   // The board photo frames what's now showing (or the empty-wall note), not a wall with only a 31 Days below it.
@@ -64,6 +76,13 @@ export default async function FestivalWall() {
         </section>
       ))}
 
+      {shelves.filter((x) => x.list.length).map((x) => (
+        <section key={x.type} className={s.section} aria-labelledby={`shelf-${x.type}`}>
+          <div className={s.sectionHead}><h2 id={`shelf-${x.type}`} className="sec-title">{x.title}</h2><span className={s.muted}>{x.blurb}</span></div>
+          <ProgTiles list={x.list} cat={cat} today={t} line={x.line} />
+        </section>
+      ))}
+
       <section className={s.section} aria-labelledby="collection">
         <div className={s.sectionHead}>
           <h2 id="collection" className="sec-title">The collection</h2>
@@ -77,7 +96,7 @@ export default async function FestivalWall() {
 
       {backRoom.length > 0 && (
         <section className={s.section} aria-labelledby="backroom">
-          <h2 id="backroom" className="sec-title">The back room</h2>
+          <div className={s.sectionHead}><h2 id="backroom" className="sec-title">The back room</h2><Link className="btn" href="/programmes/back-wall">The back wall: every past poster</Link></div>
           <ul className={s.backRoom}>
             {backRoom.map((p) => (
               <li key={p.slug}>

@@ -162,7 +162,7 @@ type EditItem = { position: number; id: string; date?: string; note?: string };
 type EditProgramme = { slug: string; type: string; title: string; theme?: string; essay?: string; start?: string; end?: string; accent: string; status: ProgStatus; items: EditItem[] };
 
 /** The programme editor: details, the titles (dates, notes, order), adding titles, and the programme's status. */
-export function Editor({ p, titles }: { p: EditProgramme; titles: PickTitle[] }) {
+export function Editor({ p, titles, bill = true }: { p: EditProgramme; titles: PickTitle[]; bill?: boolean }) {
   const [open, setOpen] = useState(false);
   const { pending, error, run } = useAct();
   const router = useRouter();
@@ -174,7 +174,7 @@ export function Editor({ p, titles }: { p: EditProgramme; titles: PickTitle[] })
       <form className={s.form} action={(f) => run(() => updateDetails(p.slug, f))}>
         <label className={s.field}><span>Name</span><input name="title" defaultValue={p.title} required maxLength={120} /></label>
         <label className={s.field}><span>Theme</span><textarea name="theme" rows={2} defaultValue={p.theme} maxLength={600} /></label>
-        {p.type === "festival" && <label className={s.field}><span>Booklet</span><textarea name="essay" rows={6} defaultValue={p.essay} maxLength={12000} placeholder="The programme notes: why these titles, in this order." /></label>}
+        {(p.type === "festival" || p.type === "time_capsule") && <label className={s.field}><span>Booklet</span><textarea name="essay" rows={6} defaultValue={p.essay} maxLength={12000} placeholder="The programme notes: why these titles, in this order." /></label>}
         <div className={s.dates}>
           <label className={s.field}><span>Starts</span><input type="date" name="start" defaultValue={p.start} /></label>
           <label className={s.field}><span>Ends</span><input type="date" name="end" defaultValue={p.end} /></label>
@@ -183,12 +183,16 @@ export function Editor({ p, titles }: { p: EditProgramme; titles: PickTitle[] })
         <div className={s.btns}><button className="btn primary" disabled={pending}>Save details</button></div>
       </form>
 
-      <h3 className={s.h3}>On the bill</h3>
-      {!p.items.length && <p className={s.muted}>No titles yet. Add some below.</p>}
-      <ol className={s.editList}>
-        {p.items.map((it, i) => <ItemRow key={it.position} slug={p.slug} it={it} label={name.get(it.id) ?? it.id} first={i === 0} last={i === p.items.length - 1} dated={p.type === "festival"} />)}
-      </ol>
-      <Picker titles={titles} taken={new Set(p.items.map((i) => i.id))} onAdd={(id) => run(() => addItem(p.slug, id))} pending={pending} />
+      {bill && (
+        <>
+          <h3 className={s.h3}>On the bill</h3>
+          {!p.items.length && <p className={s.muted}>No titles yet. Add some below.</p>}
+          <ol className={s.editList}>
+            {p.items.map((it, i) => <ItemRow key={it.position} slug={p.slug} it={it} label={name.get(it.id) ?? it.id} first={i === 0} last={i === p.items.length - 1} dated={p.type === "festival" || p.type === "time_capsule"} />)}
+          </ol>
+          <Picker titles={titles} taken={new Set(p.items.map((i) => i.id))} onAdd={(id) => run(() => addItem(p.slug, id))} pending={pending} />
+        </>
+      )}
 
       <h3 className={s.h3}>Status</h3>
       <div className={s.btns}>
