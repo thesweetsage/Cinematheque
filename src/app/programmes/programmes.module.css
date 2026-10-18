@@ -269,3 +269,49 @@ a.option:hover,a.option:focus-visible{border-color:var(--cyan)}
 .chalkRest{opacity:.55}
 .chalkEmpty{font-size:18px;color:#d8d8cc}
 .chalk .small{background:transparent;color:#f1f1ea;border-color:#77776c}
+
+/* ---------- Family tree: dark grid, neon branches (cyan = inspired by, magenta = influenced) ---------- */
+.legend{display:inline-flex;align-items:center;gap:8px;margin-left:10px;font-family:var(--font-vt323),monospace;font-size:19px}
+.legCyan,.legMag{display:inline-block;width:28px;height:3px;background:var(--cyan);box-shadow:0 0 8px var(--cyan)}
+.legMag{background:var(--mag);box-shadow:0 0 8px var(--mag)}
+.tree{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:0;margin-top:24px;padding:24px 0;background-image:linear-gradient(rgba(58,52,113,.35) 1px,transparent 1px),linear-gradient(90deg,rgba(58,52,113,.35) 1px,transparent 1px);background-size:40px 40px}
+.treeCol{position:relative;padding:0 26px}
+.treeCol[data-side="anc"]{border-right:3px solid var(--cyan);box-shadow:6px 0 14px -8px var(--cyan)}
+.treeCol[data-side="desc"]{border-left:3px solid var(--mag);box-shadow:-6px 0 14px -8px var(--mag)}
+.treeHead{font-family:var(--font-shoulders),sans-serif;font-weight:900;font-size:26px;text-transform:uppercase;margin:0 0 14px}
+.treeCol[data-side="anc"] .treeHead{color:var(--cyan);text-align:right}
+.treeCol[data-side="desc"] .treeHead{color:var(--mag)}
+.treeRoot{display:grid;justify-items:center;align-content:center;gap:6px;padding:0 34px;position:relative;text-align:center}
+.treeRoot::before,.treeRoot::after{content:"";position:absolute;top:50%;width:34px;height:3px}
+.treeRoot::before{left:0;background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+.treeRoot::after{right:0;background:var(--mag);box-shadow:0 0 10px var(--mag)}
+.treeRoot b{font-family:var(--font-bungee),sans-serif;font-weight:400;font-size:20px;max-width:220px}
+.treeRoot small{font-family:var(--font-vt323),monospace;font-size:19px;color:var(--muted)}
+.nodes{list-style:none;margin:0;padding:0;display:grid;gap:16px}
+.node{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:start;padding:10px;border:2px dashed var(--edge);background:rgba(11,9,32,.85)}
+.nodeOn{border-style:solid}
+.node[data-side="anc"].nodeOn{border-color:rgba(126,230,255,.7)}
+.node[data-side="desc"].nodeOn{border-color:rgba(255,79,184,.7)}
+.node::after{content:"";position:absolute;top:50%;width:26px;height:3px}
+.node[data-side="anc"]::after{right:-28px;background:var(--cyan);box-shadow:0 0 8px var(--cyan)}
+.node[data-side="desc"]::after{left:-28px;background:var(--mag);box-shadow:0 0 8px var(--mag)}
+.node:not(.nodeOn)::after{opacity:.45}
+.nodeBox{display:block;height:130px}
+.nodeText{display:grid;gap:4px;min-width:0}
+.nodeText b{font-weight:600}
+.nodeText b small{color:var(--muted);font-weight:400}
+.nodeTag{font-family:var(--font-vt323),monospace;font-size:17px;color:var(--yellow)}
+.nodeNote{font-size:14px;color:var(--muted);line-height:1.35}
+.nodeLinks a{font-family:var(--font-vt323),monospace;font-size:18px;color:var(--cyan)}
+.nodeTools{margin-top:4px}
+.noteForm{display:flex;gap:6px;flex-wrap:wrap}
+.noteForm input{font:inherit;font-size:15px;color:var(--fg);background:var(--panel);border:2px solid var(--edge);padding:5px 8px;flex:1;min-width:140px}
+@media (max-width:980px){
+  .tree{grid-template-columns:1fr;gap:24px}
+  .treeCol[data-side="anc"],.treeCol[data-side="desc"]{border:0;box-shadow:none;padding:0}
+  .treeCol[data-side="anc"] .treeHead{text-align:left}
+  .treeRoot{order:-1;padding:0}
+  .treeRoot::before,.treeRoot::after,.node::after{display:none}
+  .node[data-side="anc"]{border-left:4px solid var(--cyan)}
+  .node[data-side="desc"]{border-left:4px solid var(--mag)}
+}

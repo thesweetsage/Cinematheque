@@ -269,3 +269,59 @@ export async function saveThemes(slug: string, text: string, checked: boolean): 
     return {};
   } catch (e) { return fail(e); }
 }
+
+/* ---------- Family trees (links between titles) ---------- */
+
+type LinkRef = { from: string; to: string; kind: "inspired" | "influenced" };
+async function linkIds(l: LinkRef) {
+  const [from, to] = await Promise.all([titleId(l.from), titleId(l.to)]);
+  return { from, to, kind: l.kind === "influenced" ? "influenced" : "inspired" };
+}
+
+/** Marks a suggested link right (verified) or back to unverified. */
+export async function verifyLink(l: LinkRef, verified: boolean): Promise<Result> {
+  await requireMember();
+  try {
+    const k = await linkIds(l);
+    const { error } = await client().from("title_links").update({ verified }).eq("from_title_id", k.from).eq("to_title_id", k.to).eq("kind", k.kind);
+    if (error) return { error: error.message };
+    refresh();
+    return {};
+  } catch (e) { return fail(e); }
+}
+
+export async function removeLink(l: LinkRef): Promise<Result> {
+  await requireMember();
+  try {
+    const k = await linkIds(l);
+    const { error } = await client().from("title_links").delete().eq("from_title_id", k.from).eq("to_title_id", k.to).eq("kind", k.kind);
+    if (error) return { error: error.message };
+    refresh();
+    return {};
+  } catch (e) { return fail(e); }
+}
+
+/** What the member noticed about a link. */
+export async function setLinkNote(l: LinkRef, note: string): Promise<Result> {
+  await requireMember();
+  try {
+    const k = await linkIds(l);
+    const { error } = await client().from("title_links").update({ note: note.trim().slice(0, 300) || null }).eq("from_title_id", k.from).eq("to_title_id", k.to).eq("kind", k.kind);
+    if (error) return { error: error.message };
+    refresh();
+    return {};
+  } catch (e) { return fail(e); }
+}
+
+/** Adds a link by hand, already verified: `side` says whether the other title is an ancestor or a descendant of the root. */
+export async function addLink(rootSlug: string, otherSlug: string, side: "ancestor" | "descendant"): Promise<Result> {
+  await requireMember();
+  try {
+    if (rootSlug === otherSlug) return { error: "A title can't be its own ancestor." };
+    const [root, other] = await Promise.all([titleId(rootSlug), titleId(otherSlug)]);
+    const { error } = await client().from("title_links").upsert({ from_title_id: root, to_title_id: other, kind: side === "ancestor" ? "inspired" : "influenced", verified: true });
+    if (error) return { error: error.message };
+    refresh();
+    return {};
+  } catch (e) { return fail(e); }
+}

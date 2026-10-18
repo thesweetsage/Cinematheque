@@ -1,6 +1,7 @@
 import "server-only";
 import { todayYmd } from "./common";
 import { buildCurriculum } from "./curriculum";
+import { buildFamilyTree } from "./familyTree";
 import { buildMarathon } from "./marathon";
 import { buildRetrospective } from "./retrospective";
 
@@ -18,6 +19,8 @@ export async function buildV2(b: Record<string, unknown>): Promise<string> {
     case "retrospective":
       if (!Number.isInteger(Number(b.personId)) || Number(b.personId) <= 0) throw new Error("Choose a director first.");
       return buildRetrospective(Number(b.personId));
+    case "family_tree":
+      return buildFamilyTree(str(b.title));
     default:
       throw new Error("Unknown kind of programme.");
   }

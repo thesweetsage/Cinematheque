@@ -103,12 +103,20 @@ export function RemoteNav() {
     return () => { removeEventListener("keydown", onKey); removeEventListener("pointerdown", onPointer); };
   }, [router]);
 
-  // After every page change, put focus somewhere sensible when driven by a remote.
+  // After every page change, put focus somewhere sensible when driven by a remote. The page streams in after the
+  // menu, so keep trying for a couple of seconds until its own controls are there (and stop if focus moves anyway).
   useEffect(() => {
     const d = document.documentElement;
     if (!d.classList.contains("remote") && !d.classList.contains("tv")) return;
-    const id = setTimeout(focusFirst, 60);
-    return () => clearTimeout(id);
+    let tries = 0;
+    const id = setInterval(() => {
+      const a = document.activeElement;
+      const settled = a && a !== document.body && a.closest("main, [data-overlay]");
+      const ready = document.querySelector("main [data-autofocus]") || tries >= 6;
+      if (settled || tries++ > 20) { clearInterval(id); return; }
+      if (ready) { focusFirst(); if (document.activeElement?.closest("main, [data-overlay]")) clearInterval(id); }
+    }, 100);
+    return () => clearInterval(id);
   }, [path]);
 
   return null;

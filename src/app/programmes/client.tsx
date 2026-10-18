@@ -3,8 +3,10 @@ import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { ProgStatus } from "@/lib/programmes";
 import {
-  addItem, createProgramme, deleteProgramme, induct, moveItem, removeItem, saveEssay, saveThemes, setAward, setDone, setPair, setStatus, setTop10, updateDetails, updateItem,
+  addItem, addLink, createProgramme, deleteProgramme, induct, moveItem, removeItem, removeLink, saveEssay, saveThemes, setAward, setDone, setLinkNote, setPair,
+  setStatus, setTop10, updateDetails, updateItem, verifyLink,
 } from "./actions";
+import { Chips, TitleChooser } from "./new/forms";
 import s from "./programmes.module.css";
 
 /* The parts of the festival wall you can press: tick boxes, the programme editor, awards, the edition essay. */
@@ -434,5 +436,69 @@ export function ThemesTools({ slug, text, draft, canWrite }: { slug: string; tex
       )}
       <Err msg={error || writeError} />
     </div>
+  );
+}
+
+type Link = { from: string; to: string; kind: "inspired" | "influenced" };
+
+/** One branch of a family tree: verify it, remove it, or say what you noticed. */
+export function NodeTools({ link, verified, note, label }: { link: Link; verified: boolean; note: string | null; label: string }) {
+  const { pending, error, run } = useAct();
+  const [editing, setEditing] = useState(false);
+  const [text, setText] = useState(note ?? "");
+  return (
+    <div className={s.nodeTools}>
+      {editing ? (
+        <form className={s.noteForm} onSubmit={(e) => { e.preventDefault(); run(() => setLinkNote(link, text), () => setEditing(false)); }}>
+          <input aria-label={`What you noticed: ${label}`} value={text} onChange={(e) => setText(e.target.value)} maxLength={300} placeholder="What you noticed" autoFocus />
+          <button className={s.small} disabled={pending}>Save</button>
+          <button type="button" className={s.small} onClick={() => { setText(note ?? ""); setEditing(false); }}>Cancel</button>
+        </form>
+      ) : (
+        <span className={s.rowBtns}>
+          {!verified && <button className={s.small} disabled={pending} onClick={() => run(() => verifyLink(link, true))} aria-label={`${label}: the link is right`}>✓ It&apos;s right</button>}
+          <button className={s.small} disabled={pending} onClick={() => setEditing(true)} aria-label={`Note on ${label}`}>✎ Note</button>
+          <button className={s.small} disabled={pending} onClick={() => run(() => removeLink(link))} aria-label={`Remove ${label} from the tree`}>✕</button>
+        </span>
+      )}
+      <Err msg={error} />
+    </div>
+  );
+}
+
+/** Add a branch by hand: a title from the store, as an ancestor (inspired it) or a descendant (it influenced). */
+export function AddBranch({ root, titles }: { root: string; titles: { id: string; t: string; y: number; lib: boolean; plex: boolean }[] }) {
+  const { pending, error, run } = useAct();
+  const [pick, setPick] = useState<string | null>(null);
+  const [side, setSide] = useState<"ancestor" | "descendant">("ancestor");
+  return (
+    <div className={s.form}>
+      <TitleChooser titles={titles.filter((t) => t.id !== root)} value={pick} onChange={setPick} label="Add a branch: a title from the store" busy={pending} />
+      <Chips label="It" value={side} onChange={setSide} busy={pending} options={[{ value: "ancestor", label: "Inspired this one" }, { value: "descendant", label: "Was influenced by this one" }]} />
+      <div className={s.btns}><button className="btn" disabled={pending || !pick} onClick={() => run(() => addLink(root, pick!, side), () => setPick(null))}>Add the branch</button></div>
+      <Err msg={error} />
+    </div>
+  );
+}
+
+/** Ask Claude for (more) branches from the title's Wikipedia article. */
+export function SuggestBranches({ title }: { title: string }) {
+  const router = useRouter();
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState("");
+  const go = async () => {
+    setBusy(true); setMsg("");
+    try {
+      const r = await fetch("/api/programmes/tree", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ title }) });
+      const out = (await r.json().catch(() => ({ error: `The server answered ${r.status}.` }))) as { added?: number; error?: string };
+      if (out.error) setMsg(out.error); else { setMsg(out.added ? `${out.added} new branch${out.added === 1 ? "" : "es"} to check.` : "Nothing new in the article."); router.refresh(); }
+    } catch { setMsg("Lost the connection to the app."); }
+    setBusy(false);
+  };
+  return (
+    <>
+      <button className="btn" disabled={busy} onClick={go}>{busy ? "Reading Wikipedia…" : "Suggest branches from Wikipedia"}</button>
+      {msg && <p className={s.muted} role="status">{msg}</p>}
+    </>
   );
 }

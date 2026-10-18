@@ -11,6 +11,7 @@ import { Flyer, Poster, RentalCard, span, TapeRow } from "../parts";
 import { Course } from "./Course";
 import { Director } from "./Director";
 import { Marathon } from "./Marathon";
+import { Tree } from "./Tree";
 import s from "../programmes.module.css";
 
 export async function generateStaticParams() {
@@ -49,6 +50,7 @@ export default async function ProgrammePage({ params }: { params: Promise<{ slug
       {p.type === "marathon" && <Marathon p={p} cat={cat} live={live} today={progs.today} />}
       {p.type === "curriculum" && <Course p={p} cat={cat} live={live} />}
       {p.type === "retrospective" && <Director p={p} cat={cat} live={live} canWrite={canWriteEssay()} />}
+      {p.type === "family_tree" && <Tree p={p} cat={cat} progs={progs} live={live} canSuggest={canWriteEssay()} />}
       {p.type === "edition" && <Edition p={p} cat={cat} live={live} others={progs.list.filter((x) => x.type === "edition" && x.slug !== p.slug && x.status !== "draft")} />}
       {editable}
     </>

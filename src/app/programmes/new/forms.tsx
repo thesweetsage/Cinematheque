@@ -94,12 +94,12 @@ export function MarathonForm({ series, preset, today }: { series: PickTitle[]; p
   const [skip, setSkip] = useState(true);
   return (
     <div className={s.form}>
-      <TitleChooser titles={series} value={pick} onChange={setPick} label="The series" busy={busy} autofocus />
+      <TitleChooser titles={series} value={pick} onChange={setPick} label="The series" busy={busy} autofocus={!preset} />
       <Chips label="Episodes at a time" value={per} onChange={setPer} busy={busy} options={[1, 2, 3, 4, 6, 8].map((n) => ({ value: n, label: String(n) }))} />
       <Chips label="Every" value={unit} onChange={setUnit} busy={busy} options={[{ value: "day", label: "Day" }, { value: "week", label: "Week" }]} />
       <label className={s.field}><span>Starting</span><input type="date" value={start} onChange={(e) => setStart(e.target.value)} disabled={busy} /></label>
       <Toggle label="Skip episodes I've seen" hint="Watched on Plex or ticked here before" on={skip} onChange={setSkip} busy={busy} />
-      <div className={s.btns}><button type="button" className="btn primary" disabled={busy || !pick} onClick={() => build({ type: "marathon", series: pick, per, unit, start, skipWatched: skip })}>{pick ? `Print the marathon card: ${per} a ${unit}` : "Choose a series first"}</button></div>
+      <div className={s.btns}><button type="button" className="btn primary" disabled={busy || !pick} onClick={() => build({ type: "marathon", series: pick, per, unit, start, skipWatched: skip })} data-autofocus={preset && pick ? true : undefined}>{pick ? `Print the marathon card: ${per} a ${unit}` : "Choose a series first"}</button></div>
       {busy && <p className={s.status} role="status">Fetching the episodes and dealing them into portions…</p>}
       <Err msg={error} />
     </div>
@@ -169,6 +169,20 @@ export function RetrospectiveForm({ preset }: { preset: string | null }) {
       )}
       {busy && <p className={s.status} role="status">Fetching the filmography from TMDB{" "}and writing the staff card… up to a minute.</p>}
       <Err msg={error || lookError} />
+    </div>
+  );
+}
+
+/** Family tree: choose the title in the middle. */
+export function FamilyTreeForm({ titles, preset, curator }: { titles: PickTitle[]; preset: string | null; curator: boolean }) {
+  const { busy, error, build } = useBuild();
+  const [pick, setPick] = useState<string | null>(preset && titles.some((t) => t.id === preset) ? preset : null);
+  return (
+    <div className={s.form}>
+      <TitleChooser titles={titles} value={pick} onChange={setPick} label="The title in the middle" busy={busy} autofocus={!pick} />
+      <div className={s.btns}><button type="button" className="btn primary" disabled={busy || !pick} onClick={() => build({ type: "family_tree", title: pick })} data-autofocus={pick ? true : undefined}>{pick ? "Draw the tree" : "Choose a title first"}</button></div>
+      {busy && <p className={s.status} role="status">{curator ? "Reading its Wikipedia article for what inspired it and what it influenced, and finding each on TMDB… under a minute." : "Drawing the tree…"}</p>}
+      <Err msg={error} />
     </div>
   );
 }
