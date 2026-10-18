@@ -108,9 +108,15 @@ The app is also a Stremio add-on: every running festival and 31 Days is a catalo
 **The Cinematheque collection** (your editions). It lists titles by IMDb id; Stremio fills in the details and your own
 stream add-ons do the playing. Titles without an IMDb id are left out.
 
-- **Install:** open the Membership card **on the device that runs Stremio** (the TV box) and press **Install in Stremio**,
-  or paste the address shown there into Stremio's add-on search. The address carries a private key (made from
-  `SESSION_SECRET`); keep it to yourself. Changing `SESSION_SECRET` changes it, and you install it again.
+- **Install (once, on the PC; nothing to type on the TV box):** open the Membership card on the PC. It shows the add-on
+  address with the PC's home-network address in it (`http://192.168.x.x:3001/api/stremio/.../manifest.json`). Press
+  **Copy the address**, then in **Stremio on the PC**, signed in with the same Stremio account as the TV box, open
+  **Add-ons**, paste it into the search box at the top and press **Install**. Stremio keeps add-ons in your account, so
+  it appears on the TV box by itself. The app has to be running on the PC for the catalogues to load on the box (if
+  Windows asks whether Node.js may use the network, allow it on private networks).
+  The address carries a private key (made from `SESSION_SECRET`); keep it to yourself. Changing `SESSION_SECRET`
+  changes it, and you install it again. (A one-press "Install in Stremio" button appears only when the app is on
+  https: Stremio turns `stremio://` links into https.)
 - **Open in Stremio** on a box opens the title in the Stremio app. The next time you come back to the app (a few minutes
   later or more), it asks **Did you finish it?**: *Yes* (then your stars) logs a watch and ticks it off any running
   programme, *Not yet* asks again next time, *Dropped it* forgets it. Back on the remote is *Not yet*.
