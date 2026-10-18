@@ -8,6 +8,7 @@ import { canWriteEssay } from "@/lib/editionEssay";
 import { findProgramme, getProgrammes, getProgrammesCached, spineLabel, stamps, TYPE_NAME, type Programme } from "@/lib/programmes";
 import { AwardForm, EssayEditor, Editor, PairToggles, PrintButton, RemoveAward } from "../client";
 import { Flyer, Poster, RentalCard, span, TapeRow } from "../parts";
+import { Course } from "./Course";
 import { Marathon } from "./Marathon";
 import s from "../programmes.module.css";
 
@@ -45,6 +46,7 @@ export default async function ProgrammePage({ params }: { params: Promise<{ slug
       {p.type === "festival" && <Festival p={p} cat={cat} live={live} today={progs.today} />}
       {p.type === "days31" && <Days31 p={p} cat={cat} today={progs.today} />}
       {p.type === "marathon" && <Marathon p={p} cat={cat} live={live} today={progs.today} />}
+      {p.type === "curriculum" && <Course p={p} cat={cat} live={live} />}
       {p.type === "edition" && <Edition p={p} cat={cat} live={live} others={progs.list.filter((x) => x.type === "edition" && x.slug !== p.slug && x.status !== "draft")} />}
       {editable}
     </>

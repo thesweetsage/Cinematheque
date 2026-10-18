@@ -105,3 +105,25 @@ export function MarathonForm({ series, preset, today }: { series: PickTitle[]; p
     </div>
   );
 }
+
+/** Curriculum: a name, where the list comes from, and the list itself, pasted. */
+export function CurriculumForm({ curator }: { curator: boolean }) {
+  const { busy, error, build } = useBuild();
+  const [title, setTitle] = useState("");
+  const [source, setSource] = useState("");
+  const [text, setText] = useState("");
+  const lines = text.split(/\r?\n/).filter((l) => l.trim()).length;
+  return (
+    <div className={s.form}>
+      <label className={s.field}><span>Name</span><input value={title} onChange={(e) => setTitle(e.target.value)} maxLength={120} placeholder="In Search of Darkness" disabled={busy} data-autofocus /></label>
+      <label className={s.field}><span>Where the list comes from</span><input value={source} onChange={(e) => setSource(e.target.value)} maxLength={200} placeholder="The documentaries' own film list, Parts I to III" disabled={busy} /></label>
+      <label className={s.field}><span>The list ({lines} line{lines === 1 ? "" : "s"})</span>
+        <textarea rows={14} value={text} onChange={(e) => setText(e.target.value)} maxLength={40000} disabled={busy} placeholder={"Part I\nHalloween (1978)\nThe Fog (1980)\nPart II\nThe Thing (1982)"} />
+      </label>
+      <p className={s.muted}>{curator ? "Claude sorts it into chapters using only what's in your list (headings like Part I become chapters; no headings, it goes by year)." : "Headings like \"Part I\" become chapters; without headings it goes by year. One title per line, with its year if you have it."} Then every title is matched on TMDB, and you check the matches before it goes on the shelf.</p>
+      <div className={s.btns}><button type="button" className="btn primary" disabled={busy || !lines} onClick={() => build({ type: "curriculum", title, source, text })}>{lines ? `Build the course from ${lines} line${lines === 1 ? "" : "s"}` : "Paste the list first"}</button></div>
+      {busy && <p className={s.status} role="status">Reading the list and matching every title on TMDB… a long list takes a couple of minutes. You can leave this page; it carries on.</p>}
+      <Err msg={error} />
+    </div>
+  );
+}

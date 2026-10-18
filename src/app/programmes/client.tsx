@@ -350,3 +350,15 @@ export function InductButton({ titleSlug, title }: { titleSlug: string; title: s
 export function PrintButton() {
   return <button className="btn" onClick={() => window.print()}>Print the poster</button>;
 }
+
+/** Takes one title off a programme (a curriculum's wrong TMDB match, say). */
+export function RemoveItem({ slug, position, label, text = "✕ Remove" }: { slug: string; position: number; label: string; text?: string }) {
+  const { pending, error, run } = useAct();
+  return <span>{" "}<button className={s.small} disabled={pending} aria-label={`Remove ${label}`} onClick={() => run(() => removeItem(slug, position))}>{text}</button><Err msg={error} /></span>;
+}
+
+/** Changes a programme's status (put a checked curriculum on the shelf, archive it). */
+export function StatusButton({ slug, status, label, primary = false, autofocus = false }: { slug: string; status: ProgStatus; label: string; primary?: boolean; autofocus?: boolean }) {
+  const { pending, error, run } = useAct();
+  return <>{" "}<button className={primary ? "btn primary" : "btn"} disabled={pending} onClick={() => run(() => setStatus(slug, status))} data-autofocus={autofocus ? true : undefined}>{label}</button><Err msg={error} /></>;
+}
