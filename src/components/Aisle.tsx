@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { artFor, libraryTitles, type Title } from "@/lib/catalog";
+import type { Entry } from "@/lib/catalog";
 import { VhsBox } from "./VhsBox";
 import { AisleLights } from "./AisleLights";
 import s from "./Aisle.module.css";
@@ -8,14 +8,12 @@ import s from "./Aisle.module.css";
  * The store front aisle: one CSS 3D room that never moves. Side shelves are scenery made from real poster colours;
  * the tapes you pick face out on the back wall. The lights come on once a day (AisleLights).
  */
-export function Aisle({ faceOut }: { faceOut: Title[] }) {
-  const lib = libraryTitles();
+export function Aisle({ faceOut, side: lib }: { faceOut: Entry[]; side: Entry[] }) {
   const side = (offset: number) =>
     Array.from({ length: 6 }, (_, r) => (
       <div className={s.row} key={r}>
         {Array.from({ length: 24 }, (_, i) => {
-          const t = lib[(i * 7 + r * 11 + offset) % lib.length];
-          const a = artFor(t.id);
+          const a = lib[(i * 7 + r * 11 + offset) % lib.length].art;
           const h = 78 + ((i * 13 + r * 7 + offset) % 18);
           return <span key={i} className={s.sp} style={{ "--c1": a.accent, "--c2": a.bg, "--h": `${h}%` } as React.CSSProperties} />;
         })}
@@ -31,9 +29,9 @@ export function Aisle({ faceOut }: { faceOut: Title[] }) {
           <div className={s.faceout}>
             {rows.map((row, r) => (
               <div className={s.foRow} key={r}>
-                {row.map((t, i) => (
-                  <Link key={t.id} href={`/title/${t.id}`} className={s.slot} data-title={`${t.t} · ${t.y}${t.lib ? " · On Plex" : ""}`} aria-label={`${t.t}, ${t.y}`} data-autofocus={r === 0 && i === 3 ? true : undefined}>
-                    <VhsBox title={t} art={artFor(t.id)} width={92} wear={i % 3 === 1 ? "loved" : "rented"} />
+                {row.map(({ title: t, art }, i) => (
+                  <Link key={i} href={`/title/${t.id}`} className={s.slot} data-title={`${t.t} · ${t.y}${t.lib ? " · On Plex" : ""}`} aria-label={`${t.t}, ${t.y}`} data-autofocus={r === 0 && i === 3 ? true : undefined}>
+                    <VhsBox title={t} art={art} width={92} wear={i % 3 === 1 ? "loved" : "rented"} />
                   </Link>
                 ))}
               </div>

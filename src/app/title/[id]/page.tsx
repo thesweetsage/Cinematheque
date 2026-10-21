@@ -3,34 +3,37 @@ import { notFound } from "next/navigation";
 import { BoxViewer } from "@/components/BoxViewer";
 import { VhsBox } from "@/components/VhsBox";
 import { SampleTag } from "@/components/SampleTag";
-import { allTitles, artFor, editions, facts, getTitle, moreLikeThis } from "@/lib/catalog";
+import { editions, facts, findEntry, loadCatalogue, moreLikeThis } from "@/lib/catalog";
 import s from "./title.module.css";
 
-export function generateStaticParams() { return allTitles().map((t) => ({ id: t.id })); }
+export async function generateStaticParams() { return (await loadCatalogue()).entries.map((e) => ({ id: e.title.id })); }
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
-  const t = getTitle((await params).id);
-  return { title: t ? `${t.t} · The Cinematheque` : "Not found" };
+  const e = findEntry(await loadCatalogue(), (await params).id);
+  return { title: e ? `${e.title.t} · The Cinematheque` : "Not found" };
 }
 
 /* The Box: one title, its VHS box you can turn, and the details printed on and around it. */
 export default async function TitlePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const t = getTitle(id);
-  if (!t) notFound();
-  const art = artFor(t.id);
-  const fc = facts[t.id];
+  const c = await loadCatalogue();
+  const entry = findEntry(c, id);
+  if (!entry) notFound();
+  const { title: t, art } = entry;
+  const fc = c.sample ? facts[t.id] : undefined;
+  const edition = c.sample ? editions[t.id] : undefined;
+  const more = moreLikeThis(c, t);
   const series = t.kind === "series";
   return (
     <>
-      <div className={s.tagRow}><SampleTag /></div>
+      {c.sample && <div className={s.tagRow}><SampleTag /></div>}
       <div className={s.layout} style={{ "--accent": art.accent } as React.CSSProperties}>
-        <BoxViewer title={t} art={art} edition={editions[t.id]} />
+        <BoxViewer title={t} art={art} edition={edition} />
         <div className={s.info}>
           <div className="osd-label">{series ? "Series" : "Film"} · {t.y}{t.run ? ` · ${t.run}` : ""}{t.lib ? " · On Plex" : ""}</div>
           <h1 className={s.h1}>{t.t}</h1>
           <dl className={s.credits}>
-            <div><dt>{series ? "Created by" : "Director"}</dt><dd>{t.dir}</dd></div>
+            {t.dir && <div><dt>{series ? "Created by" : "Director"}</dt><dd>{t.dir}</dd></div>}
             {t.cast && <div><dt>Cast</dt><dd>{t.cast}</dd></div>}
             {t.ctry && <div><dt>Country</dt><dd>{t.ctry}</dd></div>}
           </dl>
@@ -55,16 +58,16 @@ export default async function TitlePage({ params }: { params: Promise<{ id: stri
           )}
         </div>
       </div>
-      <section className={s.more}>
+      {more.length > 0 && <section className={s.more}>
         <h2 className="sec-title">More like this</h2>
         <div className={s.moreRow}>
-          {moreLikeThis(t).map((x) => (
+          {more.map(({ title: x, art: xa }) => (
             <Link key={x.id} href={`/title/${x.id}`} className={s.moreItem} aria-label={`${x.t}, ${x.y}`}>
-              <span className={s.moreBox}><VhsBox title={x} art={artFor(x.id)} width={120} /></span>
+              <span className={s.moreBox}><VhsBox title={x} art={xa} width={120} /></span>
             </Link>
           ))}
         </div>
-      </section>
+      </section>}
     </>
   );
 }
